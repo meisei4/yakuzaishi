@@ -1,0 +1,9 @@
+(
+    axes: {
+        "accelerate": Emulated(pos: Key(W), neg: Key(S)),
+        "steer": Emulated(pos: Key(D), neg: Key(A)),
+    },
+    actions: {
+        "quit": [Key(Escape)],
+    }
+)
