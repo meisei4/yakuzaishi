@@ -1,33 +1,43 @@
-mod vehicle;
+mod asset_loader;
+mod camera;
 mod game_state;
-mod world;
-mod input_system;
+mod map;
+mod spawner;
+mod vehicle;
+mod vehicle_controller;
 
 use amethyst::{
+    core::transform::TransformBundle,
+    input::{InputBundle, StringBindings},
     prelude::*,
-    utils::application_root_dir,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
         types::DefaultBackend,
         RenderingBundle,
     },
-    core::transform::TransformBundle,
-    ecs::prelude::*,
-    input::{InputBundle, StringBindings},
+    utils::application_root_dir,
 };
+use log::info;
 
 use game_state::Yakuzaishi;
-use input_system::InputSystem; // Import the InputSystem
+
+// Constants for resource file paths
+const DISPLAY_CONFIG: &str = "resources/display.ron";
+const BINDINGS_CONFIG: &str = "resources/bindings.ron";
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
 
     let app_root = application_root_dir()?;
-    let display_config_path = app_root.join("config").join("display.ron");
-    let binding_path = app_root.join("config").join("bindings.ron"); // Make sure this path is correct
+    let display_config_path = app_root.join(DISPLAY_CONFIG);
+    let binding_path = app_root.join(BINDINGS_CONFIG);
 
-    let input_bundle = InputBundle::<StringBindings>::new()
-        .with_bindings_from_file(binding_path)?;
+    info!("Display config path: {:?}", display_config_path);
+    info!("Binding path: {:?}", binding_path);
+
+    let input_bundle =
+        InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
+    info!("Input bundle loaded.");
 
     let game_data = GameDataBuilder::default()
         .with_bundle(
@@ -39,12 +49,16 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?
         .with_bundle(TransformBundle::new())?
-        .with_bundle(input_bundle)? // Add the input bundle
-        .with(InputSystem, "input_system", &["input_system"]); // Register the InputSystem
+        .with_bundle(input_bundle)?;
+    info!("Game data bundle created.");
 
-    let mut game = Application::new(app_root, Yakuzaishi::default(), game_data)?;
+    let resources_dir = app_root.join("resources");
+    let mut game = Application::build(resources_dir, Yakuzaishi::default())?.build(game_data)?;
+    info!("Game application built.");
 
+    info!("Starting game loop.");
     game.run();
+    info!("Game loop ended.");
 
     Ok(())
 }
