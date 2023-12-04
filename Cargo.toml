@@ -3,6 +3,16 @@ name = "yakuzaishi"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "yakuzaishi"
+path = "src/main.rs"
+
+[lib]
+path = "src/lib.rs"
+
 [dependencies]
-amethyst = { version = "0.15.0", features = ["metal"]}
+amethyst = { version = "0.15.0", features = ["metal", "tiles"]}
 log = "0.4"
+image = "0.24.7"
+tiled = "0.11.2"
+rand = "0.8.4"

@@ -1,12 +1,14 @@
-SpriteSheet(
-    texture_width: 32,  // Width of the sprite sheet image, which is the width of the single sprite
-    texture_height: 32, // Height of the sprite sheet image, which is the height of the single sprite
+List((
+    texture_width: 32,  // Width of the texture used by the sprite sheet
+    texture_height: 32, // Height of the texture used by the sprite sheet
     sprites: [
-        Sprite {
-            x: 0,      // The x coordinate of the top-left corner of the sprite (since it's the only sprite, this is 0)
-            y: 0,      // The y coordinate of the top-left corner of the sprite (since it's the only sprite, this is 0)
+        (
+            x: 0,      // Horizontal position of the sprite in the sprite sheet
+            y: 0,      // Vertical position of the sprite in the sprite sheet
             width: 32,  // Width of the sprite
             height: 32, // Height of the sprite
-        },
+            offsets: Some((0.0, 0.0)), // Number of pixels to shift the sprite when rendering
+        ),
+        // Add more sprites as needed
     ],
-)
+))

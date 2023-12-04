@@ -1,58 +1,50 @@
 use amethyst::{
-    core::Time,
-    ecs::{Join, WriteStorage},
-    winit::{KeyboardInput, VirtualKeyCode, WindowEvent},
-    SimpleTrans, Trans,
+    core::timing::Time,
+    derive::SystemDesc,
+    ecs::{Join, Read, System, SystemData, WriteStorage},
+    input::{InputHandler, StringBindings},
 };
 
 use crate::vehicle::Vehicle;
 
-pub struct VehicleController;
+#[derive(SystemDesc)]
+pub struct VehicleControllerSystem;
 
-impl VehicleController {
-    pub fn handle_window_event(
-        window_event: WindowEvent,
-        vehicles: &mut WriteStorage<Vehicle>,
-        time: &Time,
-    ) -> SimpleTrans {
-        match window_event {
-            WindowEvent::KeyboardInput { input, .. } => {
-                Self::handle_keyboard_input(input, vehicles, time)
+impl<'s> System<'s> for VehicleControllerSystem {
+    type SystemData = (
+        WriteStorage<'s, Vehicle>,
+        Read<'s, InputHandler<StringBindings>>,
+        Read<'s, Time>,
+    );
+
+    fn run(&mut self, (mut vehicles, input, time): Self::SystemData) {
+        let delta_time = time.delta_seconds();
+
+        // Get the current state of the axes
+        let forward_movement = input.axis_value("vehicle_forward").unwrap_or(0.0);
+        let turn_movement = input.axis_value("vehicle_turn").unwrap_or(0.0);
+
+        for vehicle in (&mut vehicles).join() {
+            // Handle forward and backward movement
+            if forward_movement != 0.0 {
+                vehicle.accelerate(delta_time * forward_movement);
+            } else if forward_movement < 0.0 {
+                vehicle.decelerate(delta_time * -forward_movement); // Decelerate with the absolute value of forward_movement
             }
-            // Handle other window events here if necessary
-            _ => Trans::None,
-        }
-    }
 
-    fn handle_keyboard_input(
-        input: KeyboardInput,
-        vehicles: &mut WriteStorage<Vehicle>,
-        time: &Time,
-    ) -> SimpleTrans {
-        if let Some(key_code) = input.virtual_keycode {
-            Self::process_key_press(key_code, vehicles, time)
-        } else {
-            Trans::None
-        }
-    }
-
-    fn process_key_press(
-        key_code: VirtualKeyCode,
-        vehicles: &mut WriteStorage<Vehicle>,
-        time: &Time,
-    ) -> SimpleTrans {
-        for vehicle in (&mut *vehicles).join() {
-            let delta_time = time.delta_seconds();
-            match key_code {
-                VirtualKeyCode::Up => vehicle.accelerate(delta_time),
-                VirtualKeyCode::Down => vehicle.decelerate(delta_time),
-                VirtualKeyCode::Left => vehicle.turn_left(delta_time),
-                VirtualKeyCode::Right => vehicle.turn_right(delta_time),
-                VirtualKeyCode::Escape => return Trans::Quit,
-                _ => (),
+            // Handle turning
+            if turn_movement != 0.0 {
+                if turn_movement > 0.0 {
+                    vehicle.turn_right(delta_time);
+                } else {
+                    vehicle.turn_left(delta_time);
+                }
             }
+
+            // Update vehicle position
             vehicle.update_position(delta_time);
         }
-        Trans::None
+
+        // If you need to handle quitting, do it in your game state, not here
     }
 }

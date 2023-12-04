@@ -14,7 +14,7 @@ pub mod camera {
     pub const CAMERA_HEIGHT: f32 = 500.0;
 
     pub fn init_camera(world: &mut World) {
-        let mut transform = Transform::default();
+        let mut transform: Transform = Transform::default();
         transform.set_translation_xyz(CAMERA_POSITION_X, CAMERA_POSITION_Y, CAMERA_POSITION_Z); // Adjust camera position as needed
     
         world
