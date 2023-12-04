@@ -2,30 +2,32 @@
 
 ## Overview
 
-薬剤師 is a game project built with Rust, utilizing the Amethyst game engine
+薬剤師 is a game project built with Rust, utilizing the Amethyst game engine (https://book.amethyst.rs/book/stable/)
 The project is intended to be a way to learn the Entity Component System (ECS) design pattern as well as learn general game design tooling.
   
-- **Tiled Map Integration**: `tiled`, is being used as the Tiled Map Editor(https://www.mapeditor.org/) and parser(https://docs.rs/tiled/latest/tiled/) (tmx, tsx files).
+- **Tiled Map Integration**: `tiled`, is being used as the Tiled Map Editor (https://www.mapeditor.org/) and parser (https://docs.rs/tiled/latest/tiled/)
 
 ## Project Structure
 
 ```
 src
+ ├─ main.rs:
+ │     - initializes resources, builds the world and runs the gameloop
  ├─ game_state.rs:
- │     Contains the `Yakuzaishi` game state which initializes the game world and manages state transitions.
+ │     - Contains the `Yakuzaishi` game state which initializes the game world and manages state transitions.
  ├─ game_map.rs:
- │     Manages the GameMap resource, wrapping the tiled Map type functionality.
+ │     - Manages the GameMap resource, wrapping the tiled Map type functionality.
  ├─ vehicle_sprite_sheet.rs:
- │     Handles the vehicle sprite sheet resource, ensuring that the sprites are loaded and ready for rendering.
+ │     - Handles the vehicle sprite sheet resource, ensuring that the sprites are loaded and ready for rendering.
  ├─ spawner.rs:
- │     Includes the logic for spawning game entities like vehicles in the game world.
+ │     - Includes the logic for spawning game entities like vehicles in the game world.
  └─ camera.rs:
-      Manages the game camera setup.
+      - Manages the game camera setup.
 
 resources:
-      Holds game assets like sprites (.pngs, .rons), tilesets, tilesheets (.tms, .tmx), and other rust config files
+      - Holds game assets like sprites (.pngs, .rons), tilesets, tilesheets (.tms, .tmx), and other rust config files
 tests:
-      TO-BE: Contains tests for resource loading and other critical game functionalities.
+      - TO-BE: Contains tests for resource loading and other critical game functionalities.
 ```
 ## Getting Started
 
