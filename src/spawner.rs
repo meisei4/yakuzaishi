@@ -100,9 +100,8 @@ fn fill_up_drivable_tiles(tiles: &FiniteTileLayer, drivable_tiles: &mut Vec<Vect
     for y in 0..tiles.height() {
         for x in 0..tiles.width() {
             if let Some(tile) = tiles.get_tile(x as i32, y as i32) {
-                // Assuming tile ID 19 is not drivable
-                //TODO: figure out how to set metadata in the tilesheets
-                if tile.id() != 19 {
+                //TODO: figure out how to retrieve the metadata in the tsx file
+                if tile.id() != 17 {
                     drivable_tiles.push(Vector2::new(x as f32, y as f32));
                 }
             }
