@@ -3,9 +3,10 @@
 ## Overview
 
 薬剤師 is a game project built with Rust, utilizing the Amethyst game engine (https://book.amethyst.rs/book/stable/)
-The project is intended to be a way to learn the Entity Component System (ECS) design pattern as well as learn general game design tooling.
+
+- **General Purpose**: The project is intended to be a way to learn the Entity Component System (ECS) design pattern as well as learn general game design tooling.
   
-- **Tiled Map Integration**: `tiled`, is being used as the Tiled Map Editor (https://www.mapeditor.org/) and parser (https://docs.rs/tiled/latest/tiled/)
+- **Tooling**: `tiled`, is being used as the Tiled Map Editor (https://www.mapeditor.org/) and parser (https://docs.rs/tiled/latest/tiled/)
 
 ## Project Structure
 
