@@ -7,21 +7,29 @@ pub mod camera {
     };
     use log::info;
 
-    pub const CAMERA_POSITION_X: f32 = 250.0;
-    pub const CAMERA_POSITION_Y: f32 = 250.0;
-    pub const CAMERA_POSITION_Z: f32 = 1.0;
-    pub const CAMERA_WIDTH: f32 = 500.0;
-    pub const CAMERA_HEIGHT: f32 = 500.0;
+    use crate::{TILE_SIZE, MAP_WIDTH, MAP_HEIGHT};
 
     pub fn init_camera(world: &mut World) {
+        // Calculate the centered position of the camera
+        let camera_x = (MAP_WIDTH as f32 * TILE_SIZE) / 2.0;
+        let camera_y = (MAP_HEIGHT as f32 * TILE_SIZE) / 2.0;
+        let camera_z = 1.0; // Camera's depth in the world
+
+        // Set the camera to view the entire map
         let mut transform: Transform = Transform::default();
-        transform.set_translation_xyz(CAMERA_POSITION_X, CAMERA_POSITION_Y, CAMERA_POSITION_Z); // Adjust camera position as needed
-    
+        transform.set_translation_xyz(camera_x, camera_y, camera_z);
+
+        // Assuming that the map dimensions are smaller than the window dimensions,
+        // adjust the camera's projection to add padding equal to half a tile's size
+        let camera_width = MAP_WIDTH as f32 * TILE_SIZE + TILE_SIZE;
+        let camera_height = MAP_HEIGHT as f32 * TILE_SIZE + TILE_SIZE;
+
         world
             .create_entity()
-            .with(Camera::standard_2d(CAMERA_WIDTH, CAMERA_HEIGHT))
+            .with(Camera::standard_2d(camera_width, camera_height))
             .with(transform)
             .build();
-        info!("Initialized camera with position ({}, {}, {})", CAMERA_POSITION_X, CAMERA_POSITION_Y, CAMERA_POSITION_Z);
+
+        info!("Initialized camera to view the entire map with adjusted boundaries.");
     }
 }

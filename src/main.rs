@@ -1,8 +1,15 @@
 use std::path::PathBuf;
 
-use yakuzaishi::state::main_game_state::Yakuzaishi;
-use yakuzaishi::systems::vehicle_spawner_system::VehicleSpawnerSystem;
-use yakuzaishi::systems::vehicle_controller_system::VehicleControllerSystem;
+use yakuzaishi::{
+    state::main_game_state::Yakuzaishi,
+    systems::{
+        vehicle_spawner_system::VehicleSpawnerSystem, 
+        vehicle_controller_system::VehicleControllerSystem, 
+        map_rendering_system::MapRenderingSystem
+    },
+    DISPLAY_CONFIG_FILENAME, 
+    BINDINGS_CONFIG_FILENAME,
+};
 
 use amethyst::{
     core::transform::TransformBundle,
@@ -16,10 +23,6 @@ use amethyst::{
     utils::application_root_dir,
 };
 use log::info;
-
-//TODO figure out where to put these and actually load them (same with constants in main.rs)
-const DISPLAY_CONFIG_FILENAME: &str = "display_config.ron";
-const BINDINGS_CONFIG_FILENAME: &str = "key_bindings.ron";
 
 fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
@@ -49,14 +52,19 @@ fn main() -> amethyst::Result<()> {
         )?
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
+        //REGISTER SYSTEMS
+        .with(
+            MapRenderingSystem,
+            "map_rendering_system",
+            &["transform_system"],
+        )
         .with(
             VehicleControllerSystem,
             "vehicle_controller_system",
             &["input_system"],
         )
-        // Register your VehicleSpawnerSystem here, ensure it's after TransformBundle to have transforms initialized
         .with(
-            VehicleSpawnerSystem,
+            VehicleSpawnerSystem::new(),
             "vehicle_spawner_system",
             &["transform_system"],
         ); // Add other systems as needed

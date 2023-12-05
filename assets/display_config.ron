@@ -1,4 +1,4 @@
 (
     title: "Yakuzaishi",
-    dimensions: Some((640, 640)),
+    dimensions: Some((600, 600)),
 )

@@ -3,7 +3,18 @@ use amethyst::{
     ecs::prelude::{Component, DenseVecStorage},
 };
 
-pub struct Vehicle {
+
+//LEARNING NOTE: Just figured out what components are, they are just the attributes of the entity. 
+// suprisingly to me Entities are not neccessarily added as structs, but rather just built when 
+/* for example this is how Entities get built. 
+entities
+        .build_entity()
+        //other withs for whatever is needed to define the entity (maybe split up the VehicleComponents to be more specific here)
+        .with(VehicleComponents::new(world_x, world_y), vehicle)
+        .build();
+}
+*/
+pub struct VehicleComponents {
     pub speed: f32,              // The current speed of the vehicle
     pub max_speed: f32,          // The maximum speed the vehicle can reach
     pub acceleration: f32,       // The rate at which the vehicle increases its speed
@@ -16,24 +27,25 @@ pub struct Vehicle {
     // pub gas: i32,
 }
 
-impl Component for Vehicle {
+impl Component for VehicleComponents {
     type Storage = DenseVecStorage<Self>;
 }
 
-impl Vehicle {
+impl VehicleComponents {
 
-    pub const DEFAULT_MAX_SPEED: f32 = 100.0; 
-    pub const DEFAULT_ACCELERATION: f32 = 5.0; 
-    pub const DEFAULT_DECELERATION: f32 = 5.0; 
-    pub const DEFAULT_ROTATION_RATE: f32 = 0.1; 
+    pub const DEFAULT_MAX_SPEED: f32 = 20.0; 
+    pub const DEFAULT_ACCELERATION: f32 = 10.0; 
+    pub const DEFAULT_DECELERATION: f32 = 10.0; 
+    pub const DEFAULT_ROTATION_RATE: f32 = 0.6; 
 
-    pub fn new() -> Self {
-        Vehicle {
+    pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
+        VehicleComponents {
             speed: 0.0,
             max_speed: Self::DEFAULT_MAX_SPEED,
             acceleration: Self::DEFAULT_ACCELERATION,
             deceleration: Self::DEFAULT_DECELERATION,
-            position: Vector2::new(0.0, 0.0),
+            position: Vector2::new(spawn_position_x, spawn_position_y),
+            //TODO figure out how to fix initial orientation of "go forward"
             direction: Vector2::new(1.0, 0.0),
             rotation_speed: Self::DEFAULT_ROTATION_RATE,
         }
@@ -64,7 +76,8 @@ impl Vehicle {
         self.direction = Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
     }
 
-    fn direction_angle(&self) -> f32 {
+    //TODO figure out how to achieve consistent Entity rotation and Sprite/Transform rotation
+    pub fn direction_angle(&self) -> f32 {
         self.direction.y.atan2(self.direction.x)
     }
 

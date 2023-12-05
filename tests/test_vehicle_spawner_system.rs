@@ -6,7 +6,7 @@ mod tests {
     };
     use yakuzaishi::{
         systems::vehicle_spawner_system::VehicleSpawnerSystem,
-        components::vehicle_component::Vehicle,
+        components::vehicle_component::VehicleComponents,
     };
 
     // Mocking the GameMap resource
@@ -35,14 +35,14 @@ mod tests {
 
         world.register::<Transform>();
         world.register::<SpriteRender>();
-        world.register::<Vehicle>();
+        world.register::<VehicleComponents>();
 
         // Insert mock resources into the world
         world.insert(MockGameMap::new());
         world.insert(MockVehicleSpriteSheet::new());
 
         // Create and configure the system
-        let mut system = VehicleSpawnerSystem;
+        let mut system = VehicleSpawnerSystem::new();
         // You might need to mock system setup if it requires specific resources
         // system.setup(&mut world);
 
@@ -55,7 +55,7 @@ mod tests {
 
         // Check if a vehicle entity is spawned
         // This will only work if the system run is mocked to insert entities
-        let vehicles = world.read_storage::<Vehicle>();
+        let vehicles = world.read_storage::<VehicleComponents>();
         let vehicle_entities: Vec<_> = (&vehicles).join().collect();
 
         // Make sure some entities were spawned

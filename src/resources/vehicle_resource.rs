@@ -6,11 +6,11 @@ use amethyst::{
     shred::Fetch,
 };
 
-pub struct VehicleSpriteSheet{
+pub struct VehicleResource {
     pub sprite_sheet_handle: Handle<SpriteSheet>,
 }
 
-impl VehicleSpriteSheet {
+impl VehicleResource {
 
     pub fn new(world: &mut World, vehicle_texture_file_path: &str, sprite_sheet_file_path: &str) -> Self {
         let loader: Fetch<'_, Loader> = world.read_resource::<Loader>();
@@ -31,7 +31,7 @@ impl VehicleSpriteSheet {
             &sprite_sheet_storage,
         );
 
-        VehicleSpriteSheet { sprite_sheet_handle }
+        VehicleResource { sprite_sheet_handle }
     }
 
 }
