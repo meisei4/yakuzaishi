@@ -13,28 +13,48 @@
 ```
 src
  ├─ main.rs:
- │     - initializes resources, builds the world and runs the gameloop
- ├─ game_state.rs:
- │     - Contains the `Yakuzaishi` game state which initializes the game world and manages state transitions.
- ├─ game_map.rs:
- │     - Manages the GameMap resource, wrapping the tiled Map type functionality.
- ├─ vehicle_sprite_sheet.rs:
- │     - Handles the vehicle sprite sheet resource, ensuring that the sprites are loaded and ready for rendering.
- ├─ spawner.rs:
- │     - Includes the logic for spawning game entities like vehicles in the game world.
+ │     - code entry point: initializes the gameworld and starts gameloop
+ ├─ lib.rs:
+ │     - library with shared logic project and re-exported items for the binary
+ ├─ components
+ │     ├─ mod.rs:
+ │     │     - the module declaration file for components (provides accessibility from other modules)
+ │     └─ vehicle_component.rs:
+ │           - Defines the Vehicle component for entities in the ECS (Entity-Component-System) architecture.
+ ├─ resources
+ │     ├─ mod.rs:
+ │     ├─ game_map_resource.rs:
+ │     │     - Manages the GameMap resource, encapsulating the tiled Map type functionality
+ │     └─ vehicle_sprite_sheet.rs:
+ │           - Manages the VehicleSpriteSheet resource, loading and preparing sprites for rendering
+ ├─ state
+ │     ├─ mod.rs:
+ │     └─ main_game_state.rs:
+ │           - Contains the `on_start` function to init the game world and insert Resources (later will manage other state related functionaliy)
+ ├─ systems
+ │     ├─ mod.rs:
+ │     ├─ vehicle_controller_system.rs:
+ │     │     - Handles the logic for Vehicle movement and control within the game world
+ │     └─ vehicle_spawner_system.rs:
+ │           - Includes the logic for dynamically spawning Vehicle entities in the game
  └─ camera.rs:
-      - Manages the game camera setup.
+       - Manages the game camera, handling the viewport and projection within the game world
 
-resources:
-      - Holds game assets like sprites (.pngs, .rons), tilesets, tilesheets (.tms, .tmx), and other rust config files
-tests:
-      - TO-BE: Contains tests for resource loading and other critical game functionalities.
+assets
+ ├─ map_data
+ │     - Contains map-related data files (png, tmx, tsx) used for generating the game world.
+ ├─ sprite_data
+ │     - Stores sprite sheets and individual sprite data for entities in the game.
+ ├─ display_config.ron:
+ │     - Configuration file defining display settings such as resolution and full-screen mode.
+ └─ key_bindings.ron:
+       - Configuration file specifying the key bindings for player input and controls.
 ```
 ## Getting Started
 
 To get started with 薬剤師:
 
-1. Ensure you have Rust and Cargo installed (maybe use vscode or something
+1. Ensure you have Rust and Cargo installed (maybe use vscode or something)
 2. Clone the repository to your local machine.
 3. Navigate to the cloned directory and run `cargo build` to compile the project.
 4. Execute `cargo run` to launch the game.
