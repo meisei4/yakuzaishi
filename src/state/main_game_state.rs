@@ -8,11 +8,17 @@ use amethyst::{
 };
 use log::info;
 
-use crate::vehicle_sprite_sheet::VehicleSpriteSheet;
-use crate::{camera::camera, game_map::GameMap};
+
+use crate::{
+    resources::{vehicle_sprite_sheet::VehicleSpriteSheet, game_map_resource::GameMap}, 
+    state::{MAP_FILE_PATH, VEHICLE_TEXTURE_FILE_PATH, SPRITE_SHEET_FILE_PATH}
+};
+
+use crate::camera::camera; //figure out how to avoid ugly double mod
+
 
 pub struct Yakuzaishi {
-    vehicle_sprite_sheet_handle: Option<Handle<SpriteSheet>>,
+    vehicle_sprite_sheet_handle: Option<Handle<SpriteSheet>>,  //TODO not sure why this exists yet.
 }
 
 impl Default for Yakuzaishi {
@@ -23,11 +29,8 @@ impl Default for Yakuzaishi {
     }
 }
 
-pub const VEHICLE_TEXTURE_FILE_PATH: &str = "sprites/car_sprite.png";
-pub const SPRITE_SHEET_FILE_PATH: &str = "sprite_sheet.ron";
-pub const MAP_FILE_PATH: &str = "resources/maps/map.tmx";
-
 impl SimpleState for Yakuzaishi {
+
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world: &mut World = data.world;
 
@@ -63,4 +66,5 @@ impl SimpleState for Yakuzaishi {
 
         Trans::None
     }
+
 }

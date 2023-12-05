@@ -1,17 +1,20 @@
-use crate::game_map::GameMap;
-use crate::vehicle::Vehicle;
 use amethyst::{
-    assets::Handle,
     core::{
         math::{ArrayStorage, Matrix, Vector2, Vector3, U1, U3},
         Transform,
     },
     ecs::{prelude::*, Entities},
-    renderer::{SpriteRender, SpriteSheet},
+    renderer::SpriteRender,
 };
 use log::info;
 use rand::{rngs::ThreadRng, seq::SliceRandom, thread_rng};
 use tiled::{FiniteTileLayer, Map};
+
+use crate::resources::{
+    game_map_resource::GameMap, 
+    vehicle_sprite_sheet::VehicleSpriteSheet
+};
+use crate::components::vehicle_component::Vehicle;
 
 const TILE_SIZE: f32 = 64.0;
 const VEHICLE_SIZE: f32 = 32.0;
@@ -19,10 +22,11 @@ const VEHICLE_SIZE: f32 = 32.0;
 pub struct VehicleSpawnerSystem;
 
 impl<'s> System<'s> for VehicleSpawnerSystem {
+    
     type SystemData = (
         Entities<'s>,
         ReadExpect<'s, GameMap>, //if only using the tiled::Map this complains, so GameMap wraps as a Resource
-        ReadExpect<'s, Handle<SpriteSheet>>,
+        ReadExpect<'s, VehicleSpriteSheet>,
         WriteStorage<'s, Transform>,
         WriteStorage<'s, SpriteRender>,
         WriteStorage<'s, Vehicle>,
@@ -32,7 +36,7 @@ impl<'s> System<'s> for VehicleSpawnerSystem {
         &mut self,
         (entities, 
             game_map,
-            sprite_sheet_handle,
+            vehicle_sprite_sheet,
             mut transforms,
             mut sprite_renders,
             mut vehicles): Self::SystemData,
@@ -53,8 +57,8 @@ impl<'s> System<'s> for VehicleSpawnerSystem {
                 .build_entity()
                 .with(
                     SpriteRender {
-                        sprite_sheet: sprite_sheet_handle.clone(),
-                        sprite_number: 0, // Assuming the first sprite in the sheet is the vehicle
+                        sprite_sheet: vehicle_sprite_sheet.sprite_sheet_handle.clone(),
+                        sprite_number: 0,
                     },
                     &mut sprite_renders,
                 )
@@ -65,6 +69,7 @@ impl<'s> System<'s> for VehicleSpawnerSystem {
             info!("Vehicle spawned at position: {:?}", spawn_position);
         }
     }
+
 }
 
 fn select_random_tile(game_map: &Map) -> Option<Vector2<f32>> {
