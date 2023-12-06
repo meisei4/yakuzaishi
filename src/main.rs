@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use yakuzaishi::{
     state::main_game_state::Yakuzaishi,
     systems::{
-        vehicle_spawner_system::VehicleSpawnerSystem, 
-        vehicle_controller_system::VehicleControllerSystem, 
-        map_rendering_system::MapRenderingSystem
+        vehicle_spawner_system::VehicleSpawnerSystem,
+        vehicle_controller_system::VehicleControllerSystem,
+        map_rendering_system::MapRenderingSystem,
     },
     DISPLAY_CONFIG_FILENAME, 
     BINDINGS_CONFIG_FILENAME,
@@ -21,66 +21,70 @@ use amethyst::{
         RenderingBundle,
     },
     utils::application_root_dir,
+    Error,
 };
 use log::info;
 
-fn main() -> amethyst::Result<()> {
+fn main() -> Result<(), Error> {
     amethyst::start_logger(Default::default());
 
-    let app_root: PathBuf = application_root_dir()?;
-    let assets_path: PathBuf = app_root.join("assets");
-    let display_config_path: PathBuf = assets_path.join(DISPLAY_CONFIG_FILENAME);
-    let binding_path: PathBuf = assets_path.join(BINDINGS_CONFIG_FILENAME);
+    let app_root = application_root_dir()?;
+    let assets_path = app_root.join("assets");
+    let display_config_path = assets_path.join(DISPLAY_CONFIG_FILENAME);
+    let binding_path = assets_path.join(BINDINGS_CONFIG_FILENAME);
 
-    info!("display config path: {:?}", display_config_path);
+    info!("Display config path: {:?}", display_config_path);
+    info!("Key bindings path: {:?}", binding_path);
 
-    info!("key bindings path: {:?}", binding_path);
-
-    let input_bundle: InputBundle<StringBindings> =
-        InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
-
-    info!("Input bundle/key bindings loaded.");
-
-    let game_data: GameDataBuilder<'_, '_> = GameDataBuilder::default()
-        .with_bundle(
-            RenderingBundle::<DefaultBackend>::new()
-                .with_plugin(
-                    RenderToWindow::from_config_path(display_config_path)?
-                        .with_clear([0.0, 0.0, 0.0, 1.0]),
-                )
-                .with_plugin(RenderFlat2D::default()),
-        )?
-        .with_bundle(TransformBundle::new())?
-        .with_bundle(input_bundle)?
-        //REGISTER SYSTEMS
-        .with(
-            MapRenderingSystem,
-            "map_rendering_system",
-            &["transform_system"],
-        )
-        .with(
-            VehicleControllerSystem,
-            "vehicle_controller_system",
-            &["input_system"],
-        )
-        .with(
-            VehicleSpawnerSystem::new(),
-            "vehicle_spawner_system",
-            &["transform_system"],
-        ); // Add other systems as needed
+    let input_bundle = create_input_bundle(&binding_path)?;
+    let rendering_bundle = create_rendering_bundle(&display_config_path)?;
+    let game_data = build_game_data(input_bundle, rendering_bundle)?;
 
     info!("Game data bundle created.");
 
-    let mut game: CoreApplication<'_, GameData<'_, '_>> =
-        Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
+    let mut game = Application::build(assets_path, Yakuzaishi::default())?
+        .build(game_data)?;
 
     info!("Game application built.");
-
     info!("Starting game loop.");
-
     game.run();
-
     info!("Game loop ended.");
 
     Ok(())
+}
+
+fn create_input_bundle(binding_path: &PathBuf) -> Result<InputBundle<StringBindings>, Error> {
+    InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path).map_err(Error::from)
+}
+
+//TODO Figure out cross platform build specific stuff (including yaml files)
+//#[cfg(feature = "metal")]
+//#[cfg(feature = "vulkan")] 
+fn create_rendering_bundle(
+    display_config_path: &PathBuf,
+) -> Result<RenderingBundle<DefaultBackend>, amethyst::Error> {
+    Ok(RenderingBundle::<DefaultBackend>::new()
+        .with_plugin(
+            RenderToWindow::from_config_path(display_config_path)?
+                .with_clear([0.0, 0.0, 0.0, 1.0]),
+        )
+        .with_plugin(RenderFlat2D::default())
+        //.with_plugin(RenderToWindow::with_metal()))
+        //.with_plugin(RenderToWindow::with_vulkan())
+    )
+}
+
+fn build_game_data(
+    input_bundle: InputBundle<StringBindings>,
+    rendering_bundle: RenderingBundle<DefaultBackend>,
+) -> Result<GameDataBuilder<'static, 'static>, Error> {
+    Ok(
+        GameDataBuilder::default()
+            .with_bundle(rendering_bundle)?
+            .with_bundle(TransformBundle::new())?
+            .with_bundle(input_bundle)?
+            .with(MapRenderingSystem, "map_rendering_system", &["transform_system"])
+            .with(VehicleControllerSystem, "vehicle_controller_system", &["input_system"])
+            .with(VehicleSpawnerSystem::new(), "vehicle_spawner_system", &["transform_system"]),
+    )
 }
