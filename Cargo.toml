@@ -11,6 +11,8 @@ path = "src/main.rs"
 path = "src/lib.rs"
 
 [dependencies]
+# macos must use metal, windows os mut use vulkan
+# amethyst = { version = "0.15.0", features = ["vulkan", "tiles"]}
 amethyst = { version = "0.15.0", features = ["metal", "tiles"]}
 log = "0.4"
 image = "0.24.7"
