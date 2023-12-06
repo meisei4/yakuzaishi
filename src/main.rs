@@ -5,7 +5,8 @@ use yakuzaishi::{
     systems::{
         vehicle_spawner_system::VehicleSpawnerSystem,
         vehicle_controller_system::VehicleControllerSystem,
-        map_rendering_system::MapRenderingSystem,
+        map_rendering_system::MapRenderingSystem, 
+        camera_tracking_system::CameraTrackingSystem,
     },
     DISPLAY_CONFIG_FILENAME, 
     BINDINGS_CONFIG_FILENAME,
@@ -78,13 +79,15 @@ fn build_game_data(
     input_bundle: InputBundle<StringBindings>,
     rendering_bundle: RenderingBundle<DefaultBackend>,
 ) -> Result<GameDataBuilder<'static, 'static>, Error> {
+    // ORDER MATTERS BIG TIME HERE
     Ok(
         GameDataBuilder::default()
             .with_bundle(rendering_bundle)?
             .with_bundle(TransformBundle::new())?
             .with_bundle(input_bundle)?
             .with(MapRenderingSystem, "map_rendering_system", &["transform_system"])
+            .with(VehicleSpawnerSystem::new(), "vehicle_spawner_system", &["transform_system"])
             .with(VehicleControllerSystem, "vehicle_controller_system", &["input_system"])
-            .with(VehicleSpawnerSystem::new(), "vehicle_spawner_system", &["transform_system"]),
+            .with(CameraTrackingSystem, "camera_tracking_system", &["vehicle_controller_system"]),
     )
 }

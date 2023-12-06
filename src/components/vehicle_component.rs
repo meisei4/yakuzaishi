@@ -33,10 +33,10 @@ impl Component for VehicleComponents {
 
 impl VehicleComponents {
 
-    pub const DEFAULT_MAX_SPEED: f32 = 20.0; 
-    pub const DEFAULT_ACCELERATION: f32 = 10.0; 
-    pub const DEFAULT_DECELERATION: f32 = 10.0; 
-    pub const DEFAULT_ROTATION_RATE: f32 = 0.6; 
+    pub const DEFAULT_MAX_SPEED: f32 = 30.0; 
+    pub const DEFAULT_ACCELERATION: f32 = 45.0; 
+    pub const DEFAULT_DECELERATION: f32 = 45.0; 
+    pub const DEFAULT_ROTATION_RATE: f32 = 1.5; 
 
     pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
         VehicleComponents {
@@ -45,8 +45,7 @@ impl VehicleComponents {
             acceleration: Self::DEFAULT_ACCELERATION,
             deceleration: Self::DEFAULT_DECELERATION,
             position: Vector2::new(spawn_position_x, spawn_position_y),
-            //TODO figure out how to fix initial orientation of "go forward"
-            direction: Vector2::new(1.0, 0.0),
+            direction: Vector2::new(0.0, 1.0),
             rotation_speed: Self::DEFAULT_ROTATION_RATE,
         }
     }
@@ -66,17 +65,16 @@ impl VehicleComponents {
 
     pub fn turn_left(&mut self, delta_time: f32) {
         let rotation_amount = self.rotation_speed * delta_time;
-        let new_direction_angle = self.direction_angle() - rotation_amount;
+        let new_direction_angle = self.direction_angle() + rotation_amount;
         self.direction = Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
     }
 
     pub fn turn_right(&mut self, delta_time: f32) {
         let rotation_amount = self.rotation_speed * delta_time;
-        let new_direction_angle = self.direction_angle() + rotation_amount;
+        let new_direction_angle = self.direction_angle() - rotation_amount;
         self.direction = Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
     }
 
-    //TODO figure out how to achieve consistent Entity rotation and Sprite/Transform rotation
     pub fn direction_angle(&self) -> f32 {
         self.direction.y.atan2(self.direction.x)
     }

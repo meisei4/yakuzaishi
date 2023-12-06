@@ -10,26 +10,22 @@ pub mod camera {
     use crate::{TILE_SIZE, MAP_WIDTH, MAP_HEIGHT};
 
     pub fn init_camera(world: &mut World) {
-        // Calculate the centered position of the camera
-        let camera_x = (MAP_WIDTH as f32 * TILE_SIZE) / 2.0;
-        let camera_y = (MAP_HEIGHT as f32 * TILE_SIZE) / 2.0;
-        let camera_z = 1.0; // Camera's depth in the world
+        let tile_centering_offset = TILE_SIZE / 2.0;
+        let camera_x: f32 = (MAP_WIDTH  * TILE_SIZE) / 2.0 - tile_centering_offset; // actually gets to the middle of the tile with the offset
+        let camera_y: f32 = (MAP_HEIGHT * TILE_SIZE) / 2.0 - tile_centering_offset;
+        let camera_z: f32 = 1.0; 
 
-        // Set the camera to view the entire map
         let mut transform: Transform = Transform::default();
         transform.set_translation_xyz(camera_x, camera_y, camera_z);
 
-        // Assuming that the map dimensions are smaller than the window dimensions,
-        // adjust the camera's projection to add padding equal to half a tile's size
-        let camera_width = MAP_WIDTH as f32 * TILE_SIZE + TILE_SIZE;
-        let camera_height = MAP_HEIGHT as f32 * TILE_SIZE + TILE_SIZE;
+        let camera_width: f32 = MAP_WIDTH  * TILE_SIZE;
+        let camera_height: f32 = MAP_HEIGHT * TILE_SIZE;
 
         world
             .create_entity()
-            .with(Camera::standard_2d(camera_width, camera_height))
+            .with(Camera::standard_2d(camera_width / 2.0 , camera_height / 2.0))
             .with(transform)
             .build();
 
-        info!("Initialized camera to view the entire map with adjusted boundaries.");
     }
 }
