@@ -42,7 +42,7 @@ mod tests {
         world.insert(MockVehicleSpriteSheet::new());
 
         // Create and configure the system
-        let mut system = VehicleSpawnerSystem::new();
+        let mut _system = VehicleSpawnerSystem::new();
         // You might need to mock system setup if it requires specific resources
         // system.setup(&mut world);
 
