@@ -5,8 +5,8 @@ pub mod state;
 pub mod systems;
 pub mod util;
 
-pub const SPRITE_SHEET_FILE_PATH: &str = "sprite_data/brown_civic_optimized.ron";
-pub const VEHICLE_TEXTURE_FILE_PATH: &str = "sprite_data/brown_civic_optimized.png";
+pub const SPRITE_SHEET_FILE_PATH: &str = "sprite_data/vehicle_spritesheet.ron";
+pub const VEHICLE_TEXTURE_FILE_PATH: &str = "sprite_data/vehicle_spritesheet.png";
 
 pub const MAP_FILE_PATH: &str = "assets/map_data/road_tilemap_1.tmx";
 pub const TILESET_FILE_PATH: &str = "assets/map_data/road_tileset.tsx";
