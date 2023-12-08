@@ -4,13 +4,13 @@ use amethyst::{
 };
 
 pub struct PedestrianComponents {
-    pub speed: f32,                  // Fixed walking speed
-    pub position: Vector2<f32>,      // Current position
-    pub direction: WalkingDirection, // Current walking direction
-    pub current_sprite_index: usize, // Sprite index for current direction
+    pub speed: f32,
+    pub position: Vector2<f32>,
+    pub direction: WalkingDirection,
+    pub current_sprite_index: usize, // Sprite index for current direction (add animation later)
 }
 
-// Enum for 8 discrete walking directions
+#[derive(Copy, Clone)]
 pub enum WalkingDirection {
     North,
     Northeast,
@@ -27,8 +27,16 @@ impl Component for PedestrianComponents {
 }
 
 impl PedestrianComponents {
-    // Initialize with position and default direction (e.g., North)
-    // ...
+    pub const DEFAULT_SPEED: f32 = 15.0;
+
+    pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
+        PedestrianComponents {
+            speed: Self::DEFAULT_SPEED,
+            position: Vector2::new(spawn_position_x, spawn_position_y),
+            direction: WalkingDirection::North,
+            current_sprite_index: 0,
+        }
+    }
 
     pub fn update_position(&mut self, delta_time: f32) {
         let movement: Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>> = match self.direction {
@@ -48,14 +56,14 @@ impl PedestrianComponents {
     pub fn update_sprite_index(&mut self) {
         // Assuming a sprite sheet where each direction has a corresponding sprite
         self.current_sprite_index = match self.direction {
-            WalkingDirection::North => 0,
-            WalkingDirection::Northeast => 1,
-            WalkingDirection::East => 2,
-            WalkingDirection::Southeast => 3,
-            WalkingDirection::South => 4,
-            WalkingDirection::Southwest => 5,
-            WalkingDirection::West => 6,
-            WalkingDirection::Northwest => 7,
+            WalkingDirection::North => 2,
+            WalkingDirection::Northeast => 2,
+            WalkingDirection::East => 1,
+            WalkingDirection::Southeast => 1,
+            WalkingDirection::South => 0,
+            WalkingDirection::Southwest => 0,
+            WalkingDirection::West => 3,
+            WalkingDirection::Northwest => 3,
         };
     }
 }

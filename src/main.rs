@@ -5,10 +5,11 @@ use yakuzaishi::{
     systems::{
         camera_tracking_system::CameraTrackingSystem,
         game_map_rendering_system::MapRenderingSystem,
+        pedestrian_spawner_system::PedestrianSpawnerSystem,
         vehicle_controller_system::VehicleControllerSystem,
         vehicle_spawner_system::VehicleSpawnerSystem,
     },
-    BINDINGS_CONFIG_FILENAME, DISPLAY_CONFIG_FILENAME,
+    DISPLAY_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
 };
 
 use amethyst::{
@@ -17,6 +18,7 @@ use amethyst::{
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
+        rendy::metal::Backend,
         types::DefaultBackend,
         RenderingBundle,
     },
@@ -28,21 +30,23 @@ use log::info;
 fn main() -> Result<(), Error> {
     amethyst::start_logger(Default::default());
 
-    let app_root = application_root_dir()?;
-    let assets_path = app_root.join("assets");
-    let display_config_path = assets_path.join(DISPLAY_CONFIG_FILENAME);
-    let binding_path = assets_path.join(BINDINGS_CONFIG_FILENAME);
+    let app_root: PathBuf = application_root_dir()?;
+    let assets_path: PathBuf = app_root.join("assets");
+    let display_config_path: PathBuf = assets_path.join(DISPLAY_CONFIG_FILENAME);
+    // TODO figure out someway to dynamically load the vehicle bindings vs the pedestrian bindings
+    let binding_path: PathBuf = assets_path.join(VEHICLE_BINDINGS_CONFIG_FILENAME);
 
     info!("Display config path: {:?}", display_config_path);
     info!("Key bindings path: {:?}", binding_path);
 
-    let input_bundle = create_input_bundle(&binding_path)?;
-    let rendering_bundle = create_rendering_bundle(&display_config_path)?;
-    let game_data = build_game_data(input_bundle, rendering_bundle)?;
+    let input_bundle: InputBundle<StringBindings> = create_input_bundle(&binding_path)?;
+    let rendering_bundle: RenderingBundle<Backend> = create_rendering_bundle(&display_config_path)?;
+    let game_data: GameDataBuilder<'_, '_> = build_game_data(input_bundle, rendering_bundle)?;
 
     info!("Game data bundle created.");
 
-    let mut game = Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
+    let mut game: CoreApplication<'_, GameData<'_, '_>> =
+        Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
 
     info!("Game application built.");
     info!("Starting game loop.");
@@ -70,11 +74,14 @@ fn create_rendering_bundle(
                 RenderToWindow::from_config_path(display_config_path)?
                     .with_clear([0.0, 0.0, 0.0, 1.0]),
             )
-            .with_plugin(RenderFlat2D::default()), //.with_plugin(RenderToWindow::with_metal()))
-                                                   //.with_plugin(RenderToWindow::with_vulkan())
+            .with_plugin(RenderFlat2D::default()),
+        //.with_plugin(RenderToWindow::with_metal()))
+        //.with_plugin(RenderToWindow::with_vulkan())
     )
 }
 
+//TODO figure out if the Spawner is a waste of system (not neccessary other that at the start of the game)
+// write a common type to be implemented for spawning system, resource, components for vehicle and pedestrian etc inheritance
 fn build_game_data(
     input_bundle: InputBundle<StringBindings>,
     rendering_bundle: RenderingBundle<DefaultBackend>,
@@ -92,6 +99,11 @@ fn build_game_data(
         .with(
             VehicleSpawnerSystem::new(),
             "vehicle_spawner_system",
+            &["transform_system"],
+        )
+        .with(
+            PedestrianSpawnerSystem::new(),
+            "pedestrian_spawner_system",
             &["transform_system"],
         )
         .with(

@@ -12,11 +12,11 @@ use amethyst_test::prelude::*;
 use yakuzaishi::{
     components::vehicle_components::VehicleComponents,
     resources::vehicle_resource::VehicleResource,
-    systems::vehicle_controller_system::VehicleControllerSystem, SPRITE_SHEET_FILE_PATH,
+    systems::vehicle_controller_system::VehicleControllerSystem, VEHICLE_SPRITE_SHEET_FILE_PATH,
     VEHICLE_TEXTURE_FILE_PATH,
 };
 
-//TODO These tests are much more difficult than aticipated, might make more sense later
+//TODO These tests are much more difficult than anticipated, might make more sense later
 
 #[test]
 fn test_vehicle_controller_system_template_method() -> Result<(), Error> {
@@ -40,8 +40,11 @@ fn test_vehicle_controller_system_forward_movement() -> Result<(), Error> {
             .with_effect(|_world| {
                 _world.insert(ScreenDimensions::new(800, 600, 1.0)); // Use your desired screen dimensions here
 
-                let vehicle_sprite_sheet: VehicleResource =
-                    VehicleResource::new(_world, VEHICLE_TEXTURE_FILE_PATH, SPRITE_SHEET_FILE_PATH);
+                let vehicle_sprite_sheet: VehicleResource = VehicleResource::new(
+                    _world,
+                    VEHICLE_TEXTURE_FILE_PATH,
+                    VEHICLE_SPRITE_SHEET_FILE_PATH,
+                );
 
                 // Create an entity with VehicleComponents, Transform, and SpriteRender
                 let entity: amethyst::ecs::prelude::Entity = _world
@@ -70,7 +73,7 @@ fn test_vehicle_controller_system_forward_movement() -> Result<(), Error> {
                 _world.insert(input);
 
                 // Mock the time to control the delta_time
-                let time = Time::default();
+                let time: Time = Time::default();
                 _world.insert(time);
             })
             .with_bundle(TransformBundle::new())

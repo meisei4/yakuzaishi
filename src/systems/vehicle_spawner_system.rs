@@ -40,7 +40,14 @@ impl<'s> System<'s> for VehicleSpawnerSystem {
 
     fn run(
         &mut self,
-        (entities, game_map, vehicle_sprite_sheet, mut transforms, mut sprite_renders, mut vehicle): Self::SystemData,
+        (
+            entities,
+            game_map,
+            vehicle_sprite_sheet,
+            mut transforms,
+            mut sprite_renders,
+            mut vehicle_components,
+        ): Self::SystemData,
     ) {
         if self.vehicle_spawned {
             return;
@@ -53,7 +60,7 @@ impl<'s> System<'s> for VehicleSpawnerSystem {
                 &vehicle_sprite_sheet.sprite_sheet_handle,
                 &mut transforms,
                 &mut sprite_renders,
-                &mut vehicle,
+                &mut vehicle_components,
                 spawn_position,
             );
             self.vehicle_spawned = true;
@@ -109,7 +116,7 @@ fn spawn_vehicle(
     sprite_sheet_handle: &SpriteSheetHandle,
     transforms: &mut WriteStorage<Transform>,
     sprite_renders: &mut WriteStorage<SpriteRender>,
-    vehicle: &mut WriteStorage<VehicleComponents>,
+    vehicle_components: &mut WriteStorage<VehicleComponents>,
     spawn_position: Vector2<f32>,
 ) {
     // TODO this is where we convert tile coordinates to world coordinates, but there has to be a more clear way to handle this tile <-> cartesian stuff
@@ -123,7 +130,7 @@ fn spawn_vehicle(
         .build_entity()
         .with(sprite_render, sprite_renders)
         .with(transform, transforms)
-        .with(VehicleComponents::new(world_x, world_y), vehicle)
+        .with(VehicleComponents::new(world_x, world_y), vehicle_components)
         .build();
 }
 
@@ -136,7 +143,6 @@ fn create_transform_for_sprite(x: f32, y: f32) -> Transform {
 
 // Adapted from `create_sprite_render_for_tile` from map_rendering_system
 fn create_sprite_render_for_vehicle(sprite_sheet_handle: &SpriteSheetHandle) -> SpriteRender {
-    // TODO this is pretty much identical to the map_rendering_system.rs helper method, but the vehicle sprite sheet only has 1 sprite..
     SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
         sprite_number: 0,
