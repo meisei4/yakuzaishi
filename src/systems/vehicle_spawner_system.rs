@@ -1,21 +1,18 @@
 use amethyst::{
     core::{
-        math::{ArrayStorage, Matrix, Vector2, U2, U1},
+        math::{ArrayStorage, Matrix, Vector2, U1, U2},
         Transform,
     },
     ecs::{prelude::*, Entities},
-    renderer::{SpriteRender, sprite::SpriteSheetHandle},
+    renderer::{sprite::SpriteSheetHandle, SpriteRender},
 };
 use log::info;
 use rand::{rngs::ThreadRng, seq::SliceRandom, thread_rng};
 use tiled::{FiniteTileLayer, Map};
 
 use crate::{
-    resources::{
-        game_map_resource::GameMapResource, 
-        vehicle_resource::VehicleResource
-    }, 
-    components::vehicle_component::VehicleComponents,
+    components::vehicle_components::VehicleComponents,
+    resources::{game_map_resource::GameMapResource, vehicle_resource::VehicleResource},
     TILE_SIZE,
 };
 
@@ -48,7 +45,8 @@ impl<'s> System<'s> for VehicleSpawnerSystem {
         if self.vehicle_spawned {
             return;
         }
-        let drivable_tiles: Vec<Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>>> = get_drivable_tiles(&game_map.tiled_map);
+        let drivable_tiles: Vec<Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>>> =
+            get_drivable_tiles(&game_map.tiled_map);
         if let Some(spawn_position) = select_random_tile(&drivable_tiles) {
             spawn_vehicle(
                 &entities,
@@ -117,7 +115,7 @@ fn spawn_vehicle(
     // TODO this is where we convert tile coordinates to world coordinates, but there has to be a more clear way to handle this tile <-> cartesian stuff
     let world_x: f32 = spawn_position.x * TILE_SIZE + TILE_SIZE / 2.0;
     let world_y: f32 = spawn_position.y * TILE_SIZE + TILE_SIZE / 2.0;
-    
+
     let transform: Transform = create_transform_for_sprite(world_x, world_y);
     let sprite_render: SpriteRender = create_sprite_render_for_vehicle(sprite_sheet_handle);
 
@@ -132,11 +130,7 @@ fn spawn_vehicle(
 //TODO same as the map rendering system, copy pasted code, fix it.
 fn create_transform_for_sprite(x: f32, y: f32) -> Transform {
     let mut transform: Transform = Transform::default();
-    transform.set_translation_xyz(
-        x * TILE_SIZE, 
-        y * TILE_SIZE,
-        0.0,
-    );
+    transform.set_translation_xyz(x * TILE_SIZE, y * TILE_SIZE, 0.0);
     transform
 }
 

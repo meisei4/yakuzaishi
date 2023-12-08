@@ -1,0 +1,9 @@
+(
+    actions: {
+        "walk_north": [[Key(W)]], // W to walk north
+        "walk_east": [[Key(D)]], // D to walk east
+        "walk_south": [[Key(S)]], // S to walk south
+        "walk_west": [[Key(A)]], // A to walk west
+        "quit": [[Key(Escape)]], // Escape to quit the game
+    }
+)

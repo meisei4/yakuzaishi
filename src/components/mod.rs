@@ -1,1 +1,2 @@
-pub mod vehicle_component;
+pub mod pedestrian_components;
+pub mod vehicle_components;

@@ -11,11 +11,16 @@ pub struct VehicleResource {
 }
 
 impl VehicleResource {
-
-    pub fn new(world: &mut World, vehicle_texture_file_path: &str, sprite_sheet_file_path: &str) -> Self {
+    pub fn new(
+        world: &mut World,
+        vehicle_texture_file_path: &str,
+        sprite_sheet_file_path: &str,
+    ) -> Self {
         let loader: Fetch<'_, Loader> = world.read_resource::<Loader>();
-        let texture_storage: Fetch<'_, AssetStorage<Texture>> = world.read_resource::<AssetStorage<Texture>>();
-        let sprite_sheet_storage: Fetch<'_, AssetStorage<SpriteSheet>> = world.read_resource::<AssetStorage<SpriteSheet>>();
+        let texture_storage: Fetch<'_, AssetStorage<Texture>> =
+            world.read_resource::<AssetStorage<Texture>>();
+        let sprite_sheet_storage: Fetch<'_, AssetStorage<SpriteSheet>> =
+            world.read_resource::<AssetStorage<SpriteSheet>>();
 
         let texture_handle = loader.load(
             vehicle_texture_file_path,
@@ -31,7 +36,8 @@ impl VehicleResource {
             &sprite_sheet_storage,
         );
 
-        VehicleResource { sprite_sheet_handle }
+        VehicleResource {
+            sprite_sheet_handle,
+        }
     }
-
 }

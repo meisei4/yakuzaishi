@@ -4,47 +4,45 @@ use amethyst::{
     prelude::*,
     shred::Fetch,
 };
-use log::info;
-
 
 use crate::{
-    resources::{vehicle_resource::VehicleResource, game_map_resource::GameMapResource}, 
     camera::camera,
-    MAP_FILE_PATH, 
-    VEHICLE_TEXTURE_FILE_PATH, 
-    SPRITE_SHEET_FILE_PATH, 
-    TILESET_FILE_PATH, 
-    TILESET_TEXTURE_FILE_PATH,
+    resources::{game_map_resource::GameMapResource, vehicle_resource::VehicleResource},
+    MAP_FILE_PATH, SPRITE_SHEET_FILE_PATH, TILESET_FILE_PATH, TILESET_TEXTURE_FILE_PATH,
+    VEHICLE_TEXTURE_FILE_PATH,
 };
 
-pub struct Yakuzaishi {
-}
+pub struct Yakuzaishi {}
 
 impl Default for Yakuzaishi {
     fn default() -> Self {
-        Self {  }
+        Self {}
     }
 }
 
 impl SimpleState for Yakuzaishi {
-
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world: &mut World = data.world;
 
-        let game_map: GameMapResource = GameMapResource::new(world, MAP_FILE_PATH, TILESET_FILE_PATH, TILESET_TEXTURE_FILE_PATH);
+        let game_map: GameMapResource = GameMapResource::new(
+            world,
+            MAP_FILE_PATH,
+            TILESET_FILE_PATH,
+            TILESET_TEXTURE_FILE_PATH,
+        );
         world.insert(game_map);
 
-        info!("inserted game map into world successfully");
+        log::info!("inserted game map into world successfully");
 
         let vehicle_sprite_sheet: VehicleResource =
             VehicleResource::new(world, VEHICLE_TEXTURE_FILE_PATH, SPRITE_SHEET_FILE_PATH);
         world.insert(vehicle_sprite_sheet);
 
-        info!("inserted vehicle sprite sheet successfully");
+        log::info!("inserted vehicle sprite sheet successfully");
 
         camera::init_camera(world);
 
-        info!("Camera initialized.");
+        log::info!("Camera initialized.");
     }
 
     fn handle_event(
@@ -63,5 +61,4 @@ impl SimpleState for Yakuzaishi {
 
         Trans::None
     }
-
 }

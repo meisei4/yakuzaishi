@@ -334,6 +334,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "amethyst_test"
+version = "0.15.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bee925a5d56dca49af83c13e356d5e8a31266d2ba626dcfcb19c079c6a3aa11"
+dependencies = [
+ "amethyst",
+ "derivative 2.2.0",
+ "derive-new",
+ "derive_deref",
+ "lazy_static",
+ "log",
+]
+
+[[package]]
 name = "amethyst_tiles"
 version = "0.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1127,6 +1141,17 @@ name = "derive-new"
 version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3418329ca0ad70234b9735dc4ceed10af4df60eff9c8e7b06cb5e520d92c3535"
+dependencies = [
+ "proc-macro2 1.0.70",
+ "quote 1.0.33",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "derive_deref"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dcdbcee2d9941369faba772587a565f4f534e42cb8d17e5295871de730163b2b"
 dependencies = [
  "proc-macro2 1.0.70",
  "quote 1.0.33",
@@ -4665,6 +4690,7 @@ name = "yakuzaishi"
 version = "0.1.0"
 dependencies = [
  "amethyst",
+ "amethyst_test",
  "image 0.24.7",
  "log",
  "rand 0.8.5",

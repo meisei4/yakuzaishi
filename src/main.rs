@@ -3,13 +3,12 @@ use std::path::PathBuf;
 use yakuzaishi::{
     state::main_game_state::Yakuzaishi,
     systems::{
-        vehicle_spawner_system::VehicleSpawnerSystem,
-        vehicle_controller_system::VehicleControllerSystem,
-        map_rendering_system::MapRenderingSystem, 
         camera_tracking_system::CameraTrackingSystem,
+        game_map_rendering_system::MapRenderingSystem,
+        vehicle_controller_system::VehicleControllerSystem,
+        vehicle_spawner_system::VehicleSpawnerSystem,
     },
-    DISPLAY_CONFIG_FILENAME, 
-    BINDINGS_CONFIG_FILENAME,
+    BINDINGS_CONFIG_FILENAME, DISPLAY_CONFIG_FILENAME,
 };
 
 use amethyst::{
@@ -43,8 +42,7 @@ fn main() -> Result<(), Error> {
 
     info!("Game data bundle created.");
 
-    let mut game = Application::build(assets_path, Yakuzaishi::default())?
-        .build(game_data)?;
+    let mut game = Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
 
     info!("Game application built.");
     info!("Starting game loop.");
@@ -55,23 +53,25 @@ fn main() -> Result<(), Error> {
 }
 
 fn create_input_bundle(binding_path: &PathBuf) -> Result<InputBundle<StringBindings>, Error> {
-    InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path).map_err(Error::from)
+    InputBundle::<StringBindings>::new()
+        .with_bindings_from_file(binding_path)
+        .map_err(Error::from)
 }
 
 //TODO Figure out cross platform build specific stuff (including yaml files)
 //#[cfg(feature = "metal")]
-//#[cfg(feature = "vulkan")] 
+//#[cfg(feature = "vulkan")]
 fn create_rendering_bundle(
     display_config_path: &PathBuf,
 ) -> Result<RenderingBundle<DefaultBackend>, amethyst::Error> {
-    Ok(RenderingBundle::<DefaultBackend>::new()
-        .with_plugin(
-            RenderToWindow::from_config_path(display_config_path)?
-                .with_clear([0.0, 0.0, 0.0, 1.0]),
-        )
-        .with_plugin(RenderFlat2D::default())
-        //.with_plugin(RenderToWindow::with_metal()))
-        //.with_plugin(RenderToWindow::with_vulkan())
+    Ok(
+        RenderingBundle::<DefaultBackend>::new()
+            .with_plugin(
+                RenderToWindow::from_config_path(display_config_path)?
+                    .with_clear([0.0, 0.0, 0.0, 1.0]),
+            )
+            .with_plugin(RenderFlat2D::default()), //.with_plugin(RenderToWindow::with_metal()))
+                                                   //.with_plugin(RenderToWindow::with_vulkan())
     )
 }
 
@@ -80,14 +80,28 @@ fn build_game_data(
     rendering_bundle: RenderingBundle<DefaultBackend>,
 ) -> Result<GameDataBuilder<'static, 'static>, Error> {
     // ORDER MATTERS BIG TIME HERE
-    Ok(
-        GameDataBuilder::default()
-            .with_bundle(rendering_bundle)?
-            .with_bundle(TransformBundle::new())?
-            .with_bundle(input_bundle)?
-            .with(MapRenderingSystem, "map_rendering_system", &["transform_system"])
-            .with(VehicleSpawnerSystem::new(), "vehicle_spawner_system", &["transform_system"])
-            .with(VehicleControllerSystem, "vehicle_controller_system", &["input_system"])
-            .with(CameraTrackingSystem, "camera_tracking_system", &["vehicle_controller_system"]),
-    )
+    Ok(GameDataBuilder::default()
+        .with_bundle(rendering_bundle)?
+        .with_bundle(TransformBundle::new())?
+        .with_bundle(input_bundle)?
+        .with(
+            MapRenderingSystem,
+            "map_rendering_system",
+            &["transform_system"],
+        )
+        .with(
+            VehicleSpawnerSystem::new(),
+            "vehicle_spawner_system",
+            &["transform_system"],
+        )
+        .with(
+            VehicleControllerSystem,
+            "vehicle_controller_system",
+            &["input_system"],
+        )
+        .with(
+            CameraTrackingSystem,
+            "camera_tracking_system",
+            &["vehicle_controller_system"],
+        ))
 }
