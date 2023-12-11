@@ -22,14 +22,14 @@ impl VehicleResource {
         let sprite_sheet_storage: Fetch<'_, AssetStorage<SpriteSheet>> =
             world.read_resource::<AssetStorage<SpriteSheet>>();
 
-        let texture_handle = loader.load(
+        let texture_handle: Handle<Texture> = loader.load(
             vehicle_texture_file_path,
             ImageFormat::default(),
             (),
             &texture_storage,
         );
 
-        let sprite_sheet_handle = loader.load(
+        let sprite_sheet_handle: Handle<SpriteSheet> = loader.load(
             sprite_sheet_file_path,
             SpriteSheetFormat(texture_handle),
             (),

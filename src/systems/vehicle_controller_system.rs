@@ -1,6 +1,12 @@
+use std::f32::consts::PI;
+
 use crate::components::vehicle_components::VehicleComponents;
 use amethyst::{
-    core::{timing::Time, Transform},
+    core::{
+        math::{ArrayStorage, Matrix, Vector2, U1, U2},
+        timing::Time,
+        Transform,
+    },
     derive::SystemDesc,
     ecs::{Join, Read, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
@@ -33,8 +39,8 @@ impl<'s> System<'s> for VehicleControllerSystem {
             .join()
         {
             process_input(&input, vehicle_component, delta_time);
-            update_vehicle_sprite(vehicle_component, sprite_render);
             update_vehicle_transform(vehicle_component, transform, delta_time);
+            sprite_render.sprite_number = update_sprite_index(vehicle_component);
         }
     }
 }
@@ -55,7 +61,7 @@ fn handle_forward_movement(
 ) {
     if let Some(forward_movement) = input.axis_value("vehicle_forward") {
         if forward_movement != 0.0 {
-            vehicle_component.adjust_speed(forward_movement, delta_time);
+            adjust_speed(vehicle_component, forward_movement, delta_time);
         }
     }
 }
@@ -67,17 +73,9 @@ fn handle_turning(
 ) {
     if let Some(turn_movement) = input.axis_value("vehicle_turn") {
         if turn_movement != 0.0 {
-            vehicle_component.adjust_direction(turn_movement, delta_time);
+            adjust_direction(vehicle_component, turn_movement, delta_time);
         }
     }
-}
-
-fn update_vehicle_sprite(
-    vehicle_component: &mut VehicleComponents,
-    sprite_render: &mut SpriteRender,
-) {
-    vehicle_component.update_sprite_index(); //TODO perhaps bad practice not sure if should return new sprite instead?
-    sprite_render.sprite_number = vehicle_component.current_sprite_index;
 }
 
 fn update_vehicle_transform(
@@ -85,8 +83,104 @@ fn update_vehicle_transform(
     transform: &mut Transform,
     delta_time: f32,
 ) {
-    vehicle_component.update_position(delta_time);
+    update_position(vehicle_component, delta_time);
     transform.set_translation_x(vehicle_component.position.x);
     transform.set_translation_y(vehicle_component.position.y);
-    //transform.set_rotation_2d(vehicle_component.direction_angle()- std::f32::consts::PI / 2.0); // FUCK... THIS WAS THE ISSUE with double rotation
+}
+
+//TODO is this causing some performance slow downs...
+fn update_position(vehicle_components: &mut VehicleComponents, delta_time: f32) {
+    let displacement: Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>> = Vector2::new(
+        vehicle_components.direction.x * vehicle_components.speed,
+        vehicle_components.direction.y * vehicle_components.speed,
+    ) * delta_time;
+    vehicle_components.position.x += displacement.x;
+    vehicle_components.position.y += displacement.y;
+}
+
+fn adjust_speed(
+    vehicle_components: &mut VehicleComponents,
+    forward_movement: f32,
+    delta_time: f32,
+) {
+    if forward_movement > 0.0 {
+        accelerate(vehicle_components, delta_time * forward_movement);
+    } else if forward_movement < 0.0 {
+        decelerate(vehicle_components, delta_time * -forward_movement);
+    }
+}
+
+fn accelerate(vehicle_components: &mut VehicleComponents, delta_time: f32) {
+    vehicle_components.speed += vehicle_components.acceleration * delta_time;
+    if vehicle_components.speed > vehicle_components.max_speed {
+        vehicle_components.speed = vehicle_components.max_speed;
+    }
+}
+
+fn decelerate(vehicle_components: &mut VehicleComponents, delta_time: f32) {
+    vehicle_components.speed -= vehicle_components.deceleration * delta_time;
+    if vehicle_components.speed < 0.0 {
+        vehicle_components.speed = 0.0;
+    }
+}
+
+fn adjust_direction(
+    vehicle_components: &mut VehicleComponents,
+    turn_movement: f32,
+    delta_time: f32,
+) {
+    if turn_movement > 0.0 {
+        turn_right(vehicle_components, delta_time);
+    } else if turn_movement < 0.0 {
+        turn_left(vehicle_components, delta_time);
+    }
+}
+
+fn turn_left(vehicle_components: &mut VehicleComponents, delta_time: f32) {
+    let rotation_amount: f32 = vehicle_components.rotation_speed * delta_time;
+    let new_direction_angle: f32 = direction_angle(vehicle_components) + rotation_amount;
+    vehicle_components.direction =
+        Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
+}
+
+fn turn_right(vehicle_components: &mut VehicleComponents, delta_time: f32) {
+    let rotation_amount: f32 = vehicle_components.rotation_speed * delta_time;
+    let new_direction_angle: f32 = direction_angle(vehicle_components) - rotation_amount;
+    vehicle_components.direction =
+        Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
+}
+
+fn direction_angle(vehicle_components: &mut VehicleComponents) -> f32 {
+    vehicle_components
+        .direction
+        .y
+        .atan2(vehicle_components.direction.x)
+}
+
+fn update_sprite_index(vehicle_components: &mut VehicleComponents) -> usize {
+    let angle: f32 = direction_angle(vehicle_components);
+    let normalized_angle: f32 = (angle + 2.0 * PI) % (2.0 * PI);
+    // Calculate sprite index
+    let north_sprite_index: i32 = 36; // Index of North-facing sprite
+    let total_sprites: i32 = 48;
+    let radians_per_sprite: f32 = 2.0 * PI / total_sprites as f32;
+
+    // Calculate the index offset from North
+    let index_offset: isize = ((normalized_angle - PI / 2.0) / radians_per_sprite).round() as isize;
+
+    // Adjust the sprite index considering clockwise direction from North
+    let updated_sprite_index: usize =
+        (north_sprite_index as isize - index_offset).rem_euclid(total_sprites as isize) as usize;
+
+    if updated_sprite_index != vehicle_components.current_sprite_index {
+        vehicle_components.current_sprite_index = updated_sprite_index;
+        log::debug!("Raw direction vector: {:?}", vehicle_components.direction);
+        log::debug!("Normalized direction angle: {} radians", normalized_angle);
+        log::debug!(
+            "Updating sprite index: {} -> {}",
+            vehicle_components.current_sprite_index,
+            updated_sprite_index
+        );
+    }
+    updated_sprite_index
 }

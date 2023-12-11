@@ -6,11 +6,11 @@ use amethyst::{
 };
 
 use crate::{
-    camera::camera,
     resources::{
         game_map_resource::GameMapResource, pedestrian_resource::PedestrianResource,
         vehicle_resource::VehicleResource,
     },
+    state::{camera, game_map_renderer, vehicle_spawner},
     MAP_FILE_PATH, PEDESTRIAN_SPRITE_SHEET_FILE_PATH, PEDESTRIAN_TEXTURE_FILE_PATH,
     TILESET_FILE_PATH, TILESET_TEXTURE_FILE_PATH, VEHICLE_SPRITE_SHEET_FILE_PATH,
     VEHICLE_TEXTURE_FILE_PATH,
@@ -26,6 +26,7 @@ impl Default for Yakuzaishi {
 
 impl SimpleState for Yakuzaishi {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        // insert all game resources
         let world: &mut World = data.world;
 
         let game_map: GameMapResource = GameMapResource::new(
@@ -51,6 +52,11 @@ impl SimpleState for Yakuzaishi {
             PEDESTRIAN_SPRITE_SHEET_FILE_PATH,
         );
         world.insert(pedestrian_sprite_sheet);
+
+        // Initialize game state
+        game_map_renderer::render_map(world);
+
+        vehicle_spawner::spawn_vehicle(world);
 
         log::info!("inserted vehicle sprite sheet successfully");
 

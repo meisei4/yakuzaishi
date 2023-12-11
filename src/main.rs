@@ -4,10 +4,7 @@ use yakuzaishi::{
     state::main_game_state::Yakuzaishi,
     systems::{
         camera_tracking_system::CameraTrackingSystem,
-        game_map_rendering_system::MapRenderingSystem,
-        pedestrian_spawner_system::PedestrianSpawnerSystem,
         vehicle_controller_system::VehicleControllerSystem,
-        vehicle_spawner_system::VehicleSpawnerSystem,
     },
     DISPLAY_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
 };
@@ -80,8 +77,7 @@ fn create_rendering_bundle(
     )
 }
 
-//TODO figure out if the Spawner is a waste of system (not neccessary other that at the start of the game)
-// write a common type to be implemented for spawning system, resource, components for vehicle and pedestrian etc inheritance
+//TODO write a common type to be implemented for spawning system, resource, components for vehicle and pedestrian etc inheritance
 fn build_game_data(
     input_bundle: InputBundle<StringBindings>,
     rendering_bundle: RenderingBundle<DefaultBackend>,
@@ -91,21 +87,6 @@ fn build_game_data(
         .with_bundle(rendering_bundle)?
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
-        .with(
-            MapRenderingSystem,
-            "map_rendering_system",
-            &["transform_system"],
-        )
-        .with(
-            VehicleSpawnerSystem::new(),
-            "vehicle_spawner_system",
-            &["transform_system"],
-        )
-        .with(
-            PedestrianSpawnerSystem::new(),
-            "pedestrian_spawner_system",
-            &["transform_system"],
-        )
         .with(
             VehicleControllerSystem,
             "vehicle_controller_system",
