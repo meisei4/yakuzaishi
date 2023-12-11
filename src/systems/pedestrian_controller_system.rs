@@ -1,6 +1,10 @@
 use crate::components::pedestrian_components::{PedestrianComponents, WalkingDirection};
 use amethyst::{
-    core::{timing::Time, Transform},
+    core::{
+        math::{ArrayStorage, Matrix, Vector2, U1, U2},
+        timing::Time,
+        Transform,
+    },
     derive::SystemDesc,
     ecs::{Join, Read, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
@@ -34,7 +38,7 @@ impl<'s> System<'s> for PedestrianControllerSystem {
         {
             process_input(&input, pedestrian_component);
             update_pedestrian_sprite(pedestrian_component, sprite_render);
-            pedestrian_component.update_position(delta_time);
+            update_position(pedestrian_component, delta_time);
             update_transform(pedestrian_component, transform);
         }
     }
@@ -64,14 +68,45 @@ fn process_input(
 }
 
 fn update_pedestrian_sprite(
-    pedestrian_component: &mut PedestrianComponents,
+    pedestrian_components: &mut PedestrianComponents,
     sprite_render: &mut SpriteRender,
 ) {
-    pedestrian_component.update_sprite_index(); //TODO perhaps bad practice not sure if should return new sprite instead?
-    sprite_render.sprite_number = pedestrian_component.current_sprite_index;
+    update_sprite_index(pedestrian_components); //TODO perhaps bad practice not sure if should return new sprite instead?
+    sprite_render.sprite_number = pedestrian_components.current_sprite_index;
 }
 
-fn update_transform(pedestrian: &PedestrianComponents, transform: &mut Transform) {
-    transform.set_translation_x(pedestrian.position.x);
-    transform.set_translation_y(pedestrian.position.y);
+fn update_transform(pedestrian_components: &PedestrianComponents, transform: &mut Transform) {
+    transform.set_translation_x(pedestrian_components.position.x);
+    transform.set_translation_y(pedestrian_components.position.y);
+}
+
+pub fn update_position(pedestrian_components: &mut PedestrianComponents, delta_time: f32) {
+    let movement: Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>> =
+        match pedestrian_components.direction {
+            WalkingDirection::North => Vector2::new(0.0, 1.0),
+            WalkingDirection::Northeast => Vector2::new(1.0, 1.0),
+            WalkingDirection::East => Vector2::new(1.0, 0.0),
+            WalkingDirection::Southeast => Vector2::new(1.0, -1.0),
+            WalkingDirection::South => Vector2::new(0.0, -1.0),
+            WalkingDirection::Southwest => Vector2::new(-1.0, -1.0),
+            WalkingDirection::West => Vector2::new(-1.0, 0.0),
+            WalkingDirection::Northwest => Vector2::new(-1.0, 1.0),
+        };
+    pedestrian_components.position +=
+        movement.normalize() * pedestrian_components.speed * delta_time;
+}
+
+// Update the sprite index based on the direction
+pub fn update_sprite_index(pedestrian_components: &mut PedestrianComponents) {
+    // Assuming a sprite sheet where each direction has a corresponding sprite
+    pedestrian_components.current_sprite_index = match pedestrian_components.direction {
+        WalkingDirection::North => 2,
+        WalkingDirection::Northeast => 2,
+        WalkingDirection::East => 1,
+        WalkingDirection::Southeast => 1,
+        WalkingDirection::South => 0,
+        WalkingDirection::Southwest => 0,
+        WalkingDirection::West => 3,
+        WalkingDirection::Northwest => 3,
+    };
 }
