@@ -9,13 +9,18 @@ use yakuzaishi::{
     DISPLAY_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
 };
 
+// Windows uncomment:
+use amethyst::renderer::rendy::vulkan::Backend;
+
+// MacOS uncomment:
+// use amethyst::renderer::rendy::metal::Backend;
+
 use amethyst::{
     core::transform::TransformBundle,
     input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
-        rendy::metal::Backend,
         types::DefaultBackend,
         RenderingBundle,
     },

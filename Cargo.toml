@@ -11,12 +11,14 @@ path = "src/main.rs"
 path = "src/lib.rs"
 
 [dependencies]
-amethyst = { version = "0.15.0", features = ["metal", "tiles", "test-support"]}
 
+# Windows uncomment:
+amethyst = { version = "0.15.0", features = ["vulkan", "tiles", "test-support"]}
+
+# MacOS uncomment:
+# amethyst = { version = "0.15.0", features = ["metal", "tiles", "test-support"]}
 
 amethyst_test = "0.15"
-# macos must use metal, windows os must use vulkan
-#amethyst = { version = "0.15.0", features = ["vulkan", "tiles"]}
 log = "0.4"
 image = "0.24.7"
 tiled = "0.11.2"
