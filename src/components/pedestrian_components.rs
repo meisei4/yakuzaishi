@@ -1,13 +1,13 @@
+use crate::components::base_components::BaseEntityComponents;
 use amethyst::{
     core::math::Vector2,
     ecs::{Component, DenseVecStorage},
 };
 
 pub struct PedestrianComponents {
-    pub speed: f32,
-    pub position: Vector2<f32>,
+    pub base: BaseEntityComponents,
     pub direction: WalkingDirection,
-    pub current_sprite_index: usize, // Sprite index for current direction (add animation later)
+    // Other pedestrian-specific fields...
 }
 
 #[derive(Copy, Clone)]
@@ -22,19 +22,22 @@ pub enum WalkingDirection {
     Northwest,
 }
 
-impl Component for PedestrianComponents {
-    type Storage = DenseVecStorage<Self>;
-}
-
 impl PedestrianComponents {
     pub const DEFAULT_SPEED: f32 = 15.0;
 
     pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
         PedestrianComponents {
-            speed: Self::DEFAULT_SPEED,
-            position: Vector2::new(spawn_position_x, spawn_position_y),
+            base: BaseEntityComponents::new(
+                Vector2::new(spawn_position_x, spawn_position_y),
+                Self::DEFAULT_SPEED,
+                0,
+            ),
             direction: WalkingDirection::North,
-            current_sprite_index: 0,
+            // Initialize other fields...
         }
     }
+}
+
+impl Component for PedestrianComponents {
+    type Storage = DenseVecStorage<Self>;
 }

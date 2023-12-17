@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::components::vehicle_components::VehicleComponents;
+use crate::systems::controller_system_util::update_transform;
 use amethyst::{
     core::{
         math::{ArrayStorage, Matrix, Vector2, U1, U2},
@@ -39,7 +40,8 @@ impl<'s> System<'s> for VehicleControllerSystem {
             .join()
         {
             process_input(&input, vehicle_component, delta_time);
-            update_vehicle_transform(vehicle_component, transform, delta_time);
+            update_position(vehicle_component, delta_time);
+            update_transform(&vehicle_component.base, transform);
             sprite_render.sprite_number = update_sprite_index(vehicle_component);
         }
     }
@@ -78,24 +80,14 @@ fn handle_turning(
     }
 }
 
-fn update_vehicle_transform(
-    vehicle_component: &mut VehicleComponents,
-    transform: &mut Transform,
-    delta_time: f32,
-) {
-    update_position(vehicle_component, delta_time);
-    transform.set_translation_x(vehicle_component.position.x);
-    transform.set_translation_y(vehicle_component.position.y);
-}
-
 //TODO is this causing some performance slow downs...
 fn update_position(vehicle_components: &mut VehicleComponents, delta_time: f32) {
     let displacement: Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>> = Vector2::new(
-        vehicle_components.direction.x * vehicle_components.speed,
-        vehicle_components.direction.y * vehicle_components.speed,
+        vehicle_components.direction.x * vehicle_components.base.speed,
+        vehicle_components.direction.y * vehicle_components.base.speed,
     ) * delta_time;
-    vehicle_components.position.x += displacement.x;
-    vehicle_components.position.y += displacement.y;
+    vehicle_components.base.position.x += displacement.x;
+    vehicle_components.base.position.y += displacement.y;
 }
 
 fn adjust_speed(
@@ -111,16 +103,16 @@ fn adjust_speed(
 }
 
 fn accelerate(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    vehicle_components.speed += vehicle_components.acceleration * delta_time;
-    if vehicle_components.speed > vehicle_components.max_speed {
-        vehicle_components.speed = vehicle_components.max_speed;
+    vehicle_components.base.speed += vehicle_components.acceleration * delta_time;
+    if vehicle_components.base.speed > vehicle_components.max_speed {
+        vehicle_components.base.speed = vehicle_components.max_speed;
     }
 }
 
 fn decelerate(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    vehicle_components.speed -= vehicle_components.deceleration * delta_time;
-    if vehicle_components.speed < 0.0 {
-        vehicle_components.speed = 0.0;
+    vehicle_components.base.speed -= vehicle_components.deceleration * delta_time;
+    if vehicle_components.base.speed < 0.0 {
+        vehicle_components.base.speed = 0.0;
     }
 }
 
@@ -172,13 +164,13 @@ fn update_sprite_index(vehicle_components: &mut VehicleComponents) -> usize {
     let updated_sprite_index: usize =
         (north_sprite_index as isize - index_offset).rem_euclid(total_sprites as isize) as usize;
 
-    if updated_sprite_index != vehicle_components.current_sprite_index {
-        vehicle_components.current_sprite_index = updated_sprite_index;
+    if updated_sprite_index != vehicle_components.base.current_sprite_index {
+        vehicle_components.base.current_sprite_index = updated_sprite_index;
         log::debug!("Raw direction vector: {:?}", vehicle_components.direction);
         log::debug!("Normalized direction angle: {} radians", normalized_angle);
         log::debug!(
             "Updating sprite index: {} -> {}",
-            vehicle_components.current_sprite_index,
+            vehicle_components.base.current_sprite_index,
             updated_sprite_index
         );
     }
