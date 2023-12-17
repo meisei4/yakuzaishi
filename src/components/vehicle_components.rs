@@ -34,7 +34,7 @@ impl VehicleComponents {
             deceleration: Self::DEFAULT_DECELERATION,
             direction: Vector2::new(0.0, 1.0),
             rotation_speed: Self::DEFAULT_ROTATION_RATE,
-            //TODO have to set the indicies to something, even though they gets overwritten
+            //TODO have to set the indices to something, even though they get overwritten immediately
             previous_sprite_index: 36, // only for logging?
         }
     }

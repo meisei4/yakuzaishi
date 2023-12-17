@@ -7,7 +7,6 @@ use amethyst::{
 pub struct PedestrianComponents {
     pub base: BaseEntityComponents,
     pub direction: WalkingDirection,
-    // Other pedestrian-specific fields...
 }
 
 #[derive(Copy, Clone)]
@@ -33,7 +32,6 @@ impl PedestrianComponents {
                 0,
             ),
             direction: WalkingDirection::North,
-            // Initialize other fields...
         }
     }
 }

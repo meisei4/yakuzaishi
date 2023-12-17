@@ -1,8 +1,13 @@
+use amethyst::core::Transform;
+use amethyst::renderer::sprite::SpriteSheetHandle;
+use amethyst::renderer::SpriteRender;
 use amethyst::{
     assets::Handle,
     renderer::{Sprite, SpriteSheet, Texture},
 };
 
+use crate::components::base_components::BaseEntityComponents;
+use crate::TILE_SIZE;
 use tiled::Tileset;
 
 pub fn convert_tileset_to_sprite_sheet(
@@ -35,8 +40,8 @@ pub fn convert_tileset_to_sprite_sheet(
                 image_height as u32,
                 tile_width as u32,
                 tile_height as u32,
-                (x * tile_width as u32) as u32,
-                (y * tile_height as u32) as u32,
+                x * tile_width as u32,
+                y * tile_height as u32,
                 [0.0, 0.0], // Offsets
                 false,      // Flip horizontally
                 true, // TODO lol this needs to be true because i think something about tiled messes up orientation
@@ -52,4 +57,25 @@ pub fn convert_tileset_to_sprite_sheet(
         texture: texture_handle.clone(),
         sprites,
     }
+}
+
+pub fn create_transform(x: f32, y: f32) -> Transform {
+    let mut transform: Transform = Transform::default();
+    transform.set_translation_xyz(x * TILE_SIZE, y * TILE_SIZE, 0.0);
+    transform
+}
+
+pub fn create_sprite_render(
+    some_id: usize,
+    sprite_sheet_handle: &SpriteSheetHandle,
+) -> SpriteRender {
+    SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: some_id,
+    }
+}
+
+pub fn update_transform(base_components: &BaseEntityComponents, transform: &mut Transform) {
+    transform.set_translation_x(base_components.position.x);
+    transform.set_translation_y(base_components.position.y);
 }

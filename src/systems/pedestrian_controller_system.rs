@@ -1,5 +1,6 @@
 use crate::components::pedestrian_components::{PedestrianComponents, WalkingDirection};
-use crate::systems::controller_system_util::update_transform;
+
+use crate::util::update_transform;
 use amethyst::{
     core::{
         math::{ArrayStorage, Matrix, Vector2, U1, U2},

@@ -5,7 +5,7 @@ use amethyst::{
     renderer::Camera,
 };
 
-use crate::{MAP_HEIGHT, MAP_WIDTH, TILE_SIZE};
+use crate::{CAMERA_HEIGHT, CAMERA_WIDTH, MAP_HEIGHT, MAP_WIDTH, TILE_SIZE};
 
 pub fn init_camera(world: &mut World) {
     let tile_centering_offset = TILE_SIZE / 2.0;
@@ -16,12 +16,9 @@ pub fn init_camera(world: &mut World) {
     let mut transform: Transform = Transform::default();
     transform.set_translation_xyz(camera_x, camera_y, camera_z);
 
-    let camera_width: f32 = MAP_WIDTH * TILE_SIZE;
-    let camera_height: f32 = MAP_HEIGHT * TILE_SIZE;
-
     world
         .create_entity()
-        .with(Camera::standard_2d(camera_width / 2.0, camera_height / 2.0))
+        .with(Camera::standard_2d(CAMERA_WIDTH, CAMERA_HEIGHT))
         .with(transform)
         .build();
 }

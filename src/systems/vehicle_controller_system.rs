@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::components::vehicle_components::VehicleComponents;
-use crate::systems::controller_system_util::update_transform;
+use crate::util::update_transform;
 use amethyst::{
     core::{
         math::{ArrayStorage, Matrix, Vector2, U1, U2},
@@ -80,7 +80,6 @@ fn handle_turning(
     }
 }
 
-//TODO is this causing some performance slow downs...
 fn update_position(vehicle_components: &mut VehicleComponents, delta_time: f32) {
     let displacement: Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>> = Vector2::new(
         vehicle_components.direction.x * vehicle_components.base.speed,
