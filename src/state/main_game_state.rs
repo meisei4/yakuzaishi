@@ -1,3 +1,4 @@
+use amethyst::ecs::RunNow;
 use amethyst::{
     assets::Processor,
     ecs::{prelude::WorldExt, DispatcherBuilder},
@@ -44,17 +45,18 @@ impl SimpleState for Yakuzaishi {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world: &mut World = data.world;
 
-        // Load the input bindings based on the entity type
-        let input_bundle = InputBundle::<StringBindings>::new()
-            .with_bindings_from_file(&self.bindings_config_path)
-            .expect("Failed to load input bindings");
-
-        // Initialize the dispatcher to include the input processor
-        let mut dispatcher = DispatcherBuilder::new()
-            bundle(input_bundle)
-            .expect("Failed to create dispatcher")
-            .build();
-        dispatcher.setup(world);
+        //TODO Below i think is going to deal with the menu thing and deciding the player entity
+        // // Load the input bindings based on the entity type
+        // let input_bundle = InputBundle::<StringBindings>::new()
+        //     .with_bindings_from_file(&self.bindings_config_path)
+        //     .expect("Failed to load input bindings");
+        //
+        // // Initialize the dispatcher to include the input processor
+        // let mut dispatcher = DispatcherBuilder::new()
+        //     bundle(input_bundle)
+        //     .expect("Failed to create dispatcher")
+        //     .build();
+        // dispatcher.setup(world);
 
         // Load game resources
         self.load_resources(world);

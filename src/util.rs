@@ -8,7 +8,7 @@ use amethyst::{
 
 use crate::components::base_components::BaseEntityComponents;
 use crate::TILE_SIZE;
-use tiled::Tileset;
+use tiled::{LayerTile, Tileset};
 
 pub fn convert_tileset_to_sprite_sheet(
     tileset: &Tileset,
@@ -54,7 +54,7 @@ pub fn convert_tileset_to_sprite_sheet(
     log::info!("All sprites created successfully. Total: {}", sprites.len());
 
     SpriteSheet {
-        texture: texture_handle.clone(),
+        texture: *texture_handle.clone(),
         sprites,
     }
 }
@@ -78,4 +78,9 @@ pub fn create_sprite_render(
 pub fn update_transform(base_components: &BaseEntityComponents, transform: &mut Transform) {
     transform.set_translation_x(base_components.position.x);
     transform.set_translation_y(base_components.position.y);
+}
+
+pub fn is_drivable_tile(tile: LayerTile) -> bool {
+    // Define drivable tile logic here
+    tile.id() != 17 // Assuming 17 is a non-drivable tile id
 }

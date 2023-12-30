@@ -1,3 +1,4 @@
+use crate::util::is_drivable_tile;
 use amethyst::{
     core::{
         math::{ArrayStorage, Matrix, Vector2, U1, U2},
@@ -32,9 +33,7 @@ pub fn spawn_vehicle(world: &mut World) {
         FetchMut<'_, MaskedStorage<VehicleComponents>>,
     > = &mut world.write_storage::<VehicleComponents>();
 
-    let drivable_tiles: Vec<Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>>> =
-        get_drivable_tiles(&game_map.tiled_map);
-    //TODO figure out how to use "Some()" properly
+    let drivable_tiles = get_drivable_tiles(&game_map);
     if let Some(spawn_position) = select_random_tile_from_list_of_tiles(&drivable_tiles) {
         // TODO this is where we convert tile coordinates to world coordinates, but there has to be a more clear way to handle this tile <-> cartesian stuff
         let world_x: f32 = spawn_position.x * TILE_SIZE + TILE_SIZE / 2.0;
@@ -55,37 +54,18 @@ pub fn spawn_vehicle(world: &mut World) {
     }
 }
 
-fn get_drivable_tiles(tiled_map: &Map) -> Vec<Vector2<f32>> {
-    let mut drivable_tiles: Vec<Vector2<f32>> = Vec::new();
-
-    //TODO: this still has to loop through layers,
-    for layer in tiled_map.layers() {
-        match layer.layer_type() {
-            tiled::LayerType::Tiles(layer) => match layer {
-                tiled::TileLayer::Finite(tile_layer) => {
-                    fill_up_drivable_tiles(&tile_layer, &mut drivable_tiles);
-                }
-                tiled::TileLayer::Infinite(_) => todo!(),
-            },
-            tiled::LayerType::Objects(_) => todo!(),
-            tiled::LayerType::Image(_) => todo!(),
-            tiled::LayerType::Group(_) => todo!(),
-        }
-    }
-    drivable_tiles
-}
-
-fn fill_up_drivable_tiles(tiles: &FiniteTileLayer, drivable_tiles: &mut Vec<Vector2<f32>>) {
-    for y in 0..tiles.height() {
-        for x in 0..tiles.width() {
-            if let Some(tile) = tiles.get_tile(x as i32, y as i32) {
-                //TODO: figure out how to retrieve the metadata in the tsx file
-                if tile.id() != 17 {
-                    drivable_tiles.push(Vector2::new(x as f32, y as f32));
-                }
+fn get_drivable_tiles(game_map: &GameMapResource) -> Vec<Vector2<f32>> {
+    game_map
+        .tile_components
+        .iter()
+        .filter_map(|((x, y), tile_component)| {
+            if tile_component.is_drivable {
+                Some(Vector2::new(x, y))
+            } else {
+                None
             }
-        }
-    }
+        })
+        .collect()
 }
 
 fn select_random_tile_from_list_of_tiles(tiles: &[Vector2<f32>]) -> Option<Vector2<f32>> {
