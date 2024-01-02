@@ -1,0 +1,8 @@
+(
+    axes: {},
+    actions: {
+        "select_vehicle": [[Key(A)]],
+        "select_pedestrian": [[Key(D)]],
+        "select": [[Key(Space), Key(Return)]],
+    },
+)

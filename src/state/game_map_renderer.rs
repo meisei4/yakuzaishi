@@ -11,7 +11,9 @@ use crate::resources::game_map_resource::GameMapResource;
 use crate::util::{create_sprite_render, create_transform};
 
 pub fn render_map(world: &mut World) {
+    log::info!("try to load");
     let game_map: Fetch<'_, GameMapResource> = world.read_resource::<GameMapResource>();
+    log::info!("loaded");
     let entities: Read<'_, EntitiesRes> = world.entities();
     let transforms: &mut Storage<'_, Transform, FetchMut<'_, MaskedStorage<Transform>>> =
         &mut world.write_storage::<Transform>();

@@ -8,6 +8,7 @@ use amethyst::{
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, Texture},
     shred::Fetch,
+    Error,
 };
 use tiled::{LayerTile, Loader as TiledLoader, TileLayer};
 
@@ -20,12 +21,12 @@ pub struct GameMapResource {
 }
 
 impl GameMapResource {
-    pub fn new(
+    pub fn load(
         world: &mut World,
         map_file_path: &str,
         tsx_file_path: &str,
         texture_file_path: &str,
-    ) -> Self {
+    ) -> Result<Self, Error> {
         let mut tiled_loader: TiledLoader = TiledLoader::new();
         let asset_loader: Fetch<'_, Loader> = world.read_resource::<Loader>();
         let texture_storage: Fetch<'_, AssetStorage<Texture>> =
@@ -80,12 +81,13 @@ impl GameMapResource {
             }
         }
 
-        GameMapResource {
+        Ok(GameMapResource {
             tiled_map,
             sprite_sheet_handle,
             tile_components,
-        }
+        })
     }
+
     fn is_drivable_tile(tile: &LayerTile) -> bool {
         // Define drivable tile logic here
         tile.id() != 17 // Assuming 17 is a non-drivable tile id

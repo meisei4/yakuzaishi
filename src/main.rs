@@ -1,19 +1,19 @@
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 use yakuzaishi::{
-    state::main_game_state::Yakuzaishi,
+    state::{main_game_state::Yakuzaishi, menu_state::MenuState},
     systems::{
         camera_tracking_system::CameraTrackingSystem,
         vehicle_controller_system::VehicleControllerSystem,
     },
-    DISPLAY_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
+    DISPLAY_CONFIG_FILENAME, MENU_BINDINGS_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
 };
 
 // Windows uncomment:
-use amethyst::renderer::rendy::vulkan::Backend;
+//use amethyst::renderer::rendy::vulkan::Backend;
 
 // MacOS uncomment:
-// use amethyst::renderer::rendy::metal::Backend;
+use amethyst::{error, renderer::rendy::metal::Backend, ui::UiBundle};
 
 use amethyst::{
     core::transform::TransformBundle,
@@ -33,36 +33,27 @@ use yakuzaishi::systems::collision_system::CollisionSystem;
 fn main() -> Result<(), Error> {
     amethyst::start_logger(Default::default());
 
-    let app_root: PathBuf = application_root_dir()?;
-    let assets_path: PathBuf = app_root.join("assets");
-    let display_config_path: PathBuf = assets_path.join(DISPLAY_CONFIG_FILENAME);
-    // TODO figure out someway to dynamically load the vehicle bindings vs the pedestrian bindings
-    let binding_path: PathBuf = assets_path.join(VEHICLE_BINDINGS_CONFIG_FILENAME);
+    let app_root = application_root_dir()?;
+    let assets_path = app_root.join("assets");
+    let display_config_path = assets_path.join(DISPLAY_CONFIG_FILENAME);
 
-    info!("Display config path: {:?}", display_config_path);
-    info!("Key bindings path: {:?}", binding_path);
+    let input_bundle = InputBundle::<StringBindings>::new()
+        .with_bindings_from_file(assets_path.join(MENU_BINDINGS_CONFIG_FILENAME))?;
+    info!("Menu input bindings loaded successfully.");
 
-    let input_bundle: InputBundle<StringBindings> = create_input_bundle(&binding_path)?;
-    let rendering_bundle: RenderingBundle<Backend> = create_rendering_bundle(&display_config_path)?;
-    let game_data: GameDataBuilder<'_, '_> = build_game_data(input_bundle, rendering_bundle)?;
+    let rendering_bundle = create_rendering_bundle(&display_config_path)?;
+    info!("Rendering bundle created successfully.");
 
-    info!("Game data bundle created.");
+    let game_data = build_game_data(input_bundle, rendering_bundle)?;
+    info!("Game data bundle created successfully.");
 
-    let mut game: CoreApplication<'_, GameData<'_, '_>> =
-        Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
+    let mut game = Application::build(assets_path, MenuState::new())?.build(game_data)?;
+    info!("Game application built. Starting game loop.");
 
-    info!("Game application built.");
-    info!("Starting game loop.");
     game.run();
-    info!("Game loop ended.");
 
+    info!("Game loop ended successfully.");
     Ok(())
-}
-
-fn create_input_bundle(binding_path: &PathBuf) -> Result<InputBundle<StringBindings>, Error> {
-    InputBundle::<StringBindings>::new()
-        .with_bindings_from_file(binding_path)
-        .map_err(Error::from)
 }
 
 //TODO Figure out cross platform build specific stuff (including yaml files)
@@ -92,12 +83,9 @@ fn build_game_data(
     Ok(GameDataBuilder::default()
         .with_bundle(rendering_bundle)?
         .with_bundle(TransformBundle::new())?
+        // .with_bundle(UiBundle::<StringBindings>::new())? TODO: I am r-worded, no idea what is happening with the menu input
         .with_bundle(input_bundle)?
-        .with(
-            VehicleControllerSystem,
-            "vehicle_controller_system",
-            &["input_system"],
-        )
+        .with(VehicleControllerSystem, "vehicle_controller_system", &[])
         .with(
             CameraTrackingSystem,
             "camera_tracking_system",

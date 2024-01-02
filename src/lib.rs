@@ -15,11 +15,15 @@ pub const PEDESTRIAN_TEXTURE_FILE_PATH: &'static str = "sprite_data/racoon_walk_
 
 pub const MAP_FILE_PATH: &'static str = "assets/map_data/road_tilemap_1.tmx";
 pub const TILESET_FILE_PATH: &'static str = "assets/map_data/road_tileset.tsx";
+
+pub const FONT_PATH: &'static str = "assets/font_data/saturn.ttf";
+
 pub const TILESET_TEXTURE_FILE_PATH: &'static str = "map_data/tileset_texture.png";
 
 pub const DISPLAY_CONFIG_FILENAME: &'static str = "display_config.ron";
 pub const VEHICLE_BINDINGS_CONFIG_FILENAME: &'static str = "key_bindings/vehicle_bindings.ron";
 pub const PEDESTRIAN_BINDINGS_CONFIG_FILENAME: &'static str = "key_bindings/vehicle_bindings.ron";
+pub const MENU_BINDINGS_CONFIG_FILENAME: &'static str = "key_bindings/menu_bindings.ron";
 
 // GEOMETRY constants
 pub const TILE_SIZE: f32 = 64.0;
