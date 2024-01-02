@@ -28,6 +28,7 @@ use amethyst::{
     Error,
 };
 use log::info;
+use yakuzaishi::systems::collision_system::CollisionSystem;
 
 fn main() -> Result<(), Error> {
     amethyst::start_logger(Default::default());
@@ -100,6 +101,11 @@ fn build_game_data(
         .with(
             CameraTrackingSystem,
             "camera_tracking_system",
+            &["vehicle_controller_system"],
+        )
+        .with(
+            CollisionSystem,
+            "collision_system",
             &["vehicle_controller_system"],
         ))
 }

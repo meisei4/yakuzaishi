@@ -1,7 +1,5 @@
-use amethyst::ecs::RunNow;
 use amethyst::{
-    assets::Processor,
-    ecs::{prelude::WorldExt, DispatcherBuilder},
+    ecs::prelude::WorldExt,
     input::{InputBundle, InputHandler, StringBindings},
     prelude::*,
     shred::Fetch,

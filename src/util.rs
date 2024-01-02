@@ -54,7 +54,7 @@ pub fn convert_tileset_to_sprite_sheet(
     log::info!("All sprites created successfully. Total: {}", sprites.len());
 
     SpriteSheet {
-        texture: *texture_handle.clone(),
+        texture: texture_handle.clone(),
         sprites,
     }
 }
