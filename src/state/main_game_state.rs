@@ -1,6 +1,6 @@
 use amethyst::{
     ecs::prelude::WorldExt,
-    input::{InputHandler, StringBindings},
+    input::{InputBundle, InputHandler, StringBindings},
     prelude::*,
 };
 
@@ -10,6 +10,10 @@ use crate::{
         pedestrian_resource::PedestrianResource, vehicle_resource::VehicleResource,
     },
     state::{camera, game_map_renderer, vehicle_spawner},
+    systems::{
+        camera_tracking_system::CameraTrackingSystem,
+        vehicle_controller_system::VehicleControllerSystem,
+    },
     MAP_FILE_PATH, PEDESTRIAN_BINDINGS_CONFIG_FILENAME, PEDESTRIAN_SPRITE_SHEET_FILE_PATH,
     PEDESTRIAN_TEXTURE_FILE_PATH, TILESET_FILE_PATH, TILESET_TEXTURE_FILE_PATH,
     VEHICLE_BINDINGS_CONFIG_FILENAME, VEHICLE_SPRITE_SHEET_FILE_PATH, VEHICLE_TEXTURE_FILE_PATH,
@@ -35,7 +39,19 @@ impl Yakuzaishi {
         );
         world.insert(game_map_resource.unwrap());
 
-        //TODO: straighjt up bad code, figure out how to fix it (do the matching and the keybinding more dynamically????)
+        let key_bindings_resource = match self.entity_type {
+            EntityType::Vehicle => {
+                KeyBindingsResource::load(EntityType::Vehicle, VEHICLE_BINDINGS_CONFIG_FILENAME)
+            }
+            EntityType::Pedestrian => KeyBindingsResource::load(
+                EntityType::Pedestrian,
+                PEDESTRIAN_BINDINGS_CONFIG_FILENAME,
+            ),
+            EntityType::Menu => return, // If it's a menu, no need to load key bindings
+        }
+        .unwrap();
+
+        // Insert resources specific to the entity type
         match self.entity_type {
             EntityType::Vehicle => {
                 let vehicle_resource = VehicleResource::load(
@@ -43,12 +59,7 @@ impl Yakuzaishi {
                     VEHICLE_TEXTURE_FILE_PATH,
                     VEHICLE_SPRITE_SHEET_FILE_PATH,
                 );
-                let key_bindings_resource = KeyBindingsResource::load(
-                    EntityType::Vehicle,
-                    VEHICLE_BINDINGS_CONFIG_FILENAME,
-                );
                 world.insert(vehicle_resource.unwrap());
-                world.insert(key_bindings_resource.unwrap());
             }
             EntityType::Pedestrian => {
                 let pedestrian_resource = PedestrianResource::load(
@@ -56,14 +67,16 @@ impl Yakuzaishi {
                     PEDESTRIAN_TEXTURE_FILE_PATH,
                     PEDESTRIAN_SPRITE_SHEET_FILE_PATH,
                 );
-                let key_bindings_resource = KeyBindingsResource::load(
-                    EntityType::Pedestrian,
-                    PEDESTRIAN_BINDINGS_CONFIG_FILENAME,
-                );
-                world.insert(key_bindings_resource.unwrap());
                 world.insert(pedestrian_resource.unwrap());
             }
+            EntityType::Menu => { /* Menu specific resources */ }
         }
+
+        // Insert the key bindings input bundle
+        let input_bundle = key_bindings_resource
+            .get_input_bundle(&self.entity_type)
+            .unwrap();
+        world.insert(input_bundle);
     }
 
     fn initialize_game_state(&mut self, world: &mut World) {
@@ -72,9 +85,15 @@ impl Yakuzaishi {
         match self.entity_type {
             EntityType::Vehicle => {
                 vehicle_spawner::spawn_vehicle(world);
+                //world.add_system(VehicleControllerSystem);
+                //world.add_system(CameraTrackingSystem);
+                //world.add_system(CollisionSystem);
             }
             EntityType::Pedestrian => {
                 pedestrian_spawner::spawn_pedestrian(world);
+            }
+            EntityType::Menu => {
+                //TODO do nothing until can like
             }
         }
         camera::init_camera(world);

@@ -1,19 +1,21 @@
 use std::{fs, path::PathBuf};
 
 use yakuzaishi::{
-    state::{main_game_state::Yakuzaishi, menu_state::MenuState},
+    resources::key_bindings_resource::KeyBindingsResource,
+    state::{entity_type::EntityType, main_game_state::Yakuzaishi, menu_state::MenuState},
     systems::{
         camera_tracking_system::CameraTrackingSystem,
         vehicle_controller_system::VehicleControllerSystem,
     },
-    DISPLAY_CONFIG_FILENAME, MENU_BINDINGS_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
+    DISPLAY_CONFIG_FILENAME, FONT_PATH, MENU_BINDINGS_CONFIG_FILENAME,
+    VEHICLE_BINDINGS_CONFIG_FILENAME,
 };
 
 // Windows uncomment:
-//use amethyst::renderer::rendy::vulkan::Backend;
+use amethyst::{renderer::rendy::vulkan::Backend, ui::UiBundle};
 
 // MacOS uncomment:
-use amethyst::{error, renderer::rendy::metal::Backend, ui::UiBundle};
+//use amethyst::{error, renderer::rendy::metal::Backend, ui::UiBundle};
 
 use amethyst::{
     core::transform::TransformBundle,
@@ -37,22 +39,19 @@ fn main() -> Result<(), Error> {
     let assets_path = app_root.join("assets");
     let display_config_path = assets_path.join(DISPLAY_CONFIG_FILENAME);
 
-    let input_bundle = InputBundle::<StringBindings>::new()
-        .with_bindings_from_file(assets_path.join(MENU_BINDINGS_CONFIG_FILENAME))?;
-    info!("Menu input bindings loaded successfully.");
-
     let rendering_bundle = create_rendering_bundle(&display_config_path)?;
-    info!("Rendering bundle created successfully.");
 
-    let game_data = build_game_data(input_bundle, rendering_bundle)?;
-    info!("Game data bundle created successfully.");
+    //let key_bindings_resource = KeyBindingsResource::load(EntityType::Menu, MENU_BINDINGS_CONFIG_FILENAME)?;
+    let key_bindings_resource =
+        KeyBindingsResource::load(EntityType::Vehicle, VEHICLE_BINDINGS_CONFIG_FILENAME)?;
 
-    let mut game = Application::build(assets_path, MenuState::new())?.build(game_data)?;
-    info!("Game application built. Starting game loop.");
+    let game_data = build_game_data(key_bindings_resource, rendering_bundle)?;
+
+    //let mut game = Application::build(assets_path, MenuState::new())?.build(game_data)?;
+    let mut game = Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
 
     game.run();
 
-    info!("Game loop ended successfully.");
     Ok(())
 }
 
@@ -76,15 +75,21 @@ fn create_rendering_bundle(
 
 //TODO write a common type to be implemented for spawning system, resource, components for vehicle and pedestrian etc inheritance
 fn build_game_data(
-    input_bundle: InputBundle<StringBindings>,
+    key_bindings_resource: KeyBindingsResource,
     rendering_bundle: RenderingBundle<DefaultBackend>,
 ) -> Result<GameDataBuilder<'static, 'static>, Error> {
-    // ORDER MATTERS BIG TIME HERE
+    // Assuming you have a default input bundle for initial setup
+    let default_input_bundle = key_bindings_resource
+        //.get_input_bundle(&EntityType::Menu)
+        .get_input_bundle(&EntityType::Vehicle)
+        .unwrap();
+
     Ok(GameDataBuilder::default()
         .with_bundle(rendering_bundle)?
+        .with_bundle(default_input_bundle)?
         .with_bundle(TransformBundle::new())?
-        // .with_bundle(UiBundle::<StringBindings>::new())? TODO: I am r-worded, no idea what is happening with the menu input
-        .with_bundle(input_bundle)?
+        .with_bundle(UiBundle::<StringBindings>::new())?
+        //TODO cant add these systems until Vehicle is chosen and main game state is started (after menu etc)
         .with(VehicleControllerSystem, "vehicle_controller_system", &[])
         .with(
             CameraTrackingSystem,

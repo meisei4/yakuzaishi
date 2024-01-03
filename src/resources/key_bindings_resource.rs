@@ -9,32 +9,32 @@ use std::path::PathBuf;
 
 use crate::state::entity_type::EntityType;
 
+
 pub struct KeyBindingsResource {
-    //TODO: not yet actually a hashmap, fix it
-    bindings: HashMap<EntityType, InputBundle<StringBindings>>,
+    bindings: HashMap<EntityType, PathBuf>,
 }
 
 impl KeyBindingsResource {
     pub fn load(entity_type: EntityType, key_bindings_file_path: &str) -> Result<Self, Error> {
         let mut bindings = HashMap::new();
         let app_root = application_root_dir()?;
-        let assets_path: PathBuf = app_root.join("assets");
-        // Load the vehicle bindings
+        let assets_path = app_root.join("assets");
         let bindings_path = assets_path.join(key_bindings_file_path);
 
-        let input_bundle = Self::load_bindings(bindings_path)?;
-        bindings.insert(entity_type, input_bundle);
+        bindings.insert(entity_type, bindings_path);
 
         Ok(Self { bindings })
     }
 
-    pub fn get_bindings(&self, entity_type: &EntityType) -> Option<&InputBundle<StringBindings>> {
+    pub fn get_bindings_path(&self, entity_type: &EntityType) -> Option<&PathBuf> {
         self.bindings.get(entity_type)
     }
+    
+    pub fn get_input_bundle(&self, entity_type: &EntityType) -> Result<InputBundle<StringBindings>, Error> {
+        let bindings_path = self
+            .get_bindings_path(entity_type)
+            .ok_or_else(|| Error::from_string("Binding path not found for the given entity type"))?;
 
-    fn load_bindings(bindings_path: PathBuf) -> Result<InputBundle<StringBindings>, Error> {
-        InputBundle::<StringBindings>::new()
-            .with_bindings_from_file(bindings_path)
-            .map_err(Error::from)
+        InputBundle::<StringBindings>::new().with_bindings_from_file(bindings_path).map_err(Error::from)
     }
 }

@@ -1,14 +1,14 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     ecs::prelude::*,
-    input::{InputHandler, StringBindings},
+    input::{InputBundle, InputHandler, StringBindings},
     prelude::*,
     ui::FontAsset,
     ui::{Anchor, LineMode, TtfFormat, UiText, UiTransform},
 };
 
 use super::entity_type::EntityType;
-use crate::{state::main_game_state::Yakuzaishi, FONT_PATH};
+use crate::{state::main_game_state::Yakuzaishi, FONT_PATH, MENU_BINDINGS_CONFIG_FILENAME};
 
 pub struct MenuState {
     selected_entity_type: EntityType,
@@ -18,7 +18,7 @@ pub struct MenuState {
 impl MenuState {
     pub fn new() -> Self {
         Self {
-            selected_entity_type: EntityType::Vehicle, // Default selection
+            selected_entity_type: EntityType::Vehicle,
             font_handle: None,
         }
     }
@@ -28,12 +28,25 @@ impl MenuState {
         self.font_handle = Some(load_font(world, FONT_PATH));
 
         // Create UI entities for Vehicle and Pedestrian options
-        create_ui_entity(
-            world,
-            "Vehicle",
-            -150.0,
-            0.0,
-            self.font_handle.clone().unwrap(),
+
+        let ui_transform = UiTransform::new(
+            String::from("Vehicle"), // id
+            Anchor::Middle,          // anchor
+            Anchor::Middle,          // pivot
+            0f32,                    // x
+            0f32,                    // y
+            0f32,                    // z
+            100f32,                  // width
+            30f32,                   // height
+        );
+
+        let ui_text = UiText::new(
+            self.font_handle.clone().unwrap(), // font
+            String::from("Vehicle"),           // text
+            [1.0, 1.0, 1.0, 0.5],              // color
+            25f32,                             // font_size
+            LineMode::Single,                  // line mode
+            Anchor::Middle,                    // alignment
         );
         create_ui_entity(
             world,
@@ -42,6 +55,12 @@ impl MenuState {
             0.0,
             self.font_handle.clone().unwrap(),
         );
+
+        let _ = world
+            .create_entity()
+            .with(ui_transform)
+            .with(ui_text)
+            .build();
     }
 
     fn handle_input(&mut self, input: &InputHandler<StringBindings>) -> Option<SimpleTrans> {
@@ -54,14 +73,17 @@ impl MenuState {
         }
 
         if input.action_is_down("select").unwrap_or(false) {
-            return match self.selected_entity_type {
-                EntityType::Vehicle => Some(Trans::Switch(Box::new(Yakuzaishi::new(
+            if self.selected_entity_type == EntityType::Vehicle {
+                Some(Trans::Switch(Box::new(Yakuzaishi::new(
                     EntityType::Vehicle,
-                )))),
-                EntityType::Pedestrian => Some(Trans::Switch(Box::new(Yakuzaishi::new(
-                    EntityType::Pedestrian,
-                )))),
-            };
+                ))));
+            }
+
+            if self.selected_entity_type == EntityType::Pedestrian {
+                Some(Trans::Switch(Box::new(Yakuzaishi::new(
+                    EntityType::Vehicle,
+                ))));
+            }
         }
         None
     }

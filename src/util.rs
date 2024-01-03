@@ -1,6 +1,8 @@
 use amethyst::core::Transform;
+use amethyst::input::{InputBundle, StringBindings};
 use amethyst::renderer::sprite::SpriteSheetHandle;
 use amethyst::renderer::SpriteRender;
+use amethyst::shred::World;
 use amethyst::{
     assets::Handle,
     renderer::{Sprite, SpriteSheet, Texture},
