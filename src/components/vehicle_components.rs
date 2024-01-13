@@ -4,7 +4,6 @@ use amethyst::{
 };
 
 use crate::components::base_components::BaseEntityComponents;
-use crate::util::create_transform;
 
 pub struct VehicleComponents {
     pub base: BaseEntityComponents,
@@ -26,7 +25,7 @@ impl VehicleComponents {
     pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
         VehicleComponents {
             base: BaseEntityComponents {
-                transform: create_transform(spawn_position_x, spawn_position_y),
+                //transform: create_transform(spawn_position_x, spawn_position_y),
                 position: Vector2::new(spawn_position_x, spawn_position_y),
                 speed: 0.0,
                 current_sprite_index: 36,

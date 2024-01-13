@@ -4,7 +4,7 @@ use amethyst::{
     renderer::SpriteRender,
 };
 use log::info;
-use rand::{rngs::ThreadRng, thread_rng, Rng};
+use rand::{thread_rng, Rng};
 
 use crate::util::{create_sprite_render, create_transform};
 use crate::{
@@ -19,8 +19,8 @@ pub fn spawn_pedestrian(world: &mut World) {
     let pedestrian_components = &mut world.write_storage::<PedestrianComponents>();
 
     let spawn_position = select_random_tile_from_full_map();
-    let world_x: f32 = spawn_position.x * TILE_SIZE + TILE_SIZE / 2.0;
-    let world_y: f32 = spawn_position.y * TILE_SIZE + TILE_SIZE / 2.0;
+    let world_x = spawn_position.x * TILE_SIZE + TILE_SIZE / 2.0;
+    let world_y = spawn_position.y * TILE_SIZE + TILE_SIZE / 2.0;
 
     let transform = create_transform(world_x, world_y);
     let sprite_render = create_sprite_render(0, &pedestrian_sprite_sheet.sprite_sheet_handle);
@@ -39,8 +39,8 @@ pub fn spawn_pedestrian(world: &mut World) {
 }
 
 fn select_random_tile_from_full_map() -> Vector2<f32> {
-    let mut rng: ThreadRng = thread_rng();
-    let x: f32 = rng.gen_range(0.0..MAP_WIDTH);
-    let y: f32 = rng.gen_range(0.0..MAP_HEIGHT);
+    let mut rng = thread_rng();
+    let x = rng.gen_range(0.0..MAP_WIDTH);
+    let y = rng.gen_range(0.0..MAP_HEIGHT);
     Vector2::new(x, y)
 }

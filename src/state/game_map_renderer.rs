@@ -1,8 +1,7 @@
 use amethyst::{
     core::transform::Transform,
-    ecs::{prelude::*, storage::MaskedStorage, world::EntitiesRes, Entities, Read},
+    ecs::{prelude::*, Entities},
     renderer::{sprite::SpriteSheetHandle, SpriteRender},
-    shred::FetchMut,
 };
 use tiled::FiniteTileLayer;
 
@@ -13,11 +12,9 @@ pub fn render_map(world: &mut World) {
     log::info!("try to load");
     let game_map = world.read_resource::<GameMapResource>();
     log::info!("loaded");
-    let entities: Read<'_, EntitiesRes> = world.entities();
-    let transforms: &mut Storage<'_, Transform, FetchMut<'_, MaskedStorage<Transform>>> =
-        &mut world.write_storage::<Transform>();
-    let sprite_renders: &mut Storage<'_, SpriteRender, FetchMut<'_, MaskedStorage<SpriteRender>>> =
-        &mut world.write_storage::<SpriteRender>();
+    let entities = world.entities();
+    let transforms = &mut world.write_storage::<Transform>();
+    let sprite_renders = &mut world.write_storage::<SpriteRender>();
     for layer in game_map.tiled_map.layers() {
         match layer.layer_type() {
             tiled::LayerType::Tiles(tile_layer) => match tile_layer {
@@ -49,9 +46,8 @@ fn process_finite_layer<'a>(
     for y in 0..finite_layer.height() {
         for x in 0..finite_layer.width() {
             if let Some(tile) = finite_layer.get_tile(x as i32, y as i32) {
-                let transform: Transform = create_transform(x as f32, y as f32);
-                let sprite_render: SpriteRender =
-                    create_sprite_render(tile.id() as usize, sprite_sheet_handle);
+                let transform = create_transform(x as f32, y as f32);
+                let sprite_render = create_sprite_render(tile.id() as usize, sprite_sheet_handle);
 
                 entities
                     .build_entity()

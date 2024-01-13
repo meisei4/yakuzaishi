@@ -1,11 +1,7 @@
 use std::f32::consts::PI;
 
 use amethyst::{
-    core::{
-        math::{ArrayStorage, Matrix, Vector2, U1, U2},
-        timing::Time,
-        Transform,
-    },
+    core::{math::Vector2, timing::Time, Transform},
     derive::SystemDesc,
     ecs::{Join, Read, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
@@ -82,7 +78,7 @@ fn handle_turning(
 }
 
 fn update_position(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    let displacement: Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>> = Vector2::new(
+    let displacement = Vector2::new(
         vehicle_components.direction.x * vehicle_components.base.speed,
         vehicle_components.direction.y * vehicle_components.base.speed,
     ) * delta_time;
@@ -129,15 +125,15 @@ fn adjust_direction(
 }
 
 fn turn_left(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    let rotation_amount: f32 = vehicle_components.rotation_speed * delta_time;
-    let new_direction_angle: f32 = direction_angle(vehicle_components) + rotation_amount;
+    let rotation_amount = vehicle_components.rotation_speed * delta_time;
+    let new_direction_angle = direction_angle(vehicle_components) + rotation_amount;
     vehicle_components.direction =
         Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
 }
 
 fn turn_right(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    let rotation_amount: f32 = vehicle_components.rotation_speed * delta_time;
-    let new_direction_angle: f32 = direction_angle(vehicle_components) - rotation_amount;
+    let rotation_amount = vehicle_components.rotation_speed * delta_time;
+    let new_direction_angle = direction_angle(vehicle_components) - rotation_amount;
     vehicle_components.direction =
         Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
 }
@@ -150,25 +146,25 @@ fn direction_angle(vehicle_components: &mut VehicleComponents) -> f32 {
 }
 
 fn update_sprite_index(vehicle_components: &mut VehicleComponents) -> usize {
-    let angle: f32 = direction_angle(vehicle_components);
-    let normalized_angle: f32 = (angle + 2.0 * PI) % (2.0 * PI);
+    let angle = direction_angle(vehicle_components);
+    let normalized_angle = (angle + 2.0 * PI) % (2.0 * PI);
     // Calculate sprite index
-    let north_sprite_index: i32 = 36; // Index of North-facing sprite
-    let total_sprites: i32 = 48;
-    let radians_per_sprite: f32 = 2.0 * PI / total_sprites as f32;
+    let north_sprite_index = 36; // Index of North-facing sprite
+    let total_sprites = 48;
+    let radians_per_sprite = 2.0 * PI / total_sprites as f32;
 
     // Calculate the index offset from North
-    let index_offset: isize = ((normalized_angle - PI / 2.0) / radians_per_sprite).round() as isize;
+    let index_offset = ((normalized_angle - PI / 2.0) / radians_per_sprite).round() as isize;
 
     // Adjust the sprite index considering clockwise direction from North
-    let updated_sprite_index: usize =
+    let updated_sprite_index =
         (north_sprite_index as isize - index_offset).rem_euclid(total_sprites as isize) as usize;
 
     if updated_sprite_index != vehicle_components.base.current_sprite_index {
         vehicle_components.base.current_sprite_index = updated_sprite_index;
-        log::debug!("Raw direction vector: {:?}", vehicle_components.direction);
-        log::debug!("Normalized direction angle: {} radians", normalized_angle);
-        log::debug!(
+        log::info!("Raw direction vector: {:?}", vehicle_components.direction);
+        log::info!("Normalized direction angle: {} radians", normalized_angle);
+        log::info!(
             "Updating sprite index: {} -> {}",
             vehicle_components.base.current_sprite_index,
             updated_sprite_index

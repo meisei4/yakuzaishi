@@ -17,13 +17,6 @@ pub struct MenuState {
 }
 
 impl MenuState {
-    pub fn new() -> Self {
-        Self {
-            selected_entity_type: EntityType::Vehicle,
-            font_handle: None,
-        }
-    }
-
     fn create_ui_entities(&mut self, world: &mut World) {
         // Load the font
         self.font_handle = Some(load_font(world, FONT_PATH));

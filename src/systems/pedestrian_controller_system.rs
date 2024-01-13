@@ -1,9 +1,5 @@
 use amethyst::{
-    core::{
-        math::{ArrayStorage, Matrix, Vector2, U1, U2},
-        timing::Time,
-        Transform,
-    },
+    core::{math::Vector2, timing::Time, Transform},
     derive::SystemDesc,
     ecs::{Join, Read, System, SystemData, WriteStorage},
     input::{InputHandler, StringBindings},
@@ -29,7 +25,7 @@ impl<'s> System<'s> for PedestrianControllerSystem {
         &mut self,
         (mut pedestrian_components, mut transforms, mut sprite_renders, input, time): Self::SystemData,
     ) {
-        let delta_time: f32 = time.delta_seconds();
+        let delta_time = time.delta_seconds();
 
         for (pedestrian_component, transform, sprite_render) in (
             &mut pedestrian_components,
@@ -50,10 +46,10 @@ fn process_input(
     input: &Read<InputHandler<StringBindings>>,
     pedestrian: &mut PedestrianComponents,
 ) {
-    let walk_north: bool = input.action_is_down("walk_north").unwrap_or(false);
-    let walk_east: bool = input.action_is_down("walk_east").unwrap_or(false);
-    let walk_south: bool = input.action_is_down("walk_south").unwrap_or(false);
-    let walk_west: bool = input.action_is_down("walk_west").unwrap_or(false);
+    let walk_north = input.action_is_down("walk_north").unwrap_or(false);
+    let walk_east = input.action_is_down("walk_east").unwrap_or(false);
+    let walk_south = input.action_is_down("walk_south").unwrap_or(false);
+    let walk_west = input.action_is_down("walk_west").unwrap_or(false);
 
     let current_direction: WalkingDirection = pedestrian.direction.clone();
     pedestrian.direction = match (walk_north, walk_east, walk_south, walk_west) {
@@ -70,17 +66,16 @@ fn process_input(
 }
 
 pub fn update_position(pedestrian_components: &mut PedestrianComponents, delta_time: f32) {
-    let movement: Matrix<f32, U2, U1, ArrayStorage<f32, U2, U1>> =
-        match pedestrian_components.direction {
-            WalkingDirection::North => Vector2::new(0.0, 1.0),
-            WalkingDirection::Northeast => Vector2::new(1.0, 1.0),
-            WalkingDirection::East => Vector2::new(1.0, 0.0),
-            WalkingDirection::Southeast => Vector2::new(1.0, -1.0),
-            WalkingDirection::South => Vector2::new(0.0, -1.0),
-            WalkingDirection::Southwest => Vector2::new(-1.0, -1.0),
-            WalkingDirection::West => Vector2::new(-1.0, 0.0),
-            WalkingDirection::Northwest => Vector2::new(-1.0, 1.0),
-        };
+    let movement = match pedestrian_components.direction {
+        WalkingDirection::North => Vector2::new(0.0, 1.0),
+        WalkingDirection::Northeast => Vector2::new(1.0, 1.0),
+        WalkingDirection::East => Vector2::new(1.0, 0.0),
+        WalkingDirection::Southeast => Vector2::new(1.0, -1.0),
+        WalkingDirection::South => Vector2::new(0.0, -1.0),
+        WalkingDirection::Southwest => Vector2::new(-1.0, -1.0),
+        WalkingDirection::West => Vector2::new(-1.0, 0.0),
+        WalkingDirection::Northwest => Vector2::new(-1.0, 1.0),
+    };
     pedestrian_components.base.position +=
         movement.normalize() * pedestrian_components.base.speed * delta_time;
 }

@@ -4,7 +4,6 @@ use amethyst::{
     prelude::*,
 };
 
-use crate::components::camera_components::CameraComponents;
 use crate::{
     resources::{
         game_map_resource::GameMapResource, key_bindings_resource::KeyBindingsResource,
@@ -78,7 +77,6 @@ impl Yakuzaishi {
 
     fn initialize_game_state(&mut self, world: &mut World) {
         game_map_renderer::render_map(world);
-        //TODO maybe make a kind of generic spawner tht takes in arguments for the entity type
         match self.entity_type {
             EntityType::Vehicle => {
                 vehicle_spawner::spawn_vehicle(world);
@@ -93,7 +91,6 @@ impl Yakuzaishi {
                 //TODO do nothing until can like
             }
         }
-        world.register::<CameraComponents>();
         camera::init_camera(world);
     }
 }
