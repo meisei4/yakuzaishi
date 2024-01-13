@@ -1,0 +1,9 @@
+(
+    axes: {
+        "select_vehicle": Emulated(pos: Key(A), neg: Key(S)),
+        "select_pedestrian": Emulated(pos: Key(D), neg: Key(W)),
+    },
+    actions: {
+        "select": [[Key(Space)]],
+    }
+)

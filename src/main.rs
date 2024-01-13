@@ -1,23 +1,8 @@
 use std::path::PathBuf;
 
-use yakuzaishi::{
-    state::main_game_state::Yakuzaishi,
-    systems::{
-        camera_tracking_system::CameraTrackingSystem,
-        vehicle_controller_system::VehicleControllerSystem,
-    },
-    DISPLAY_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
-};
-
-// Windows uncomment:
-use amethyst::renderer::rendy::vulkan::Backend;
-
-// MacOS uncomment:
-// use amethyst::renderer::rendy::metal::Backend;
-
 use amethyst::{
     core::transform::TransformBundle,
-    input::{InputBundle, StringBindings},
+    input::StringBindings,
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -27,42 +12,44 @@ use amethyst::{
     utils::application_root_dir,
     Error,
 };
-use log::info;
+// Windows uncomment:
+use amethyst::ui::UiBundle;
+
 use yakuzaishi::systems::collision_system::CollisionSystem;
+use yakuzaishi::{
+    resources::key_bindings_resource::KeyBindingsResource,
+    state::{entity_type::EntityType, main_game_state::Yakuzaishi},
+    systems::{
+        camera_tracking_system::CameraTrackingSystem,
+        vehicle_controller_system::VehicleControllerSystem,
+    },
+    DISPLAY_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
+};
+
+// MacOS uncomment:
+//use amethyst::{error, renderer::rendy::metal::Backend, ui::UiBundle};
 
 fn main() -> Result<(), Error> {
     amethyst::start_logger(Default::default());
 
-    let app_root: PathBuf = application_root_dir()?;
-    let assets_path: PathBuf = app_root.join("assets");
-    let display_config_path: PathBuf = assets_path.join(DISPLAY_CONFIG_FILENAME);
-    // TODO figure out someway to dynamically load the vehicle bindings vs the pedestrian bindings
-    let binding_path: PathBuf = assets_path.join(VEHICLE_BINDINGS_CONFIG_FILENAME);
+    let app_root = application_root_dir()?;
+    let assets_path = app_root.join("assets");
+    let display_config_path = assets_path.join(DISPLAY_CONFIG_FILENAME);
 
-    info!("Display config path: {:?}", display_config_path);
-    info!("Key bindings path: {:?}", binding_path);
+    let rendering_bundle = create_rendering_bundle(&display_config_path)?;
 
-    let input_bundle: InputBundle<StringBindings> = create_input_bundle(&binding_path)?;
-    let rendering_bundle: RenderingBundle<Backend> = create_rendering_bundle(&display_config_path)?;
-    let game_data: GameDataBuilder<'_, '_> = build_game_data(input_bundle, rendering_bundle)?;
+    //let key_bindings_resource = KeyBindingsResource::load(EntityType::Menu, MENU_BINDINGS_CONFIG_FILENAME)?;
+    let key_bindings_resource =
+        KeyBindingsResource::load(EntityType::Vehicle, VEHICLE_BINDINGS_CONFIG_FILENAME)?;
 
-    info!("Game data bundle created.");
+    let game_data = build_game_data(key_bindings_resource, rendering_bundle)?;
 
-    let mut game: CoreApplication<'_, GameData<'_, '_>> =
-        Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
+    //let mut game = Application::build(assets_path, MenuState::new())?.build(game_data)?;
+    let mut game = Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
 
-    info!("Game application built.");
-    info!("Starting game loop.");
     game.run();
-    info!("Game loop ended.");
 
     Ok(())
-}
-
-fn create_input_bundle(binding_path: &PathBuf) -> Result<InputBundle<StringBindings>, Error> {
-    InputBundle::<StringBindings>::new()
-        .with_bindings_from_file(binding_path)
-        .map_err(Error::from)
 }
 
 //TODO Figure out cross platform build specific stuff (including yaml files)
@@ -70,7 +57,7 @@ fn create_input_bundle(binding_path: &PathBuf) -> Result<InputBundle<StringBindi
 //#[cfg(feature = "vulkan")]
 fn create_rendering_bundle(
     display_config_path: &PathBuf,
-) -> Result<RenderingBundle<DefaultBackend>, amethyst::Error> {
+) -> Result<RenderingBundle<DefaultBackend>, Error> {
     Ok(
         RenderingBundle::<DefaultBackend>::new()
             .with_plugin(
@@ -85,19 +72,22 @@ fn create_rendering_bundle(
 
 //TODO write a common type to be implemented for spawning system, resource, components for vehicle and pedestrian etc inheritance
 fn build_game_data(
-    input_bundle: InputBundle<StringBindings>,
+    key_bindings_resource: KeyBindingsResource,
     rendering_bundle: RenderingBundle<DefaultBackend>,
 ) -> Result<GameDataBuilder<'static, 'static>, Error> {
-    // ORDER MATTERS BIG TIME HERE
+    // Assuming you have a default input bundle for initial setup
+    let default_input_bundle = key_bindings_resource
+        //.get_input_bundle(&EntityType::Menu)
+        .get_input_bundle(&EntityType::Vehicle)
+        .unwrap();
+
     Ok(GameDataBuilder::default()
         .with_bundle(rendering_bundle)?
+        .with_bundle(default_input_bundle)?
         .with_bundle(TransformBundle::new())?
-        .with_bundle(input_bundle)?
-        .with(
-            VehicleControllerSystem,
-            "vehicle_controller_system",
-            &["input_system"],
-        )
+        .with_bundle(UiBundle::<StringBindings>::new())?
+        //TODO cant add these systems until Vehicle is chosen and main game state is started (after menu etc)
+        .with(VehicleControllerSystem, "vehicle_controller_system", &[])
         .with(
             CameraTrackingSystem,
             "camera_tracking_system",

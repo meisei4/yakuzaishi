@@ -1,8 +1,10 @@
-use crate::components::base_components::BaseEntityComponents;
 use amethyst::{
     core::math::Vector2,
     ecs::prelude::{Component, DenseVecStorage},
 };
+
+use crate::components::base_components::BaseEntityComponents;
+use crate::util::create_transform;
 
 pub struct VehicleComponents {
     pub base: BaseEntityComponents,
@@ -11,7 +13,6 @@ pub struct VehicleComponents {
     pub deceleration: f32,
     pub direction: Vector2<f32>,
     pub rotation_speed: f32,
-    pub previous_sprite_index: usize,
     // pub pill_stock: i32,
     // pub gas: i32,
 }
@@ -24,18 +25,18 @@ impl VehicleComponents {
 
     pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
         VehicleComponents {
-            base: BaseEntityComponents::new(
-                Vector2::new(spawn_position_x, spawn_position_y),
-                0.0,
-                36,
-            ),
+            base: BaseEntityComponents {
+                transform: create_transform(spawn_position_x, spawn_position_y),
+                position: Vector2::new(spawn_position_x, spawn_position_y),
+                speed: 0.0,
+                current_sprite_index: 36,
+            },
             max_speed: Self::DEFAULT_MAX_SPEED,
             acceleration: Self::DEFAULT_ACCELERATION,
             deceleration: Self::DEFAULT_DECELERATION,
             direction: Vector2::new(0.0, 1.0),
             rotation_speed: Self::DEFAULT_ROTATION_RATE,
             //TODO have to set the indices to something, even though they get overwritten immediately
-            previous_sprite_index: 36, // only for logging?
         }
     }
 }

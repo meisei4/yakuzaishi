@@ -4,8 +4,7 @@ use amethyst::{
 };
 
 pub struct CollisionComponent {
-    pub size: Vector2<f32>, // Size of the bounding box, adjust as needed
-                            // Add additional fields as needed
+    pub size: Vector2<f32>,
 }
 
 impl Component for CollisionComponent {

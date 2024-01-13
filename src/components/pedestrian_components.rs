@@ -1,8 +1,10 @@
-use crate::components::base_components::BaseEntityComponents;
 use amethyst::{
     core::math::Vector2,
     ecs::{Component, DenseVecStorage},
 };
+
+use crate::components::base_components::BaseEntityComponents;
+use crate::util::create_transform;
 
 pub struct PedestrianComponents {
     pub base: BaseEntityComponents,
@@ -22,15 +24,14 @@ pub enum WalkingDirection {
 }
 
 impl PedestrianComponents {
-    pub const DEFAULT_SPEED: f32 = 15.0;
-
     pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
         PedestrianComponents {
-            base: BaseEntityComponents::new(
-                Vector2::new(spawn_position_x, spawn_position_y),
-                Self::DEFAULT_SPEED,
-                0,
-            ),
+            base: BaseEntityComponents {
+                transform: create_transform(spawn_position_x, spawn_position_x),
+                position: Vector2::new(spawn_position_x, spawn_position_y),
+                speed: 15.0,
+                current_sprite_index: 0,
+            },
             direction: WalkingDirection::North,
         }
     }

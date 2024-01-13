@@ -1,96 +1,98 @@
-use amethyst::ui::FontAsset;
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     ecs::prelude::*,
     input::{InputHandler, StringBindings},
     prelude::*,
+    ui::FontAsset,
     ui::{Anchor, LineMode, TtfFormat, UiText, UiTransform},
 };
 
-use crate::state::main_game_state::Yakuzaishi;
+use crate::{state::main_game_state::Yakuzaishi, FONT_PATH};
+
+use super::entity_type::EntityType;
 
 pub struct MenuState {
-    selected_option: usize,
-    vehicle_option: Option<Entity>,
-    pedestrian_option: Option<Entity>,
+    selected_entity_type: EntityType,
     font_handle: Option<Handle<FontAsset>>,
 }
 
 impl MenuState {
-    const HORIZONTAL_SPACING: f32 = 150.0;
-    const VEHICLE_LABEL: &'static str = "Vehicle";
-    const PEDESTRIAN_LABEL: &'static str = "Pedestrian";
-    const FONT_PATH: &'static str = "font_data/dosei_en.ttf";
+    pub fn new() -> Self {
+        Self {
+            selected_entity_type: EntityType::Vehicle,
+            font_handle: None,
+        }
+    }
 
-    // Constants for bindings file paths
-    const VEHICLE_BINDINGS_CONFIG_FILENAME: &'static str = "key_bindings/vehicle_bindings.ron";
-    const PEDESTRIAN_BINDINGS_CONFIG_FILENAME: &'static str =
-        "key_bindings/pedestrian_bindings.ron";
+    fn create_ui_entities(&mut self, world: &mut World) {
+        // Load the font
+        self.font_handle = Some(load_font(world, FONT_PATH));
 
-    fn create_menu_option(
-        &mut self,
-        world: &mut World,
-        label: &str,
-        x_coordinate: f32,
-    ) -> Option<Entity> {
-        self.font_handle
-            .clone()
-            .map(|font_handle| create_ui_entity(world, label, x_coordinate, 0.0, font_handle))
+        // Create UI entities for Vehicle and Pedestrian options
+
+        let ui_transform = UiTransform::new(
+            String::from("Vehicle"), // id
+            Anchor::Middle,          // anchor
+            Anchor::Middle,          // pivot
+            0f32,                    // x
+            0f32,                    // y
+            0f32,                    // z
+            100f32,                  // width
+            30f32,                   // height
+        );
+
+        let ui_text = UiText::new(
+            self.font_handle.clone().unwrap(), // font
+            String::from("Vehicle"),           // text
+            [1.0, 1.0, 1.0, 0.5],              // color
+            25f32,                             // font_size
+            LineMode::Single,                  // line mode
+            Anchor::Middle,                    // alignment
+        );
+        create_ui_entity(
+            world,
+            "Pedestrian",
+            150.0,
+            0.0,
+            self.font_handle.clone().unwrap(),
+        );
+
+        let _ = world
+            .create_entity()
+            .with(ui_transform)
+            .with(ui_text)
+            .build();
     }
 
     fn handle_input(&mut self, input: &InputHandler<StringBindings>) -> Option<SimpleTrans> {
+        if input.action_is_down("select_vehicle").unwrap_or(false) {
+            self.selected_entity_type = EntityType::Vehicle;
+        }
+
+        if input.action_is_down("select_pedestrian").unwrap_or(false) {
+            self.selected_entity_type = EntityType::Pedestrian;
+        }
+
         if input.action_is_down("select").unwrap_or(false) {
-            return Some(match self.selected_option {
-                0 => Trans::Switch(Box::new(Yakuzaishi::new(
-                    Self::VEHICLE_LABEL,
-                    Self::VEHICLE_BINDINGS_CONFIG_FILENAME,
-                ))),
-                1 => Trans::Switch(Box::new(Yakuzaishi::new(
-                    Self::PEDESTRIAN_LABEL,
-                    Self::PEDESTRIAN_BINDINGS_CONFIG_FILENAME,
-                ))),
-                _ => Trans::None,
-            });
-        }
+            if self.selected_entity_type == EntityType::Vehicle {
+                Some(Trans::Switch(Box::new(Yakuzaishi::new(
+                    EntityType::Vehicle,
+                ))));
+            }
 
-        if input.action_is_down("move_right").unwrap_or(false) {
-            self.selected_option = (self.selected_option + 1) % 2;
+            if self.selected_entity_type == EntityType::Pedestrian {
+                Some(Trans::Switch(Box::new(Yakuzaishi::new(
+                    EntityType::Vehicle,
+                ))));
+            }
         }
-
-        if input.action_is_down("move_left").unwrap_or(false) {
-            self.selected_option = if self.selected_option == 0 { 1 } else { 0 };
-        }
-
         None
     }
 }
 
 impl SimpleState for MenuState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let world = data.world;
-
-        self.font_handle = Some(load_font(world, Self::FONT_PATH));
-
-        self.vehicle_option =
-            self.create_menu_option(world, Self::VEHICLE_LABEL, -Self::HORIZONTAL_SPACING);
-        self.pedestrian_option =
-            self.create_menu_option(world, Self::PEDESTRIAN_LABEL, Self::HORIZONTAL_SPACING);
-    }
-
-    fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let world = data.world;
-
-        if let Some(vehicle_option) = self.vehicle_option.take() {
-            world
-                .delete_entity(vehicle_option)
-                .expect("Failed to delete vehicle option");
-        }
-
-        if let Some(pedestrian_option) = self.pedestrian_option.take() {
-            world
-                .delete_entity(pedestrian_option)
-                .expect("Failed to delete pedestrian option");
-        }
+        self.create_ui_entities(data.world);
     }
 
     fn handle_event(
@@ -98,7 +100,8 @@ impl SimpleState for MenuState {
         data: StateData<'_, GameData<'_, '_>>,
         event: StateEvent,
     ) -> SimpleTrans {
-        if let StateEvent::Input(_input_event) = event {
+        if let StateEvent::Input(input_event) = event {
+            log::info!("Received input event: {:?}", input_event); // Add logging here
             let input = data.world.read_resource::<InputHandler<StringBindings>>();
             self.handle_input(&input).unwrap_or(Trans::None)
         } else {

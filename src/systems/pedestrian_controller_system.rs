@@ -1,6 +1,3 @@
-use crate::components::pedestrian_components::{PedestrianComponents, WalkingDirection};
-
-use crate::util::update_transform;
 use amethyst::{
     core::{
         math::{ArrayStorage, Matrix, Vector2, U1, U2},
@@ -12,6 +9,9 @@ use amethyst::{
     input::{InputHandler, StringBindings},
     renderer::SpriteRender,
 };
+
+use crate::components::pedestrian_components::{PedestrianComponents, WalkingDirection};
+use crate::util::update_transform;
 
 #[derive(SystemDesc)]
 pub struct PedestrianControllerSystem;

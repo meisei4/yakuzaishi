@@ -3,7 +3,7 @@ use amethyst::{
     ecs::prelude::WorldExt,
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
-    shred::Fetch,
+    Error,
 };
 
 pub struct VehicleResource {
@@ -11,33 +11,31 @@ pub struct VehicleResource {
 }
 
 impl VehicleResource {
-    pub fn new(
+    pub fn load(
         world: &mut World,
         vehicle_texture_file_path: &str,
         sprite_sheet_file_path: &str,
-    ) -> Self {
-        let loader: Fetch<'_, Loader> = world.read_resource::<Loader>();
-        let texture_storage: Fetch<'_, AssetStorage<Texture>> =
-            world.read_resource::<AssetStorage<Texture>>();
-        let sprite_sheet_storage: Fetch<'_, AssetStorage<SpriteSheet>> =
-            world.read_resource::<AssetStorage<SpriteSheet>>();
+    ) -> Result<Self, Error> {
+        let asset_loader = world.read_resource::<Loader>();
 
-        let texture_handle: Handle<Texture> = loader.load(
+        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+        let texture_handle = asset_loader.load(
             vehicle_texture_file_path,
             ImageFormat::default(),
             (),
             &texture_storage,
         );
 
-        let sprite_sheet_handle: Handle<SpriteSheet> = loader.load(
+        let sprite_sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
+        let sprite_sheet_handle = asset_loader.load(
             sprite_sheet_file_path,
             SpriteSheetFormat(texture_handle),
             (),
             &sprite_sheet_storage,
         );
 
-        VehicleResource {
+        Ok(VehicleResource {
             sprite_sheet_handle,
-        }
+        })
     }
 }

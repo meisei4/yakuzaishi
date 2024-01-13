@@ -1,7 +1,5 @@
 use std::f32::consts::PI;
 
-use crate::components::vehicle_components::VehicleComponents;
-use crate::util::update_transform;
 use amethyst::{
     core::{
         math::{ArrayStorage, Matrix, Vector2, U1, U2},
@@ -13,6 +11,9 @@ use amethyst::{
     input::{InputHandler, StringBindings},
     renderer::SpriteRender,
 };
+
+use crate::components::vehicle_components::VehicleComponents;
+use crate::util::update_transform;
 
 #[derive(SystemDesc)]
 pub struct VehicleControllerSystem;
@@ -30,7 +31,7 @@ impl<'s> System<'s> for VehicleControllerSystem {
         &mut self,
         (mut vehicle_components, mut transforms, mut sprite_renders, input, time): Self::SystemData,
     ) {
-        let delta_time: f32 = time.delta_seconds();
+        let delta_time = time.delta_seconds();
 
         for (vehicle_component, transform, sprite_render) in (
             &mut vehicle_components,
