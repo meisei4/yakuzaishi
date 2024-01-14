@@ -14,17 +14,22 @@ impl<'s> System<'s> for CollisionSystem {
     type SystemData = (
         Entities<'s>,
         WriteStorage<'s, VehicleComponents>,
-        WriteStorage<'s, Transform>, // Ensure this is WriteStorage
+        WriteStorage<'s, Transform>,
         ReadExpect<'s, GameMapResource>,
         Read<'s, Time>,
     );
 
-    fn run(&mut self, (entities, mut vehicles, mut transforms, game_map, time): Self::SystemData) {
-        for (_entity, vehicle, transform) in (&entities, &mut vehicles, &mut transforms).join() {
+    fn run(
+        &mut self,
+        (entities, mut vehicle_components, mut transforms, game_map, time): Self::SystemData,
+    ) {
+        for (_entity, vehicle_component, transform) in
+            (&entities, &mut vehicle_components, &mut transforms).join()
+        {
             if self.is_vehicle_colliding(transform, &game_map) {
-                vehicle.base.speed = 0.0; // Stop the vehicle on collision
+                vehicle_component.base.speed = 0.0;
             } else {
-                self.apply_movement(vehicle, transform, time.delta_seconds()); // Apply movement if no collision
+                self.apply_movement(vehicle_component, transform, time.delta_seconds());
             }
         }
     }

@@ -12,8 +12,6 @@ pub struct VehicleComponents {
     pub deceleration: f32,
     pub direction: Vector2<f32>,
     pub rotation_speed: f32,
-    // pub pill_stock: i32,
-    // pub gas: i32,
 }
 
 impl VehicleComponents {
@@ -25,7 +23,6 @@ impl VehicleComponents {
     pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
         VehicleComponents {
             base: BaseEntityComponents {
-                //transform: create_transform(spawn_position_x, spawn_position_y),
                 position: Vector2::new(spawn_position_x, spawn_position_y),
                 speed: 0.0,
                 current_sprite_index: 36,
@@ -35,7 +32,6 @@ impl VehicleComponents {
             deceleration: Self::DEFAULT_DECELERATION,
             direction: Vector2::new(0.0, 1.0),
             rotation_speed: Self::DEFAULT_ROTATION_RATE,
-            //TODO have to set the indices to something, even though they get overwritten immediately
         }
     }
 }

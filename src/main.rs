@@ -15,10 +15,11 @@ use amethyst::{
 // Windows uncomment:
 use amethyst::ui::UiBundle;
 
+use yakuzaishi::enums::entity_type::EntityType;
 use yakuzaishi::systems::collision_system::CollisionSystem;
 use yakuzaishi::{
     resources::key_bindings_resource::KeyBindingsResource,
-    state::{entity_type::EntityType, main_game_state::Yakuzaishi},
+    state::main_game_state::Yakuzaishi,
     systems::{
         camera_tracking_system::CameraTrackingSystem,
         vehicle_controller_system::VehicleControllerSystem,

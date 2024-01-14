@@ -4,18 +4,19 @@ use amethyst::{
     prelude::*,
 };
 
+use crate::enums::entity_type::EntityType;
 use crate::{
     resources::{
         game_map_resource::GameMapResource, key_bindings_resource::KeyBindingsResource,
-        pedestrian_resource::PedestrianResource, vehicle_resource::VehicleResource,
+        vehicle_resource::VehicleResource,
     },
     state::{game_map_renderer, vehicle_spawner},
-    MAP_FILE_PATH, PEDESTRIAN_BINDINGS_CONFIG_FILENAME, PEDESTRIAN_SPRITE_SHEET_FILE_PATH,
-    PEDESTRIAN_TEXTURE_FILE_PATH, TILESET_FILE_PATH, TILESET_TEXTURE_FILE_PATH,
-    VEHICLE_BINDINGS_CONFIG_FILENAME, VEHICLE_SPRITE_SHEET_FILE_PATH, VEHICLE_TEXTURE_FILE_PATH,
+    MAP_FILE_PATH, PEDESTRIAN_BINDINGS_CONFIG_FILENAME, TILESET_FILE_PATH,
+    TILESET_TEXTURE_FILE_PATH, VEHICLE_BINDINGS_CONFIG_FILENAME, VEHICLE_SPRITE_SHEET_FILE_PATH,
+    VEHICLE_TEXTURE_FILE_PATH,
 };
 
-use super::{camera, entity_type::EntityType, pedestrian_spawner};
+use super::camera_initializer;
 
 pub struct Yakuzaishi {
     pub entity_type: EntityType,
@@ -57,15 +58,7 @@ impl Yakuzaishi {
                 );
                 world.insert(vehicle_resource.unwrap());
             }
-            EntityType::Pedestrian => {
-                let pedestrian_resource = PedestrianResource::load(
-                    world,
-                    PEDESTRIAN_TEXTURE_FILE_PATH,
-                    PEDESTRIAN_SPRITE_SHEET_FILE_PATH,
-                );
-                world.insert(pedestrian_resource.unwrap());
-            }
-            EntityType::Menu => { /* Menu specific resources */ }
+            _ => {}
         }
 
         // Insert the key bindings input bundle
@@ -80,18 +73,10 @@ impl Yakuzaishi {
         match self.entity_type {
             EntityType::Vehicle => {
                 vehicle_spawner::spawn_vehicle(world);
-                //world.add_system(VehicleControllerSystem);
-                //world.add_system(CameraTrackingSystem);
-                //world.add_system(CollisionSystem);
             }
-            EntityType::Pedestrian => {
-                pedestrian_spawner::spawn_pedestrian(world);
-            }
-            EntityType::Menu => {
-                //TODO do nothing until can like
-            }
+            _ => {}
         }
-        camera::init_camera(world);
+        camera_initializer::init_camera(world);
     }
 }
 

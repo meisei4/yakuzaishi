@@ -1,4 +1,5 @@
 pub mod components;
+pub mod enums;
 pub mod resources;
 pub mod state;
 pub mod systems;
@@ -27,7 +28,8 @@ pub const MENU_BINDINGS_CONFIG_FILENAME: &'static str = "key_bindings/menu_bindi
 
 // GEOMETRY constants
 pub const TILE_SIZE: f32 = 64.0;
-pub const MAP_HEIGHT: f32 = 10.0; //unit is tiles
+pub const MAP_HEIGHT: f32 = 10.0;
+//unit is tiles
 pub const MAP_WIDTH: f32 = 10.0;
 pub const CAMERA_WIDTH: f32 = 144.0;
 pub const CAMERA_HEIGHT: f32 = 160.0;

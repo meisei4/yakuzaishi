@@ -7,7 +7,7 @@ use amethyst::{
     Error,
 };
 
-use crate::state::entity_type::EntityType;
+use crate::enums::entity_type::EntityType;
 
 pub struct KeyBindingsResource {
     bindings: HashMap<EntityType, PathBuf>,

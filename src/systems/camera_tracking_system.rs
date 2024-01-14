@@ -14,9 +14,9 @@ impl<'s> System<'s> for CameraTrackingSystem {
     );
 
     fn run(&mut self, (vehicle_components, mut transforms): Self::SystemData) {
-        for (vehicle, transform) in (&vehicle_components, &mut transforms).join() {
-            transform.set_translation_x(vehicle.base.position.x);
-            transform.set_translation_y(vehicle.base.position.y);
+        for (vehicle_component, transform) in (&vehicle_components, &mut transforms).join() {
+            transform.set_translation_x(vehicle_component.base.position.x);
+            transform.set_translation_y(vehicle_component.base.position.y);
         }
     }
 }
