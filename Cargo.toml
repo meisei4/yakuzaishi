@@ -20,6 +20,6 @@ amethyst = { version = "0.15.0", features = ["vulkan", "tiles", "test-support"]}
 
 amethyst_test = "0.15"
 log = "0.4"
-image = "0.24.7"
+image = "0.25.0"
 tiled = "0.11.2"
 rand = "0.8.4"

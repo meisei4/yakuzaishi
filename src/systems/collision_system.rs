@@ -23,9 +23,7 @@ impl<'s> System<'s> for CollisionSystem {
         &mut self,
         (entities, mut vehicle_components, mut transforms, game_map, time): Self::SystemData,
     ) {
-        for (_entity, vehicle_component, transform) in
-            (&entities, &mut vehicle_components, &mut transforms).join()
-        {
+        for (_entity, vehicle_component, transform) in (&entities, &mut vehicle_components, &mut transforms).join() {
             if self.is_vehicle_colliding(transform, &game_map) {
                 vehicle_component.base.speed = 0.0;
             } else {
@@ -41,18 +39,10 @@ impl CollisionSystem {
         let tile_x = (position.x / TILE_SIZE).floor() as u32;
         let tile_y = (position.y / TILE_SIZE).floor() as u32;
 
-        !game_map
-            .tile_components
-            .get(&(tile_x, tile_y))
-            .map_or(false, |tile| tile.is_drivable)
+        !game_map.tile_components.get(&(tile_x, tile_y)).map_or(false, |tile| tile.is_drivable)
     }
 
-    fn apply_movement(
-        &self,
-        vehicle: &VehicleComponents,
-        transform: &mut Transform,
-        delta_time: f32,
-    ) {
+    fn apply_movement(&self, vehicle: &VehicleComponents, transform: &mut Transform, delta_time: f32) {
         let displacement = Vector3::new(
             vehicle.direction.x * vehicle.base.speed * delta_time,
             vehicle.direction.y * vehicle.base.speed * delta_time,

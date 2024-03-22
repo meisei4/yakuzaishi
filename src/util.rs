@@ -1,6 +1,6 @@
 use amethyst::core::Transform;
-use amethyst::renderer::sprite::SpriteSheetHandle;
 use amethyst::renderer::Sprite;
+use amethyst::renderer::sprite::SpriteSheetHandle;
 use amethyst::renderer::SpriteRender;
 use tiled::{LayerTile, Tileset};
 
@@ -42,10 +42,7 @@ pub fn create_transform(x: f32, y: f32) -> Transform {
     transform
 }
 
-pub fn create_sprite_render(
-    some_id: usize,
-    sprite_sheet_handle: &SpriteSheetHandle,
-) -> SpriteRender {
+pub fn create_sprite_render(some_id: usize, sprite_sheet_handle: &SpriteSheetHandle) -> SpriteRender {
     SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
         sprite_number: some_id,

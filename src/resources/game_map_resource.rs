@@ -4,9 +4,9 @@ use std::path::Path;
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     ecs::prelude::WorldExt,
+    Error,
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, Texture},
-    Error,
 };
 use tiled::{FiniteTileLayer, Loader as TiledLoader, Map, TileLayer};
 
@@ -20,39 +20,24 @@ pub struct GameMapResource {
 }
 
 impl GameMapResource {
-    pub fn load(
-        world: &mut World,
-        map_file_path: &str,
-        tsx_file_path: &str,
-        texture_file_path: &str,
-    ) -> Result<Self, Error> {
+    pub fn load(world: &mut World, map_file_path: &str, tsx_file_path: &str, texture_file_path: &str) -> Result<Self, Error> {
         let mut tiled_loader = TiledLoader::new();
 
-        let tileset = tiled_loader
-            .load_tsx_tileset(Path::new(tsx_file_path))
-            .expect("Failed to load tileset");
+        let tileset = tiled_loader.load_tsx_tileset(Path::new(tsx_file_path)).expect("Failed to load tileset");
 
         let asset_loader = world.read_resource::<Loader>();
         let texture_storage = world.read_resource::<AssetStorage<Texture>>();
 
-        let texture_handle = asset_loader.load(
-            texture_file_path,
-            ImageFormat::default(),
-            (),
-            &texture_storage,
-        );
+        let texture_handle = asset_loader.load(texture_file_path, ImageFormat::default(), (), &texture_storage);
 
         let sprite_sheet_data = SpriteSheet {
             texture: texture_handle,
             sprites: create_sprites_from_tileset(&tileset),
         };
         let sprite_sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
-        let sprite_sheet_handle =
-            asset_loader.load_from_data(sprite_sheet_data, (), &sprite_sheet_storage);
+        let sprite_sheet_handle = asset_loader.load_from_data(sprite_sheet_data, (), &sprite_sheet_storage);
 
-        let tiled_map = tiled_loader
-            .load_tmx_map(Path::new(map_file_path))
-            .expect("Failed to load tilemap");
+        let tiled_map = tiled_loader.load_tmx_map(Path::new(map_file_path)).expect("Failed to load tilemap");
 
         let tile_components = Self::build_tile_components(&tiled_map);
 
