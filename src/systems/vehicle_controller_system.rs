@@ -9,6 +9,7 @@ use amethyst::{
 };
 
 use crate::components::vehicle_components::VehicleComponents;
+use crate::TILE_SIZE;
 use crate::util::update_transform;
 
 #[derive(SystemDesc)]
@@ -84,6 +85,18 @@ fn update_position(vehicle_components: &mut VehicleComponents, delta_time: f32) 
     ) * delta_time;
     vehicle_components.base.position.x += displacement.x;
     vehicle_components.base.position.y += displacement.y;
+
+    let new_tile_x = (vehicle_components.base.position.x / TILE_SIZE).floor() as u32;
+    let new_tile_y = (vehicle_components.base.position.y / TILE_SIZE).floor() as u32;
+    let new_tile = Vector2::new(new_tile_x, new_tile_y);
+    if new_tile != vehicle_components.current_tile {
+        log::info!(
+            "Vehicle has moved to a new tile: {:?} from old tile {:?}",
+            new_tile,
+            vehicle_components.current_tile
+        );
+        vehicle_components.current_tile = new_tile;
+    }
 }
 
 fn adjust_speed(

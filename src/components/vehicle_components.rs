@@ -4,6 +4,7 @@ use amethyst::{
 };
 
 use crate::components::base_components::BaseEntityComponents;
+use crate::TILE_SIZE;
 
 pub struct VehicleComponents {
     pub base: BaseEntityComponents,
@@ -12,6 +13,7 @@ pub struct VehicleComponents {
     pub deceleration: f32,
     pub direction: Vector2<f32>,
     pub rotation_speed: f32,
+    pub current_tile: Vector2<u32>,
 }
 
 impl VehicleComponents {
@@ -21,6 +23,10 @@ impl VehicleComponents {
     pub const DEFAULT_ROTATION_RATE: f32 = 4.0;
 
     pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
+        let initial_tile = Vector2::new(
+            (spawn_position_x / TILE_SIZE) as u32,
+            (spawn_position_y / TILE_SIZE) as u32,
+        );
         VehicleComponents {
             base: BaseEntityComponents {
                 position: Vector2::new(spawn_position_x, spawn_position_y),
@@ -32,6 +38,7 @@ impl VehicleComponents {
             deceleration: Self::DEFAULT_DECELERATION,
             direction: Vector2::new(0.0, 1.0),
             rotation_speed: Self::DEFAULT_ROTATION_RATE,
+            current_tile: initial_tile,
         }
     }
 }

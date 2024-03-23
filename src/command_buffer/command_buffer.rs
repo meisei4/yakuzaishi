@@ -2,9 +2,12 @@ use amethyst::core::Transform;
 use amethyst::ecs::{Builder, World, WorldExt};
 use amethyst::renderer::SpriteRender;
 
+use crate::components::vehicle_components::VehicleComponents;
+
 pub struct EntityCreationCommand {
     pub transform: Transform,
     pub sprite_render: SpriteRender,
+    pub vehicle_components: Option<VehicleComponents>,
 }
 
 pub struct CommandBuffer {
@@ -22,11 +25,15 @@ impl CommandBuffer {
 
     pub fn execute(&mut self, world: &mut World) {
         for command in self.commands.drain(..) {
-            world
-                .create_entity()
+            let mut entity_builder = world.create_entity()
                 .with(command.transform)
-                .with(command.sprite_render)
-                .build();
+                .with(command.sprite_render);
+
+            // TODO ugly conditional, maybe do some composition stuff
+            if let Some(vehicle_components) = command.vehicle_components {
+                entity_builder = entity_builder.with(vehicle_components);
+            }
+            entity_builder.build();
         }
     }
 }

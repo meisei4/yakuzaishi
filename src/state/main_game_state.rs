@@ -1,8 +1,5 @@
-use amethyst::{
-    ecs::prelude::WorldExt,
-    input::{InputHandler, StringBindings},
-    prelude::*,
-};
+use amethyst::{ecs::prelude::WorldExt, GameData, input::{InputHandler, StringBindings}, SimpleState, SimpleTrans, StateData, StateEvent, Trans};
+use amethyst::prelude::World;
 
 use crate::{
     MAP_FILE_PATH,
@@ -73,14 +70,20 @@ impl Yakuzaishi {
     fn initialize_game_state(&mut self, world: &mut World) {
         let game_map = world.read_resource::<GameMapResource>();
         game_map_renderer::render_map(&game_map, &mut self.command_buffer);
+        //drop(game_map);
+        // do this because you used to use world mutable borrows after this, and this line is the first time to truly understand ownership concepts
+        // TODO: look to this code for understanding immutable borrow
         // TODO TODO: how the fuck did any of this work before hand?
         //  there is mutable, immutable borrows and now lifetime issues, you must truly understand ownership and borrowing rules before you continue to work on this
         match self.entity_type {
             EntityType::Vehicle => {
-                vehicle_spawner::spawn_vehicle(world);
+                let vehicle_sprite_sheet = world.read_resource::<VehicleResource>();
+                // TODO make this use command buffer etc
+                vehicle_spawner::spawn_vehicle(&vehicle_sprite_sheet, &game_map, &mut self.command_buffer);
             }
             _ => {}
         }
+        drop(game_map); // TODO DO NOT FORGET THIS
         camera_initializer::init_camera(world);
     }
 }

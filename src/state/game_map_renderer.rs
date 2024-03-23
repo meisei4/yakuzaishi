@@ -1,4 +1,4 @@
-use amethyst::{ecs::prelude::*, renderer::sprite::SpriteSheetHandle};
+use amethyst::renderer::sprite::SpriteSheetHandle;
 use tiled::{FiniteTileLayer, Layer, LayerType, TileLayer};
 
 use crate::command_buffer::command_buffer::{CommandBuffer, EntityCreationCommand};
@@ -22,12 +22,8 @@ fn get_map_layers_data<'map>(layers: impl ExactSizeIterator<Item=Layer<'map>>) -
             layers_data.push(finite_layer);
         }
     }
-
     layers_data
 }
-
-
-// Adjust process_finite_layer to accept the cloned data
 
 fn process_finite_layer(finite_layer: FiniteTileLayer, sprite_sheet_handle: SpriteSheetHandle, command_buffer: &mut CommandBuffer) {
     for y in 0..finite_layer.height() {
@@ -35,8 +31,7 @@ fn process_finite_layer(finite_layer: FiniteTileLayer, sprite_sheet_handle: Spri
             if let Some(tile) = finite_layer.get_tile(x as i32, y as i32) {
                 let transform = create_transform(x as f32, y as f32);
                 let sprite_render = create_sprite_render(tile.id() as usize, &sprite_sheet_handle);
-
-                command_buffer.add_command(EntityCreationCommand { transform, sprite_render });
+                command_buffer.add_command(EntityCreationCommand { transform, sprite_render, vehicle_components: None });
             }
         }
     }
