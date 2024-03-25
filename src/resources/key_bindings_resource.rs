@@ -2,9 +2,9 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 use amethyst::{
+    Error,
     input::{InputBundle, StringBindings},
     utils::application_root_dir,
-    Error,
 };
 
 use crate::enums::entity_type::EntityType;

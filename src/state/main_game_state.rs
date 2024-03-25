@@ -83,8 +83,7 @@ impl Yakuzaishi {
             }
             _ => {}
         }
-        drop(game_map); // TODO DO NOT FORGET THIS
-        camera_initializer::init_camera(world);
+        camera_initializer::init_camera(&mut self.command_buffer);
     }
 }
 

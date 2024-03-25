@@ -1,13 +1,14 @@
-use amethyst::core::Transform;
-use amethyst::renderer::Camera;
 use amethyst::{
-    ecs::prelude::{World, WorldExt},
+    ecs::prelude::WorldExt,
     prelude::*,
 };
+use amethyst::core::Transform;
+use amethyst::renderer::Camera;
 
 use crate::{CAMERA_HEIGHT, CAMERA_WIDTH, MAP_HEIGHT, MAP_WIDTH, TILE_SIZE};
+use crate::command_buffer::command_buffer::{CommandBuffer, EntityCreationCommand};
 
-pub fn init_camera(world: &mut World) {
+pub fn init_camera(command_buffer: &mut CommandBuffer) {
     let tile_centering_offset = TILE_SIZE / 2.0;
     let camera_x = (MAP_WIDTH * TILE_SIZE) / 2.0 - tile_centering_offset;
     let camera_y = (MAP_HEIGHT * TILE_SIZE) / 2.0 - tile_centering_offset;
@@ -18,9 +19,9 @@ pub fn init_camera(world: &mut World) {
     let mut camera_transform = Transform::default();
     camera_transform.set_translation_xyz(camera_x, camera_y, camera_z);
 
-    world
-        .create_entity()
-        .with(camera)
-        .with(camera_transform)
-        .build();
+    command_buffer.add_command(
+        EntityCreationCommand::new()
+            .with_camera(camera)
+            .with_transform(camera_transform)
+    );
 }

@@ -1,9 +1,9 @@
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     ecs::prelude::WorldExt,
+    Error,
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
-    Error,
 };
 
 pub struct VehicleResource {

@@ -2,33 +2,33 @@ use std::path::PathBuf;
 
 use amethyst::{
     core::transform::TransformBundle,
+    Error,
     input::StringBindings,
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
-        types::DefaultBackend,
         RenderingBundle,
+        types::DefaultBackend,
     },
     utils::application_root_dir,
-    Error,
 };
-// Windows uncomment:
+// MacOS uncomment:
 use amethyst::ui::UiBundle;
 
-use yakuzaishi::enums::entity_type::EntityType;
-use yakuzaishi::systems::collision_system::CollisionSystem;
 use yakuzaishi::{
+    DISPLAY_CONFIG_FILENAME,
     resources::key_bindings_resource::KeyBindingsResource,
     state::main_game_state::Yakuzaishi,
     systems::{
         camera_tracking_system::CameraTrackingSystem,
         vehicle_controller_system::VehicleControllerSystem,
-    },
-    DISPLAY_CONFIG_FILENAME, VEHICLE_BINDINGS_CONFIG_FILENAME,
+    }, VEHICLE_BINDINGS_CONFIG_FILENAME,
 };
+use yakuzaishi::enums::entity_type::EntityType;
+use yakuzaishi::systems::collision_system::CollisionSystem;
 
-// MacOS uncomment:
-//use amethyst::{error, renderer::rendy::metal::Backend, ui::UiBundle};
+// Windows uncomment:
+// use amethyst::ui::UiBundle;
 
 fn main() -> Result<(), Error> {
     amethyst::start_logger(Default::default());

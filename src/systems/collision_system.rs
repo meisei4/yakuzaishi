@@ -1,53 +1,52 @@
-use amethyst::{
-    core::{math::Vector3, timing::Time, transform::Transform},
-    ecs::{Entities, Join, Read, ReadExpect, System, WriteStorage},
-};
+use amethyst::core::Transform;
+use amethyst::ecs::{Join, ReadExpect, ReadStorage, System, WriteStorage};
+use amethyst::SystemDesc;
+use crate::components::game_map_tile_components::TileType;
+use crate::components::vehicle_components::VehicleComponents;
+use crate::resources::game_map_resource::GameMapResource;
+use crate::TILE_SIZE;
 
-use crate::{
-    components::vehicle_components::VehicleComponents,
-    resources::game_map_resource::GameMapResource, TILE_SIZE,
-};
-
+#[derive(SystemDesc)]
 pub struct CollisionSystem;
 
 impl<'s> System<'s> for CollisionSystem {
     type SystemData = (
-        Entities<'s>,
         WriteStorage<'s, VehicleComponents>,
-        WriteStorage<'s, Transform>,
+        ReadStorage<'s, Transform>,
         ReadExpect<'s, GameMapResource>,
-        Read<'s, Time>,
     );
 
-    fn run(
-        &mut self,
-        (entities, mut vehicle_components, mut transforms, game_map, time): Self::SystemData,
-    ) {
-        for (_entity, vehicle_component, transform) in (&entities, &mut vehicle_components, &mut transforms).join() {
-            if self.is_vehicle_colliding(transform, &game_map) {
-                vehicle_component.base.speed = 0.0;
+    fn run(&mut self, (mut vehicles, transforms, game_map): Self::SystemData) {
+        for (vehicle, transform) in (&mut vehicles, &transforms).join() {
+            let (collision, tile_type) = check_collision_and_tile_type(transform, &game_map);
+            if collision {
+                handle_collision(vehicle);
             } else {
-                self.apply_movement(vehicle_component, transform, time.delta_seconds());
+                adjust_speed_for_tile(vehicle, tile_type);
             }
         }
     }
 }
 
-impl CollisionSystem {
-    fn is_vehicle_colliding(&self, transform: &Transform, game_map: &GameMapResource) -> bool {
-        let position = transform.translation();
-        let tile_x = (position.x / TILE_SIZE).floor() as u32;
-        let tile_y = (position.y / TILE_SIZE).floor() as u32;
+fn check_collision_and_tile_type(transform: &Transform, game_map: &GameMapResource) -> (bool, TileType) {
+    let position = transform.translation();
+    let tile_x = (position.x / TILE_SIZE).floor() as u32;
+    let tile_y = (position.y / TILE_SIZE).floor() as u32;
 
-        !game_map.tile_components.get(&(tile_x, tile_y)).map_or(false, |tile| tile.is_drivable)
+    match game_map.tile_components.get(&(tile_x, tile_y)) {
+        Some(tile) => (tile.is_drivable, tile.tile_type),
+        None => (false, TileType::Normal), // Assuming 'Normal' is a default non-collidable tile type
     }
+}
 
-    fn apply_movement(&self, vehicle: &VehicleComponents, transform: &mut Transform, delta_time: f32) {
-        let displacement = Vector3::new(
-            vehicle.direction.x * vehicle.base.speed * delta_time,
-            vehicle.direction.y * vehicle.base.speed * delta_time,
-            0.0,
-        );
-        transform.prepend_translation(displacement);
+fn handle_collision(vehicle_component: &mut VehicleComponents) {
+    vehicle_component.base.speed = 0.0; // Stop the vehicle upon collision
+}
+
+fn adjust_speed_for_tile(vehicle_component: &mut VehicleComponents, tile_type: TileType) {
+    match tile_type {
+        TileType::Grass => vehicle_component.base.speed *= 0.5, // Example: halve speed on grass
+        TileType::Wall => vehicle_component.base.speed = 0.0, // Stop on wall, redundant here due to collision handling but illustrative
+        _ => {}, // No adjustment for normal tiles
     }
 }

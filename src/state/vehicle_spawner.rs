@@ -22,11 +22,10 @@ fn spawn_vehicle_at_position(vehicle_sprite_sheet: &VehicleResource, command_buf
     let sprite_render = util::create_sprite_render(0, &vehicle_sprite_sheet.sprite_sheet_handle);
     let vehicle_components = VehicleComponents::new(spawn_position.x, spawn_position.y);
 
-    let spawn_command = EntityCreationCommand {
-        transform,
-        sprite_render,
-        vehicle_components: Some(vehicle_components),
-    };
+    let spawn_command = EntityCreationCommand::new()
+        .with_transform(transform)
+        .with_sprite_render(sprite_render)
+        .with_vehicle_component(vehicle_components); // Assuming `vehicle_components` is of type VehicleComponents
 
     command_buffer.add_command(spawn_command);
     info!("Vehicle spawn command queued for position: {:?}", spawn_position);
