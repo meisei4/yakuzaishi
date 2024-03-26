@@ -8,10 +8,9 @@ use amethyst::{
     prelude::*,
     renderer::{ImageFormat, SpriteSheet, Texture},
 };
-use log::info;
 use tiled::{FiniteTileLayer, Loader as TiledLoader, Map, TileLayer};
 
-use crate::components::game_map_tile_components::GameMapTileComponents;
+use crate::components::game_map_tile_components::{GameMapTileComponents, TileType};
 use crate::util::{create_sprites_from_tileset, is_drivable_tile};
 
 pub struct GameMapResource {
@@ -66,8 +65,7 @@ impl GameMapResource {
         for y in 0..finite_layer.height() {
             for x in 0..finite_layer.width() {
                 if let Some(tile) = finite_layer.get_tile(x as i32, y as i32) {
-                    components.insert((x, y), GameMapTileComponents::new(is_drivable_tile(tile)));
-                    info!("Tile at position ({}, {}) is drivable: {}", x, y, is_drivable_tile(tile));
+                    components.insert((x, y), GameMapTileComponents::new(is_drivable_tile(tile), TileType::Normal));
                 }
             }
         }

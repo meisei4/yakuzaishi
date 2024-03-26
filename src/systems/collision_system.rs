@@ -1,13 +1,11 @@
 use amethyst::core::Transform;
-use amethyst::ecs::{AccessorCow, Join, ReadExpect, ReadStorage, RunningTime, System, World, WriteStorage};
-use amethyst::SystemDesc;
+use amethyst::ecs::{Join, ReadExpect, ReadStorage, System, WriteStorage};
 
 use crate::components::game_map_tile_components::TileType;
 use crate::components::vehicle_components::VehicleComponents;
 use crate::resources::game_map_resource::GameMapResource;
 use crate::TILE_SIZE;
 
-#[derive(SystemDesc)]
 pub struct CollisionSystem;
 
 impl<'s> System<'s> for CollisionSystem {

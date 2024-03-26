@@ -13,10 +13,10 @@ path = "src/lib.rs"
 [dependencies]
 
 # Windows uncomment:
-# amethyst = { version = "0.15.0", features = ["vulkan", "tiles", "test-support"]}
+amethyst = { version = "0.15.0", features = ["vulkan", "tiles", "test-support"] }
 
 # MacOS uncomment:
-amethyst = { version = "0.15.0", features = ["metal", "tiles", "test-support"]}
+# amethyst = { version = "0.15.0", features = ["metal", "tiles", "test-support"]}
 
 amethyst_test = "0.15"
 log = "0.4"

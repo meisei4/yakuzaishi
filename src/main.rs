@@ -12,7 +12,7 @@ use amethyst::{
     },
     utils::application_root_dir,
 };
-// MacOS uncomment:
+// Windows uncomment:
 use amethyst::ui::UiBundle;
 
 use yakuzaishi::{
@@ -27,7 +27,7 @@ use yakuzaishi::{
 use yakuzaishi::enums::entity_type::EntityType;
 use yakuzaishi::systems::collision_system::CollisionSystem;
 
-// Windows uncomment:
+// MacOS uncomment:
 // use amethyst::ui::UiBundle;
 
 fn main() -> Result<(), Error> {

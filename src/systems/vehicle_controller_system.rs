@@ -7,9 +7,7 @@ use amethyst::{
     input::{InputHandler, StringBindings},
     renderer::SpriteRender,
 };
-use amethyst::ecs::{AccessorCow, RunningTime, World};
 use amethyst::ecs::prelude::*;
-use amethyst::prelude::*;
 
 use crate::components::vehicle_components::VehicleComponents;
 use crate::TILE_SIZE;

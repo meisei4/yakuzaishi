@@ -1,5 +1,4 @@
 use amethyst::core::Transform;
-use amethyst::ecs::prelude::WorldExt;
 use amethyst::renderer::Camera;
 
 use crate::{CAMERA_HEIGHT, CAMERA_WIDTH, MAP_HEIGHT, MAP_WIDTH, TILE_SIZE};
