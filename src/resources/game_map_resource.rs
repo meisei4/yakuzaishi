@@ -11,7 +11,7 @@ use amethyst::{
 use tiled::{FiniteTileLayer, Loader as TiledLoader, Map, TileLayer};
 
 use crate::components::game_map_tile_components::{GameMapTileComponents, TileType};
-use crate::util::{create_sprites_from_tileset, is_drivable_tile};
+use crate::yakuzaishi_util;
 
 pub struct GameMapResource {
     pub tiled_map: Map,
@@ -32,7 +32,7 @@ impl GameMapResource {
 
         let sprite_sheet_data = SpriteSheet {
             texture: texture_handle,
-            sprites: create_sprites_from_tileset(&tileset),
+            sprites: yakuzaishi_util::create_sprites_from_tileset(&tileset),
         };
         let sprite_sheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
         let sprite_sheet_handle = asset_loader.load_from_data(sprite_sheet_data, (), &sprite_sheet_storage);
@@ -65,7 +65,7 @@ impl GameMapResource {
         for y in 0..finite_layer.height() {
             for x in 0..finite_layer.width() {
                 if let Some(tile) = finite_layer.get_tile(x as i32, y as i32) {
-                    components.insert((x, y), GameMapTileComponents::new(is_drivable_tile(tile), TileType::Normal));
+                    components.insert((x, y), GameMapTileComponents::new(yakuzaishi_util::is_drivable_tile(tile), TileType::Normal));
                 }
             }
         }

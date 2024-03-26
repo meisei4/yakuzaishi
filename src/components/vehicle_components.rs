@@ -6,6 +6,7 @@ use amethyst::{
 use crate::components::base_components::BaseEntityComponents;
 use crate::TILE_SIZE;
 
+#[derive(Clone)]
 pub struct VehicleComponents {
     pub base: BaseEntityComponents,
     pub max_speed: f32,

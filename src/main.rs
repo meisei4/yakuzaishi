@@ -31,6 +31,7 @@ use yakuzaishi::systems::collision_system::CollisionSystem;
 // use amethyst::ui::UiBundle;
 
 fn main() -> Result<(), Error> {
+    //log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
     amethyst::start_logger(Default::default());
 
     let app_root = application_root_dir()?;

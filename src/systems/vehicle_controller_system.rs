@@ -11,7 +11,7 @@ use amethyst::ecs::prelude::*;
 
 use crate::components::vehicle_components::VehicleComponents;
 use crate::TILE_SIZE;
-use crate::util::update_transform;
+use crate::yakuzaishi_util::update_transform;
 
 #[derive(SystemDesc)]
 pub struct VehicleControllerSystem;

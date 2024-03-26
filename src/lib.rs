@@ -3,7 +3,7 @@ pub mod enums;
 pub mod resources;
 pub mod state;
 pub mod systems;
-pub mod util;
+pub mod yakuzaishi_util;
 pub mod command_buffer;
 
 // asset file locations

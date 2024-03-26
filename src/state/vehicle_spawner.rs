@@ -2,10 +2,11 @@ use amethyst::core::math::Vector2;
 use log::info;
 use rand::{seq::SliceRandom, thread_rng};
 
-use crate::{components::vehicle_components::VehicleComponents, resources::game_map_resource::GameMapResource, TILE_SIZE, util};
-use crate::command_buffer::command_buffer::{CommandBuffer, EntityCreationCommand};
+use crate::{components::vehicle_components::VehicleComponents, resources::game_map_resource::GameMapResource, TILE_SIZE, yakuzaishi_util};
+use crate::command_buffer::command_buffer::CommandBuffer;
+use crate::command_buffer::entity_creation_command::EntityCreationCommand;
 use crate::resources::vehicle_resource::VehicleResource;
-use crate::util::create_transform;
+use crate::yakuzaishi_util::create_transform;
 
 pub fn spawn_vehicle(vehicle_sprite_sheet: &VehicleResource, game_map: &GameMapResource, command_buffer: &mut CommandBuffer) {
     let drivable_tiles = get_drivable_tiles(game_map);
@@ -23,7 +24,7 @@ pub fn spawn_vehicle(vehicle_sprite_sheet: &VehicleResource, game_map: &GameMapR
 
 fn spawn_vehicle_at_position(vehicle_sprite_sheet: &VehicleResource, command_buffer: &mut CommandBuffer, spawn_position: Vector2<f32>) {
     let transform = create_transform(spawn_position.x, spawn_position.y);
-    let sprite_render = util::create_sprite_render(0, &vehicle_sprite_sheet.sprite_sheet_handle);
+    let sprite_render = yakuzaishi_util::create_sprite_render(0, &vehicle_sprite_sheet.sprite_sheet_handle);
     let vehicle_components = VehicleComponents::new(spawn_position.x, spawn_position.y);
 
     let spawn_command = EntityCreationCommand::new()

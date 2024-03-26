@@ -2,7 +2,8 @@ use amethyst::core::Transform;
 use amethyst::renderer::Camera;
 
 use crate::{CAMERA_HEIGHT, CAMERA_WIDTH, MAP_HEIGHT, MAP_WIDTH, TILE_SIZE};
-use crate::command_buffer::command_buffer::{CommandBuffer, EntityCreationCommand};
+use crate::command_buffer::command_buffer::CommandBuffer;
+use crate::command_buffer::entity_creation_command::EntityCreationCommand;
 
 pub fn init_camera(command_buffer: &mut CommandBuffer) {
     let tile_centering_offset = TILE_SIZE / 2.0;
