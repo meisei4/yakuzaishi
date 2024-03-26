@@ -23,11 +23,13 @@ impl VehicleComponents {
     pub const DEFAULT_ROTATION_RATE: f32 = 4.0;
 
     pub fn new(spawn_position_x: f32, spawn_position_y: f32) -> Self {
+        // TODO: the "current_tile" attribute is literally only used for logging and even then i think somethings wrong with it.
         let initial_tile = Vector2::new(
             (spawn_position_x / TILE_SIZE) as u32,
             (spawn_position_y / TILE_SIZE) as u32,
         );
         VehicleComponents {
+            // TODO: should i remove this pathetic attempt at composition? (remove BaseComponents?)
             base: BaseEntityComponents {
                 position: Vector2::new(spawn_position_x, spawn_position_y),
                 speed: 0.0,

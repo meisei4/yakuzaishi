@@ -33,19 +33,21 @@ fn check_collision_and_tile_type(transform: &Transform, game_map: &GameMapResour
     let tile_y = (position.y / TILE_SIZE).floor() as u32;
 
     match game_map.tile_components.get(&(tile_x, tile_y)) {
-        Some(tile) => (tile.is_drivable, tile.tile_type),
-        None => (false, TileType::Normal), // Assuming 'Normal' is a default non-collidable tile type
+        Some(tile) => (!tile.is_drivable, tile.tile_type),
+        None => (true, TileType::Normal),
     }
 }
 
+// TODO: Currently this does not actually cause 100% stop, because the vehicle_controller_system
+//  still allows a split second of motion/displacement before it checks for collision again.
 fn handle_collision(vehicle_component: &mut VehicleComponents) {
-    vehicle_component.base.speed = 0.0; // Stop the vehicle upon collision
+    vehicle_component.base.speed = 0.0;
 }
 
 fn adjust_speed_for_tile(vehicle_component: &mut VehicleComponents, tile_type: TileType) {
     match tile_type {
-        TileType::Grass => vehicle_component.base.speed *= 0.5, // Example: halve speed on grass
-        TileType::Wall => vehicle_component.base.speed = 0.0, // Stop on wall, redundant here due to collision handling but illustrative
-        _ => {} // No adjustment for normal tiles
+        TileType::Grass => vehicle_component.base.speed *= 0.5,
+        TileType::Wall => vehicle_component.base.speed = 0.0,
+        _ => {}
     }
 }

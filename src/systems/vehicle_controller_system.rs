@@ -87,6 +87,7 @@ fn update_position(vehicle_components: &mut VehicleComponents, delta_time: f32) 
     vehicle_components.base.position.x += displacement.x;
     vehicle_components.base.position.y += displacement.y;
 
+    // TODO: stop having to convert back and forth between world coordinates and tile coordinates
     let new_tile_x = (vehicle_components.base.position.x / TILE_SIZE).floor() as u32;
     let new_tile_y = (vehicle_components.base.position.y / TILE_SIZE).floor() as u32;
     let new_tile = Vector2::new(new_tile_x, new_tile_y);
