@@ -1,64 +1,39 @@
 use amethyst::core::Transform;
-use amethyst::input::{InputBundle, StringBindings};
+use amethyst::renderer::Sprite;
 use amethyst::renderer::sprite::SpriteSheetHandle;
 use amethyst::renderer::SpriteRender;
-use amethyst::shred::World;
-use amethyst::{
-    assets::Handle,
-    renderer::{Sprite, SpriteSheet, Texture},
-};
+use tiled::{LayerTile, Tileset};
 
 use crate::components::base_components::BaseEntityComponents;
 use crate::TILE_SIZE;
-use tiled::{LayerTile, Tileset};
 
-pub fn convert_tileset_to_sprite_sheet(
-    tileset: &Tileset,
-    texture_handle: &Handle<Texture>,
-) -> SpriteSheet {
-    let mut sprites: Vec<Sprite> = Vec::new();
+pub fn create_sprites_from_tileset(tileset: &Tileset) -> Vec<Sprite> {
+    let image = match tileset.image.as_ref() {
+        Some(image) => image,
+        None => panic!("Tileset image is missing!"), // Consider a more graceful error handling
+    };
 
-    // Extract tileset image details with error handling
-    let image: &tiled::Image = tileset.image.as_ref().unwrap();
-    let tile_width: f32 = tileset.tile_width as f32;
-    let tile_height: f32 = tileset.tile_height as f32;
-    let image_width: f32 = image.width as f32;
-    let image_height: f32 = image.height as f32;
+    let columns = image.width as u32 / tileset.tile_width;
+    let rows = image.height as u32 / tileset.tile_height;
 
-    // Calculate the number of columns and rows in the tileset
-    let columns = (image_width / tile_width).floor() as u32;
-    let rows = (image_height / tile_height).floor() as u32;
-
-    log::info!(
-        "Creating sprites for each tile in the tileset. Columns: {}, Rows: {}",
-        columns,
-        rows
-    );
-
+    let mut sprites = Vec::new();
     for y in 0..rows {
         for x in 0..columns {
-            let sprite: Sprite = Sprite::from_pixel_values(
-                image_width as u32,
-                image_height as u32,
-                tile_width as u32,
-                tile_height as u32,
-                x * tile_width as u32,
-                y * tile_height as u32,
+            let sprite = Sprite::from_pixel_values(
+                image.width as u32,
+                image.height as u32,
+                tileset.tile_width,
+                tileset.tile_height,
+                (x * tileset.tile_width) as u32,
+                (y * tileset.tile_height) as u32,
                 [0.0, 0.0], // Offsets
                 false,      // Flip horizontally
-                true, // TODO lol this needs to be true because i think something about tiled messes up orientation
+                true,       // Orientation issue
             );
             sprites.push(sprite);
-            log::debug!("Sprite created at column {}, row {}", x, y);
         }
     }
-
-    log::info!("All sprites created successfully. Total: {}", sprites.len());
-
-    SpriteSheet {
-        texture: texture_handle.clone(),
-        sprites,
-    }
+    sprites
 }
 
 pub fn create_transform(x: f32, y: f32) -> Transform {
@@ -67,10 +42,7 @@ pub fn create_transform(x: f32, y: f32) -> Transform {
     transform
 }
 
-pub fn create_sprite_render(
-    some_id: usize,
-    sprite_sheet_handle: &SpriteSheetHandle,
-) -> SpriteRender {
+pub fn create_sprite_render(some_id: usize, sprite_sheet_handle: &SpriteSheetHandle) -> SpriteRender {
     SpriteRender {
         sprite_sheet: sprite_sheet_handle.clone(),
         sprite_number: some_id,

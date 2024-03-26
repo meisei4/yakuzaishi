@@ -1,36 +1,34 @@
-use std::{fs, path::PathBuf};
-
-use yakuzaishi::{
-    resources::key_bindings_resource::KeyBindingsResource,
-    state::{entity_type::EntityType, main_game_state::Yakuzaishi, menu_state::MenuState},
-    systems::{
-        camera_tracking_system::CameraTrackingSystem,
-        vehicle_controller_system::VehicleControllerSystem,
-    },
-    DISPLAY_CONFIG_FILENAME, FONT_PATH, MENU_BINDINGS_CONFIG_FILENAME,
-    VEHICLE_BINDINGS_CONFIG_FILENAME,
-};
-
-// Windows uncomment:
-use amethyst::{renderer::rendy::vulkan::Backend, ui::UiBundle};
-
-// MacOS uncomment:
-//use amethyst::{error, renderer::rendy::metal::Backend, ui::UiBundle};
+use std::path::PathBuf;
 
 use amethyst::{
     core::transform::TransformBundle,
-    input::{InputBundle, StringBindings},
+    Error,
+    input::StringBindings,
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
-        types::DefaultBackend,
         RenderingBundle,
+        types::DefaultBackend,
     },
     utils::application_root_dir,
-    Error,
 };
-use log::info;
+// Windows uncomment:
+use amethyst::ui::UiBundle;
+
+use yakuzaishi::{
+    DISPLAY_CONFIG_FILENAME,
+    resources::key_bindings_resource::KeyBindingsResource,
+    state::main_game_state::Yakuzaishi,
+    systems::{
+        camera_tracking_system::CameraTrackingSystem,
+        vehicle_controller_system::VehicleControllerSystem,
+    }, VEHICLE_BINDINGS_CONFIG_FILENAME,
+};
+use yakuzaishi::enums::entity_type::EntityType;
 use yakuzaishi::systems::collision_system::CollisionSystem;
+
+// MacOS uncomment:
+// use amethyst::ui::UiBundle;
 
 fn main() -> Result<(), Error> {
     amethyst::start_logger(Default::default());
@@ -60,7 +58,7 @@ fn main() -> Result<(), Error> {
 //#[cfg(feature = "vulkan")]
 fn create_rendering_bundle(
     display_config_path: &PathBuf,
-) -> Result<RenderingBundle<DefaultBackend>, amethyst::Error> {
+) -> Result<RenderingBundle<DefaultBackend>, Error> {
     Ok(
         RenderingBundle::<DefaultBackend>::new()
             .with_plugin(

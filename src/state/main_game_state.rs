@@ -1,33 +1,33 @@
-use amethyst::{
-    ecs::prelude::WorldExt,
-    input::{InputBundle, InputHandler, StringBindings},
-    prelude::*,
-};
+use amethyst::{ecs::prelude::WorldExt, GameData, input::{InputHandler, StringBindings}, SimpleState, SimpleTrans, StateData, StateEvent, Trans};
+use amethyst::prelude::World;
 
 use crate::{
+    MAP_FILE_PATH,
+    PEDESTRIAN_BINDINGS_CONFIG_FILENAME,
     resources::{
         game_map_resource::GameMapResource, key_bindings_resource::KeyBindingsResource,
-        pedestrian_resource::PedestrianResource, vehicle_resource::VehicleResource,
+        vehicle_resource::VehicleResource,
     },
-    state::{camera, game_map_renderer, vehicle_spawner},
-    systems::{
-        camera_tracking_system::CameraTrackingSystem,
-        vehicle_controller_system::VehicleControllerSystem,
-    },
-    MAP_FILE_PATH, PEDESTRIAN_BINDINGS_CONFIG_FILENAME, PEDESTRIAN_SPRITE_SHEET_FILE_PATH,
-    PEDESTRIAN_TEXTURE_FILE_PATH, TILESET_FILE_PATH, TILESET_TEXTURE_FILE_PATH,
-    VEHICLE_BINDINGS_CONFIG_FILENAME, VEHICLE_SPRITE_SHEET_FILE_PATH, VEHICLE_TEXTURE_FILE_PATH,
+    state::{game_map_renderer, vehicle_spawner}, TILESET_FILE_PATH,
+    TILESET_TEXTURE_FILE_PATH, VEHICLE_BINDINGS_CONFIG_FILENAME, VEHICLE_SPRITE_SHEET_FILE_PATH,
+    VEHICLE_TEXTURE_FILE_PATH,
 };
+use crate::command_buffer::command_buffer::CommandBuffer;
+use crate::enums::entity_type::EntityType;
 
-use super::{entity_type::EntityType, pedestrian_spawner};
+use super::camera_initializer;
 
 pub struct Yakuzaishi {
     pub entity_type: EntityType,
+    command_buffer: CommandBuffer,
 }
 
 impl Yakuzaishi {
     pub fn new(entity_type: EntityType) -> Self {
-        Self { entity_type }
+        Self {
+            entity_type,
+            command_buffer: CommandBuffer::new(), // Initialize the command buffer here
+        }
     }
 
     fn load_resources(&mut self, world: &mut World) {
@@ -47,9 +47,7 @@ impl Yakuzaishi {
                 EntityType::Pedestrian,
                 PEDESTRIAN_BINDINGS_CONFIG_FILENAME,
             ),
-            EntityType::Menu => return, // If it's a menu, no need to load key bindings
-        }
-        .unwrap();
+        }.unwrap();
 
         // Insert resources specific to the entity type
         match self.entity_type {
@@ -61,42 +59,31 @@ impl Yakuzaishi {
                 );
                 world.insert(vehicle_resource.unwrap());
             }
-            EntityType::Pedestrian => {
-                let pedestrian_resource = PedestrianResource::load(
-                    world,
-                    PEDESTRIAN_TEXTURE_FILE_PATH,
-                    PEDESTRIAN_SPRITE_SHEET_FILE_PATH,
-                );
-                world.insert(pedestrian_resource.unwrap());
-            }
-            EntityType::Menu => { /* Menu specific resources */ }
+            _ => {}
         }
 
         // Insert the key bindings input bundle
-        let input_bundle = key_bindings_resource
-            .get_input_bundle(&self.entity_type)
-            .unwrap();
+        let input_bundle = key_bindings_resource.get_input_bundle(&self.entity_type).unwrap();
         world.insert(input_bundle);
     }
 
     fn initialize_game_state(&mut self, world: &mut World) {
-        game_map_renderer::render_map(world);
-        //TODO maybe make a kind of generic spawner tht takes in arguments for the entity type
+        let game_map = world.read_resource::<GameMapResource>();
+        game_map_renderer::render_map(&game_map, &mut self.command_buffer);
+        //drop(game_map);
+        // do this because you used to use world mutable borrows after this, and this line is the first time to truly understand ownership concepts
+        // TODO: look to this code for understanding immutable borrow
+        // TODO TODO: how the fuck did any of this work before hand?
+        //  there is mutable, immutable borrows and now lifetime issues, you must truly understand ownership and borrowing rules before you continue to work on this
         match self.entity_type {
             EntityType::Vehicle => {
-                vehicle_spawner::spawn_vehicle(world);
-                //world.add_system(VehicleControllerSystem);
-                //world.add_system(CameraTrackingSystem);
-                //world.add_system(CollisionSystem);
+                let vehicle_sprite_sheet = world.read_resource::<VehicleResource>();
+                // TODO make this use command buffer etc
+                vehicle_spawner::spawn_vehicle(&vehicle_sprite_sheet, &game_map, &mut self.command_buffer);
             }
-            EntityType::Pedestrian => {
-                pedestrian_spawner::spawn_pedestrian(world);
-            }
-            EntityType::Menu => {
-                //TODO do nothing until can like
-            }
+            _ => {}
         }
-        camera::init_camera(world);
+        camera_initializer::init_camera(&mut self.command_buffer);
     }
 }
 
@@ -112,6 +99,7 @@ impl SimpleState for Yakuzaishi {
 
         self.load_resources(world);
         self.initialize_game_state(world);
+        self.command_buffer.execute(world);
     }
 
     fn handle_event(
