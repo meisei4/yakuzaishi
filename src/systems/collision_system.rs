@@ -1,6 +1,7 @@
 use amethyst::core::Transform;
-use amethyst::ecs::{Join, ReadExpect, ReadStorage, System, WriteStorage};
+use amethyst::ecs::{AccessorCow, Join, ReadExpect, ReadStorage, RunningTime, System, World, WriteStorage};
 use amethyst::SystemDesc;
+
 use crate::components::game_map_tile_components::TileType;
 use crate::components::vehicle_components::VehicleComponents;
 use crate::resources::game_map_resource::GameMapResource;
@@ -47,6 +48,6 @@ fn adjust_speed_for_tile(vehicle_component: &mut VehicleComponents, tile_type: T
     match tile_type {
         TileType::Grass => vehicle_component.base.speed *= 0.5, // Example: halve speed on grass
         TileType::Wall => vehicle_component.base.speed = 0.0, // Stop on wall, redundant here due to collision handling but illustrative
-        _ => {}, // No adjustment for normal tiles
+        _ => {} // No adjustment for normal tiles
     }
 }

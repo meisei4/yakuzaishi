@@ -1,11 +1,11 @@
-use amethyst::{
-    core::Transform,
-    ecs::{Join, ReadStorage, System, WriteStorage},
-    renderer::Camera,
-};
+use amethyst::{core::Transform, ecs::{Join, ReadStorage, System, WriteStorage}, renderer::Camera, SystemDesc};
+use amethyst::ecs::{AccessorCow, RunningTime, World};
 
+use crate::components::game_map_tile_components::TileType;
 use crate::components::vehicle_components::VehicleComponents;
+use crate::resources::game_map_resource::GameMapResource;
 
+#[derive(SystemDesc)]
 pub struct CameraTrackingSystem;
 
 impl<'s> System<'s> for CameraTrackingSystem {

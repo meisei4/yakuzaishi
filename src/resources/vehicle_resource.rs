@@ -2,9 +2,9 @@ use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     ecs::prelude::WorldExt,
     Error,
-    prelude::*,
     renderer::{ImageFormat, SpriteSheet, SpriteSheetFormat, Texture},
 };
+use amethyst::prelude::World;
 
 pub struct VehicleResource {
     pub sprite_sheet_handle: Handle<SpriteSheet>,
