@@ -10,7 +10,7 @@ use crate::TILE_SIZE;
 pub fn create_sprites_from_tileset(tileset: &Tileset) -> Vec<Sprite> {
     let image = match tileset.image.as_ref() {
         Some(image) => image,
-        None => panic!("Tileset image is missing!"), // Consider a more graceful error handling
+        None => panic!("Tileset image is missing!"),
     };
 
     let columns = image.width as u32 / tileset.tile_width;

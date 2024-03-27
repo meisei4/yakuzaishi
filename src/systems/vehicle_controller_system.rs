@@ -163,15 +163,12 @@ fn direction_angle(vehicle_components: &mut VehicleComponents) -> f32 {
 fn update_sprite_index(vehicle_components: &mut VehicleComponents) -> usize {
     let angle = direction_angle(vehicle_components);
     let normalized_angle = (angle + 2.0 * PI) % (2.0 * PI);
-    // Calculate sprite index
     let north_sprite_index = 36; // Index of North-facing sprite
     let total_sprites = 48;
     let radians_per_sprite = 2.0 * PI / total_sprites as f32;
 
-    // Calculate the index offset from North
     let index_offset = ((normalized_angle - PI / 2.0) / radians_per_sprite).round() as isize;
 
-    // Adjust the sprite index considering clockwise direction from North
     let updated_sprite_index =
         (north_sprite_index as isize - index_offset).rem_euclid(total_sprites as isize) as usize;
 

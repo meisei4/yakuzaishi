@@ -6,10 +6,8 @@ pub trait CommandLog {
     fn log_error(&self, error: &str);
 }
 
-
 impl CommandLog for EntityCreationCommand {
     fn log_before(&self) {
-        // Log something before executing the command
         log::info!("Executing EntityCreationCommand with {} components", self.components.len());
     }
 

@@ -15,7 +15,7 @@ pub fn init_camera(command_buffer: &mut CommandBuffer) {
 
     let mut camera_transform = Transform::default();
     camera_transform.set_translation_xyz(camera_x, camera_y, camera_z);
-
+    log::info!("Queuing command for camera initialization at position ({}, {}) with viewport dimensions ({}, {})", camera_x, camera_y, CAMERA_WIDTH, CAMERA_HEIGHT);
     command_buffer.add_command(
         EntityCreationCommand::new()
             .with_camera(camera)

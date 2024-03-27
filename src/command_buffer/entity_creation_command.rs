@@ -13,7 +13,6 @@ impl EntityCreationCommand {
         Self { components: Vec::new() }
     }
 
-    // Methods to add each type of component
     pub fn with_transform(mut self, transform: Transform) -> Self {
         self.components.push(EntityComponent::Transform(transform));
         self

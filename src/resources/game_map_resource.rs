@@ -16,7 +16,7 @@ use crate::yakuzaishi_util;
 pub struct GameMapResource {
     pub tiled_map: Map,
     pub sprite_sheet_handle: Handle<SpriteSheet>,
-    pub tile_components: HashMap<(u32, u32), GameMapTileComponents>,
+    pub tile_components: HashMap<(u32, u32), GameMapTileComponents>, // TODO: this might not be following ECS rules GameMap might need components itself?
 }
 
 impl GameMapResource {

@@ -1,5 +1,4 @@
 use amethyst::core::math::Vector2;
-use log::info;
 use rand::{seq::SliceRandom, thread_rng};
 
 use crate::{components::vehicle_components::VehicleComponents, resources::game_map_resource::GameMapResource, TILE_SIZE, yakuzaishi_util};
@@ -18,11 +17,11 @@ pub fn spawn_vehicle(vehicle_sprite_sheet: &VehicleResource, game_map: &GameMapR
             (tile_coordinates.x as f32 + 0.5) * TILE_SIZE, // Adjust for the center
             (tile_coordinates.y as f32 + 0.5) * TILE_SIZE, // Adjust for the center
         );
-        spawn_vehicle_at_position(vehicle_sprite_sheet, command_buffer, world_spawn_coordinates);
+        queue_vehicle_spawn_command(vehicle_sprite_sheet, command_buffer, world_spawn_coordinates);
     }
 }
 
-fn spawn_vehicle_at_position(vehicle_sprite_sheet: &VehicleResource, command_buffer: &mut CommandBuffer, spawn_position: Vector2<f32>) {
+fn queue_vehicle_spawn_command(vehicle_sprite_sheet: &VehicleResource, command_buffer: &mut CommandBuffer, spawn_position: Vector2<f32>) {
     let transform = create_transform(spawn_position.x, spawn_position.y);
     let sprite_render = yakuzaishi_util::create_sprite_render(0, &vehicle_sprite_sheet.sprite_sheet_handle);
     let vehicle_components = VehicleComponents::new(spawn_position.x, spawn_position.y);
@@ -32,15 +31,14 @@ fn spawn_vehicle_at_position(vehicle_sprite_sheet: &VehicleResource, command_buf
         .with_sprite_render(sprite_render)
         .with_vehicle_component(vehicle_components);
 
+    log::info!("Queuing vehicle spawn command at position {:?}, initial sprite ID: 0", spawn_position);
     command_buffer.add_command(spawn_command);
 }
 
-// Add other helper functions as needed...
 fn get_drivable_tiles(game_map: &GameMapResource) -> Vec<Vector2<f32>> {
     let drivable_tiles = game_map
         .tile_components
         .iter()
-
         .filter_map(|((x, y), tile_component)| {
             if tile_component.is_drivable {
                 Some(Vector2::new(*x as f32, *y as f32))
@@ -59,7 +57,7 @@ fn select_random_tile_from_list_of_tiles(tiles: &[Vector2<f32>]) -> Option<Vecto
         let selected_tile = tiles.choose(&mut rng).copied();
         selected_tile
     } else {
-        info!("No drivable tiles available for vehicle spawning");
+        log::info!("No drivable tiles available for vehicle spawning");
         None
     }
 }

@@ -26,7 +26,7 @@ impl Yakuzaishi {
     pub fn new(entity_type: EntityType) -> Self {
         Self {
             entity_type,
-            command_buffer: CommandBuffer::new(), // Initialize the command buffer here
+            command_buffer: CommandBuffer::new(),
         }
     }
 
@@ -49,7 +49,6 @@ impl Yakuzaishi {
             ),
         }.unwrap();
 
-        // Insert resources specific to the entity type
         match self.entity_type {
             EntityType::Vehicle => {
                 let vehicle_resource = VehicleResource::load(
@@ -61,8 +60,7 @@ impl Yakuzaishi {
             }
             _ => {}
         }
-
-        // Insert the key bindings input bundle
+        
         let input_bundle = key_bindings_resource.get_input_bundle(&self.entity_type).unwrap();
         world.insert(input_bundle);
     }
