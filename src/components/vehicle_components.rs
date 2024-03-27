@@ -5,6 +5,8 @@ use amethyst::{
 
 use crate::components::base_components::BaseEntityComponents;
 use crate::TILE_SIZE;
+use crate::VEHICLE_MAX_HEIGHT;
+use crate::VEHICLE_MAX_WIDTH;
 
 #[derive(Clone)]
 pub struct VehicleComponents {
@@ -15,6 +17,7 @@ pub struct VehicleComponents {
     pub direction: Vector2<f32>,
     pub rotation_speed: f32,
     pub current_tile: Vector2<u32>,
+    pub size: Vector2<f32>,
 }
 
 impl VehicleComponents {
@@ -42,6 +45,7 @@ impl VehicleComponents {
             direction: Vector2::new(0.0, 1.0),
             rotation_speed: Self::DEFAULT_ROTATION_RATE,
             current_tile: initial_tile,
+            size: Vector2::new(VEHICLE_MAX_WIDTH, VEHICLE_MAX_HEIGHT),
         }
     }
 }

@@ -34,3 +34,7 @@ pub const MAP_HEIGHT: f32 = 10.0;
 pub const MAP_WIDTH: f32 = 10.0;
 pub const CAMERA_WIDTH: f32 = 200.0;
 pub const CAMERA_HEIGHT: f32 = 200.0;
+
+pub const VEHICLE_MAX_WIDTH: f32 = 8.0;
+// Max width from the sprites (check vehicle_spritesheet.ron)
+pub const VEHICLE_MAX_HEIGHT: f32 = 15.0; // Max height from the sprites
