@@ -1,13 +1,6 @@
 use std::collections::HashMap;
 use std::path::Path;
 
-use amethyst::{
-    assets::{AssetStorage, Handle, Loader},
-    ecs::prelude::WorldExt,
-    Error,
-    prelude::*,
-    renderer::{ImageFormat, SpriteSheet, Texture},
-};
 use tiled::{FiniteTileLayer, Loader as TiledLoader, Map, TileLayer};
 
 use crate::components::game_map_tile_components::{GameMapTileComponents, TileType};
@@ -20,13 +13,14 @@ pub struct GameMapResource {
 }
 
 impl GameMapResource {
-    pub fn load(world: &mut World, map_file_path: &str, tsx_file_path: &str, texture_file_path: &str) -> Result<Self, Error> {
+    pub fn load(map_file_path: &str, tsx_file_path: &str, texture_file_path: &str) -> Result<Self, Error> {
         let mut tiled_loader = TiledLoader::new();
 
         let tileset = tiled_loader.load_tsx_tileset(Path::new(tsx_file_path)).expect("Failed to load tileset");
 
-        let asset_loader = world.read_resource::<Loader>();
-        let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+        //TODO
+        //let asset_loader = world.read_resource::<Loader>();
+        //let texture_storage = world.read_resource::<AssetStorage<Texture>>();
 
         let texture_handle = asset_loader.load(texture_file_path, ImageFormat::default(), (), &texture_storage);
 
