@@ -7,7 +7,7 @@ use crate::command_buffer::entity_creation_command::EntityCreationCommand;
 use crate::resources::vehicle_resource::VehicleResource;
 use crate::yakuzaishi_util::create_transform;
 
-pub fn spawn_vehicle(vehicle_sprite_sheet: &VehicleResource, game_map: &GameMapResource, command_buffer: &mut CommandBuffer) {
+pub fn spawn_vehicle(vehicle_resource: &VehicleResource, game_map: &GameMapResource, command_buffer: &mut CommandBuffer) {
     let drivable_tiles = get_drivable_tiles(game_map);
     if let Some(tile_coordinates) = select_random_tile_from_list_of_tiles(&drivable_tiles) {
         // TODO figure out when and how to formalize this x,y tile-coordinates vs x,y real 2D space coordinates issue
@@ -17,13 +17,13 @@ pub fn spawn_vehicle(vehicle_sprite_sheet: &VehicleResource, game_map: &GameMapR
             (tile_coordinates.x as f32 + 0.5) * TILE_SIZE, // Adjust for the center
             (tile_coordinates.y as f32 + 0.5) * TILE_SIZE, // Adjust for the center
         );
-        queue_vehicle_spawn_command(vehicle_sprite_sheet, command_buffer, world_spawn_coordinates);
+        queue_vehicle_spawn_command(vehicle_resource, command_buffer, world_spawn_coordinates);
     }
 }
 
-fn queue_vehicle_spawn_command(vehicle_sprite_sheet: &VehicleResource, command_buffer: &mut CommandBuffer, spawn_position: Vector2<f32>) {
+fn queue_vehicle_spawn_command(vehicle_resource: &VehicleResource, command_buffer: &mut CommandBuffer, spawn_position: Vector2<f32>) {
     let transform = create_transform(spawn_position.x, spawn_position.y);
-    let sprite_render = yakuzaishi_util::create_sprite_render(0, &vehicle_sprite_sheet.sprite_sheet_handle);
+    let sprite_render = yakuzaishi_util::create_sprite_render(0, &vehicle_resource.sprite_sheet_handle); //TODO: why is the id 0 again_
     let vehicle_components = VehicleComponents::new(spawn_position.x, spawn_position.y);
 
     let spawn_command = EntityCreationCommand::new()

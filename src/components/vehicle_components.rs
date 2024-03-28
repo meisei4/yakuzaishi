@@ -18,6 +18,7 @@ pub struct VehicleComponents {
     pub rotation_speed: f32,
     pub current_tile: Vector2<u32>,
     pub size: Vector2<f32>,
+    pub current_hitbox_index: usize,
 }
 
 impl VehicleComponents {
@@ -46,6 +47,7 @@ impl VehicleComponents {
             rotation_speed: Self::DEFAULT_ROTATION_RATE,
             current_tile: initial_tile,
             size: Vector2::new(VEHICLE_MAX_WIDTH, VEHICLE_MAX_HEIGHT),
+            current_hitbox_index: 36, //TODO should initialize to the hitbox instelf? at current_sprite_index in the hitboxresource
         }
     }
 }

@@ -2,18 +2,17 @@ use amethyst::{ecs::prelude::WorldExt, GameData, input::{InputHandler, StringBin
 use amethyst::prelude::World;
 
 use crate::{
-    MAP_FILE_PATH,
-    PEDESTRIAN_BINDINGS_CONFIG_FILENAME,
     resources::{
-        game_map_resource::GameMapResource, key_bindings_resource::KeyBindingsResource,
+        game_map_resource::GameMapResource,
         vehicle_resource::VehicleResource,
     },
-    state::{game_map_renderer, vehicle_spawner}, TILESET_FILE_PATH,
-    TILESET_TEXTURE_FILE_PATH, VEHICLE_BINDINGS_CONFIG_FILENAME, VEHICLE_SPRITE_SHEET_FILE_PATH,
-    VEHICLE_TEXTURE_FILE_PATH,
+    state::{game_map_renderer, vehicle_spawner}
+
+    ,
 };
 use crate::command_buffer::command_buffer::CommandBuffer;
 use crate::enums::entity_type::EntityType;
+use crate::resources::system_active_flag::SystemActive;
 
 use super::camera_initializer;
 
@@ -30,41 +29,6 @@ impl Yakuzaishi {
         }
     }
 
-    fn load_resources(&mut self, world: &mut World) {
-        let game_map_resource = GameMapResource::load(
-            world,
-            MAP_FILE_PATH,
-            TILESET_FILE_PATH,
-            TILESET_TEXTURE_FILE_PATH,
-        );
-        world.insert(game_map_resource.unwrap());
-
-        let key_bindings_resource = match self.entity_type {
-            EntityType::Vehicle => {
-                KeyBindingsResource::load(EntityType::Vehicle, VEHICLE_BINDINGS_CONFIG_FILENAME)
-            }
-            EntityType::Pedestrian => KeyBindingsResource::load(
-                EntityType::Pedestrian,
-                PEDESTRIAN_BINDINGS_CONFIG_FILENAME,
-            ),
-        }.unwrap();
-
-        match self.entity_type {
-            EntityType::Vehicle => {
-                let vehicle_resource = VehicleResource::load(
-                    world,
-                    VEHICLE_TEXTURE_FILE_PATH,
-                    VEHICLE_SPRITE_SHEET_FILE_PATH,
-                );
-                world.insert(vehicle_resource.unwrap());
-            }
-            _ => {}
-        }
-        
-        let input_bundle = key_bindings_resource.get_input_bundle(&self.entity_type).unwrap();
-        world.insert(input_bundle);
-    }
-
     fn initialize_game_state(&mut self, world: &mut World) {
         let game_map = world.read_resource::<GameMapResource>();
         game_map_renderer::render_map(&game_map, &mut self.command_buffer);
@@ -75,9 +39,10 @@ impl Yakuzaishi {
         //  there is mutable, immutable borrows and now lifetime issues, you must truly understand ownership and borrowing rules before you continue to work on this
         match self.entity_type {
             EntityType::Vehicle => {
-                let vehicle_sprite_sheet = world.read_resource::<VehicleResource>();
+                // TODO this read is really sketchy since but maybe it works because the hitboxes are not yet needed in the spawn stuff
+                let vehicle_resource = world.read_resource::<VehicleResource>();
                 // TODO make this use command buffer etc
-                vehicle_spawner::spawn_vehicle(&vehicle_sprite_sheet, &game_map, &mut self.command_buffer);
+                vehicle_spawner::spawn_vehicle(&vehicle_resource, &game_map, &mut self.command_buffer);
             }
             _ => {}
         }
@@ -94,8 +59,8 @@ impl Default for Yakuzaishi {
 impl SimpleState for Yakuzaishi {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
+        world.insert(SystemActive::new(true));
 
-        self.load_resources(world);
         self.initialize_game_state(world);
         self.command_buffer.execute(world);
     }

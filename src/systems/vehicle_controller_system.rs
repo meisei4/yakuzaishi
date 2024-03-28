@@ -10,6 +10,7 @@ use amethyst::{
 use amethyst::ecs::prelude::*;
 
 use crate::components::vehicle_components::VehicleComponents;
+use crate::resources::system_active_flag::SystemActive;
 use crate::TILE_SIZE;
 use crate::yakuzaishi_util::update_transform;
 
@@ -23,12 +24,15 @@ impl<'s> System<'s> for VehicleControllerSystem {
         WriteStorage<'s, SpriteRender>,
         Read<'s, InputHandler<StringBindings>>,
         Read<'s, Time>,
+        Read<'s, SystemActive>,
     );
 
     fn run(
         &mut self,
-        (mut vehicle_components, mut transforms, mut sprite_renders, input, time): Self::SystemData,
-    ) {
+        (mut vehicle_components, mut transforms, mut sprite_renders, input, time, system_active): Self::SystemData) {
+        if !system_active.is_active {
+            return;
+        }
         let delta_time = time.delta_seconds();
 
         for (vehicle_component, transform, sprite_render) in (
@@ -41,7 +45,9 @@ impl<'s> System<'s> for VehicleControllerSystem {
             process_input(&input, vehicle_component, delta_time);
             update_position(vehicle_component, delta_time);
             update_transform(&vehicle_component.base, transform);
-            sprite_render.sprite_number = update_sprite_index(vehicle_component);
+            let sprite_and_hitbox_index = update_sprite_index(vehicle_component);
+            sprite_render.sprite_number = sprite_and_hitbox_index;
+            update_hitbox_index(vehicle_component, sprite_and_hitbox_index); // TODO: dont pass in the whole vehicile component, just the hitbox
         }
     }
 }
@@ -183,4 +189,8 @@ fn update_sprite_index(vehicle_components: &mut VehicleComponents) -> usize {
         );
     }
     updated_sprite_index
+}
+
+fn update_hitbox_index(vehicle_components: &mut VehicleComponents, new_index: usize) {
+    vehicle_components.current_hitbox_index = new_index;
 }

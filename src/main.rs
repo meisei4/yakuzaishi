@@ -12,23 +12,20 @@ use amethyst::{
     },
     utils::application_root_dir,
 };
-// Windows uncomment:
 use amethyst::ui::UiBundle;
 
 use yakuzaishi::{
     DISPLAY_CONFIG_FILENAME,
-    resources::key_bindings_resource::KeyBindingsResource,
-    state::main_game_state::Yakuzaishi,
+    resources::key_bindings_resource::KeyBindingsResource
+    ,
     systems::{
         camera_tracking_system::CameraTrackingSystem,
         vehicle_controller_system::VehicleControllerSystem,
     }, VEHICLE_BINDINGS_CONFIG_FILENAME,
 };
 use yakuzaishi::enums::entity_type::EntityType;
+use yakuzaishi::state::loading_state::LoadingState;
 use yakuzaishi::systems::collision_system::CollisionSystem;
-
-// MacOS uncomment:
-// use amethyst::ui::UiBundle;
 
 fn main() -> Result<(), Error> {
     //log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
@@ -47,8 +44,9 @@ fn main() -> Result<(), Error> {
     let game_data = build_game_data(key_bindings_resource, rendering_bundle)?;
 
     //let mut game = Application::build(assets_path, MenuState::new())?.build(game_data)?;
-    let mut game = Application::build(assets_path, Yakuzaishi::default())?.build(game_data)?;
+    let loading_state = LoadingState::new(EntityType::Vehicle); // Initialize your loading state with necessary parameters
 
+    let mut game = Application::new(assets_path, loading_state, game_data)?;
     game.run();
 
     Ok(())

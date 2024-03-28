@@ -1,10 +1,11 @@
 use amethyst::core::math::Vector2;
 use amethyst::core::Transform;
-use amethyst::ecs::{Join, ReadExpect, ReadStorage, System, WriteStorage};
+use amethyst::ecs::{Join, Read, ReadExpect, ReadStorage, System, WriteStorage};
 
-use crate::components::game_map_tile_components::TileType;
 use crate::components::vehicle_components::VehicleComponents;
 use crate::resources::game_map_resource::GameMapResource;
+use crate::resources::system_active_flag::SystemActive;
+use crate::resources::vehicle_resource::VehicleResource;
 use crate::TILE_SIZE;
 
 pub struct CollisionSystem;
@@ -14,15 +15,18 @@ impl<'s> System<'s> for CollisionSystem {
         WriteStorage<'s, VehicleComponents>,
         ReadStorage<'s, Transform>,
         ReadExpect<'s, GameMapResource>,
+        ReadExpect<'s, VehicleResource>,
+        Read<'s, SystemActive>,
     );
 
-    fn run(&mut self, (mut vehicles, transforms, game_map): Self::SystemData) {
+    fn run(&mut self, (mut vehicles, transforms, game_map, vehicle_resource, system_active): Self::SystemData) {
+        if !system_active.is_active {
+            return;
+        }
         for (vehicle, transform) in (&mut vehicles, &transforms).join() {
-            let (collision, tile_type) = check_future_collision(vehicle, transform, &game_map);
-            if collision {
+            let has_collision_occured = check_future_collision(vehicle, transform, &game_map, &vehicle_resource);
+            if has_collision_occured {
                 handle_collision(vehicle);
-            } else {
-                adjust_speed_for_tile(vehicle, tile_type);
             }
         }
     }
@@ -34,50 +38,45 @@ fn handle_collision(vehicle_component: &mut VehicleComponents) {
     vehicle_component.base.speed = 0.0;
 }
 
-fn adjust_speed_for_tile(vehicle_component: &mut VehicleComponents, tile_type: TileType) {
-    match tile_type {
-        TileType::Grass => vehicle_component.base.speed *= 0.5,
-        TileType::Wall => vehicle_component.base.speed = 0.0,
-        _ => {}
-    }
-}
+fn check_future_collision(
+    vehicle: &VehicleComponents,
+    transform: &Transform,
+    game_map: &GameMapResource,
+    vehicle_resource: &VehicleResource,
+) -> bool {
+    let current_hitbox = &vehicle_resource.hitboxes[vehicle.current_hitbox_index];
 
-fn check_future_collision(vehicle: &VehicleComponents, transform: &Transform, game_map: &GameMapResource) -> (bool, TileType) {
-    let next_x = transform.translation().x + vehicle.direction.x * vehicle.base.speed;
-    let next_y = transform.translation().y + vehicle.direction.y * vehicle.base.speed;
+    // Calculate the future position of the vehicle based on its current direction and speed
+    let future_position = Vector2::new(
+        transform.translation().x + vehicle.direction.x * vehicle.base.speed,
+        transform.translation().y + vehicle.direction.y * vehicle.base.speed,
+    );
 
-    let next_position = Vector2::new(next_x, next_y);
+    // Adjust the hitbox corners and midpoints based on the future position of the vehicle
+    let adjusted_corners = current_hitbox.corners.map(|corner| {
+        Vector2::new(corner.x + future_position.x, corner.y + future_position.y)
+    });
+    let adjusted_midpoints = current_hitbox.midpoints.map(|midpoint| {
+        Vector2::new(midpoint.x + future_position.x, midpoint.y + future_position.y)
+    });
 
-    let corner_positions = calculate_vehicle_corners(next_position, vehicle.size);
+    // Combine corners and midpoints for collision checking
+    let collision_points = [adjusted_corners, adjusted_midpoints].concat();
 
-    // Check all relevant tiles for drivability
-    for corner_pos in corner_positions {
-        let tile_x = (corner_pos.x / TILE_SIZE).floor() as u32;
-        let tile_y = (corner_pos.y / TILE_SIZE).floor() as u32;
+    // Check all relevant points for drivability
+    for point in collision_points.iter() {
+        let tile_x = (point.x / TILE_SIZE).floor() as u32;
+        let tile_y = (point.y / TILE_SIZE).floor() as u32;
 
         if let Some(tile) = game_map.tile_components.get(&(tile_x, tile_y)) {
             if !tile.is_drivable {
-                log::info!("Collision Detected:");
-                log::info!("Vehicle Speed: {}, Direction: {:?}", vehicle.base.speed, vehicle.direction);
-                log::info!("Collision at Vehicle Corner: {:?}, Tile: ({}, {}), TileType: {:?}", corner_pos, tile_x, tile_y, tile.tile_type);
-                return (true, tile.tile_type);
+                log::info!("Collision Detected at Vehicle Point: {:?}, with Tile: ({}, {}), TileType: {:?}", point, tile_x, tile_y, tile.tile_type);
+                return true;
             }
         }
     }
-
-    (false, TileType::Normal)
+    false // No collision detected
 }
 
-fn calculate_vehicle_corners(position: Vector2<f32>, dimensions: Vector2<f32>) -> Vec<Vector2<f32>> {
-    let half_width = dimensions.x / 2.0;
-    let half_height = dimensions.y / 2.0;
-
-    vec![
-        Vector2::new(position.x - half_width, position.y - half_height), // Bottom left
-        Vector2::new(position.x + half_width, position.y - half_height), // Bottom right
-        Vector2::new(position.x - half_width, position.y + half_height), // Top left
-        Vector2::new(position.x + half_width, position.y + half_height), // Top right
-    ]
-}
 
 
