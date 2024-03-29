@@ -1,33 +1,33 @@
-use bevy::prelude::*;
+use bevy::prelude::{App, AssetServer, ClearColor, Color, Commands, Res, ResMut, Startup, Update, Window, WindowPlugin};
 
-use yakuzaishi::{
-    enums::entity_type::EntityType, resources::key_bindings_resource::KeyBindingsResource,
-    VEHICLE_BINDINGS_CONFIG_FILENAME,
-};
-use yakuzaishi::state::loading_state::load_assets;
+use yakuzaishi::{state::main_game_state::Yakuzaishi, systems::{camera_tracking_system::camera_tracking_system, vehicle_controller_system::vehicle_controller_system}};
 
 fn main() {
     //log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
-
-    let key_bindings_resource =
-        KeyBindingsResource::load(EntityType::Vehicle, VEHICLE_BINDINGS_CONFIG_FILENAME)?;
-
     App::new()
         .add_plugins(WindowPlugin {
             primary_window: Some(Window {
                 resolution: (600.0, 600.0).into(),
                 title: "Yakuzaishi".to_string(),
-                ..default()
+                ..Default::default()
             }),
-            ..default()
+            ..Default::default()
         })
         .insert_resource(ClearColor(Color::BLACK))
-        .add_plugins(DefaultPlugins)
-        .add_systems(Startup, (load_assets))// TODO just pass the functions in the state bullshit from amethyst
-        //TODO 1: ^^ focus onn establishing the resource loading/LoadingState process
-
-        .add_systems(Update, (vehicle_controller_system))
+        .insert_resource(Yakuzaishi::default())
+        .add_systems(Startup, (init_game_state_system))
         .add_systems(Update, (camera_tracking_system))
-        .add_systems(Update, (collision_system))
+        .add_systems(Update, (vehicle_controller_system))
         .run();
+}
+
+fn init_game_state_system(
+    command_buffer: &mut Commands,
+    asset_server: Res<AssetServer>,
+    mut yakuzaishi: ResMut<Yakuzaishi>,
+) {
+    //TODO: this is hilariously awful design now that i understand more about bevy systems
+    //  but i am trying to speedrun my way to 0 compile errors
+    //  while also maintaining my old implementation practices
+    yakuzaishi.init_game_state(command_buffer, &asset_server);
 }

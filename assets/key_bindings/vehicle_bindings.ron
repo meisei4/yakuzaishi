@@ -1,9 +1,17 @@
 (
     axes: {
-        "vehicle_forward": Emulated(pos: Key(W), neg: Key(S)), // W for accelerate, S for decelerate
-        "vehicle_turn": Emulated(pos: Key(D), neg: Key(A)),    // D for turn right, A for turn left
+        "vehicle_forward": (
+            pos: Key(W),
+            neg: Key(S),
+        ),
+        "vehicle_turn": (
+            pos: Key(D),
+            neg: Key(A),
+        ),
     },
     actions: {
-        "quit": [[Key(Escape)]], // Escape to quit the game
+        "quit": (
+            key: Key(Escape),
+        ),
     }
 )

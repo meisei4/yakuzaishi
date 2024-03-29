@@ -1,10 +1,6 @@
-use amethyst::ecs::prelude::{Component, DenseVecStorage};
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TileType {
     Normal,
-    Grass,
-    Wall,
 }
 
 pub struct GameMapTileComponents {
@@ -19,8 +15,4 @@ impl GameMapTileComponents {
             tile_type,
         }
     }
-}
-
-impl Component for GameMapTileComponents {
-    type Storage = DenseVecStorage<Self>;
 }

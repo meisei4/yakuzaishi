@@ -1,173 +1,144 @@
 use std::f32::consts::PI;
 
-use amethyst::{
-    core::{math::Vector2, timing::Time, Transform},
-    derive::SystemDesc,
-    ecs::{Join, Read, SystemData, WriteStorage},
-    input::{InputHandler, StringBindings},
-    renderer::SpriteRender,
-};
-use amethyst::ecs::prelude::*;
+use bevy::{input::keyboard::KeyboardInput, prelude::{KeyCode, Query, Res, Sprite, Time, Transform, UVec2, Vec2}};
 
-use crate::components::vehicle_components::VehicleComponents;
-use crate::resources::system_active_flag::SystemActive;
-use crate::TILE_SIZE;
-use crate::yakuzaishi_util::update_transform;
+use crate::{components::vehicle_components::VehicleComponents, TILE_SIZE};
 
-#[derive(SystemDesc)]
-pub struct VehicleControllerSystem;
+pub fn vehicle_controller_system(time: Res<Time>,
+                                 keyboard_input: Res<KeyboardInput>,
+                                 mut query: Query<(&mut VehicleComponents,
+                                                   &mut Transform,
+                                                   &mut Sprite)>,
+) {
+    let delta_time = time.delta_seconds();
 
-impl<'s> System<'s> for VehicleControllerSystem {
-    type SystemData = (
-        WriteStorage<'s, VehicleComponents>,
-        WriteStorage<'s, Transform>,
-        WriteStorage<'s, SpriteRender>,
-        Read<'s, InputHandler<StringBindings>>,
-        Read<'s, Time>,
-        Read<'s, SystemActive>,
-    );
-
-    fn run(
-        &mut self,
-        (mut vehicle_components, mut transforms, mut sprite_renders, input, time, system_active): Self::SystemData) {
-        if !system_active.is_active {
-            return;
-        }
-        let delta_time = time.delta_seconds();
-
-        for (vehicle_component, transform, sprite_render) in (
-            &mut vehicle_components,
-            &mut transforms,
-            &mut sprite_renders,
-        )
-            .join()
-        {
-            process_input(&input, vehicle_component, delta_time);
-            update_position(vehicle_component, delta_time);
-            update_transform(&vehicle_component.base, transform);
-            let sprite_and_hitbox_index = update_sprite_index(vehicle_component);
-            sprite_render.sprite_number = sprite_and_hitbox_index;
-            update_hitbox_index(vehicle_component, sprite_and_hitbox_index); // TODO: dont pass in the whole vehicile component, just the hitbox
-        }
+    for (mut vehicle, mut transform, sprite) in query.iter_mut() {
+        process_input(&keyboard_input, &mut vehicle, delta_time);
+        update_position_and_transform(&mut vehicle, delta_time, &mut transform);
+        update_sprite_index_and_hitbox_index(&mut vehicle);
     }
 }
 
+
 fn process_input(
-    input: &Read<InputHandler<StringBindings>>,
-    vehicle_component: &mut VehicleComponents,
+    keyboard_input: &Res<KeyboardInput>,
+    vehicle: &mut VehicleComponents,
     delta_time: f32,
 ) {
-    handle_forward_movement(input, vehicle_component, delta_time);
-    handle_turning(input, vehicle_component, delta_time);
+    handle_forward_movement(keyboard_input, vehicle, delta_time);
+    handle_turning(keyboard_input, vehicle, delta_time);
 }
 
 fn handle_forward_movement(
-    input: &Read<InputHandler<StringBindings>>,
+    keyboard_input: &Res<KeyboardInput>,
     vehicle_component: &mut VehicleComponents,
     delta_time: f32,
 ) {
-    if let Some(forward_movement) = input.axis_value("vehicle_forward") {
-        if forward_movement != 0.0 {
-            adjust_speed(vehicle_component, forward_movement, delta_time);
-        }
-    }
+    //TODO; Cool ass algebraic solution from gpt vs the if forward -> 1, if backward -> -1, else nothing -> 0 grossness
+    let forward = keyboard_input.pressed(KeyCode::KeyW) as i32;
+    let backward = keyboard_input.pressed(KeyCode::KeyS) as i32;
+    let forward_movement = (forward - backward) as f32; // 1 if W is pressed, -1 if S is pressed, 0 otherwise
+
+    adjust_speed(vehicle_component, forward_movement, delta_time);
 }
 
 fn handle_turning(
-    input: &Read<InputHandler<StringBindings>>,
+    keyboard_input: &Res<KeyboardInput>,
     vehicle_component: &mut VehicleComponents,
     delta_time: f32,
 ) {
-    if let Some(turn_movement) = input.axis_value("vehicle_turn") {
-        if turn_movement != 0.0 {
-            adjust_direction(vehicle_component, turn_movement, delta_time);
-        }
-    }
+    let right = keyboard_input.pressed(KeyCode::KeyD) as i32;
+    let left = keyboard_input.pressed(KeyCode::KeyA) as i32;
+    let turn_movement = (right - left) as f32; // 1 if D is pressed, -1 if A is pressed, 0 otherwise
+
+    adjust_direction(vehicle_component, turn_movement, delta_time);
 }
 
-fn update_position(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    let displacement = Vector2::new(
-        vehicle_components.direction.x * vehicle_components.base.speed,
-        vehicle_components.direction.y * vehicle_components.base.speed,
+fn update_position_and_transform(vehicle: &mut VehicleComponents, delta_time: f32, transform: &mut Transform) {
+    let displacement = Vec2::new(
+        vehicle.direction.x * vehicle.base.speed,
+        vehicle.direction.y * vehicle.base.speed,
     ) * delta_time;
-    vehicle_components.base.position.x += displacement.x;
-    vehicle_components.base.position.y += displacement.y;
+    vehicle.base.position.x += displacement.x;
+    vehicle.base.position.y += displacement.y;
 
     // TODO: stop having to convert back and forth between world coordinates and tile coordinates
-    let new_tile_x = (vehicle_components.base.position.x / TILE_SIZE).floor() as u32;
-    let new_tile_y = (vehicle_components.base.position.y / TILE_SIZE).floor() as u32;
-    let new_tile = Vector2::new(new_tile_x, new_tile_y);
-    if new_tile != vehicle_components.current_tile {
+    let new_tile_x = (vehicle.base.position.x / TILE_SIZE).floor();
+    let new_tile_y = (vehicle.base.position.y / TILE_SIZE).floor();
+    let new_tile = UVec2::new(new_tile_x as u32, new_tile_y as u32);
+    if new_tile != vehicle.current_tile {
         log::info!(
             "Vehicle has moved to a new tile: {:?} from old tile {:?}",
             new_tile,
-            vehicle_components.current_tile
+            vehicle.current_tile
         );
-        vehicle_components.current_tile = new_tile;
+        vehicle.current_tile = new_tile;
     }
+    transform.translation.x = vehicle.base.position.x;
+    transform.translation.y = vehicle.base.position.y;
 }
 
 fn adjust_speed(
-    vehicle_components: &mut VehicleComponents,
+    vehicle: &mut VehicleComponents,
     forward_movement: f32,
     delta_time: f32,
 ) {
     if forward_movement > 0.0 {
-        accelerate(vehicle_components, delta_time * forward_movement);
+        accelerate(vehicle, delta_time * forward_movement);
     } else if forward_movement < 0.0 {
-        decelerate(vehicle_components, delta_time * -forward_movement);
+        decelerate(vehicle, delta_time * -forward_movement);
     }
 }
 
-fn accelerate(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    vehicle_components.base.speed += vehicle_components.acceleration * delta_time;
-    if vehicle_components.base.speed > vehicle_components.max_speed {
-        vehicle_components.base.speed = vehicle_components.max_speed;
+fn accelerate(vehicle: &mut VehicleComponents, delta_time: f32) {
+    vehicle.base.speed += vehicle.acceleration * delta_time;
+    if vehicle.base.speed > vehicle.max_speed {
+        vehicle.base.speed = vehicle.max_speed;
     }
 }
 
-fn decelerate(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    vehicle_components.base.speed -= vehicle_components.deceleration * delta_time;
-    if vehicle_components.base.speed < 0.0 {
-        vehicle_components.base.speed = 0.0;
+fn decelerate(vehicle: &mut VehicleComponents, delta_time: f32) {
+    vehicle.base.speed -= vehicle.deceleration * delta_time;
+    if vehicle.base.speed < 0.0 {
+        vehicle.base.speed = 0.0;
     }
 }
 
 fn adjust_direction(
-    vehicle_components: &mut VehicleComponents,
+    vehicle: &mut VehicleComponents,
     turn_movement: f32,
     delta_time: f32,
 ) {
     if turn_movement > 0.0 {
-        turn_right(vehicle_components, delta_time);
+        turn_right(vehicle, delta_time);
     } else if turn_movement < 0.0 {
-        turn_left(vehicle_components, delta_time);
+        turn_left(vehicle, delta_time);
     }
 }
 
-fn turn_left(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    let rotation_amount = vehicle_components.rotation_speed * delta_time;
-    let new_direction_angle = direction_angle(vehicle_components) + rotation_amount;
-    vehicle_components.direction =
-        Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
+fn turn_left(vehicle: &mut VehicleComponents, delta_time: f32) {
+    let rotation_amount = vehicle.rotation_speed * delta_time;
+    let new_direction_angle = direction_angle(&vehicle) + rotation_amount;
+    vehicle.direction =
+        Vec2::new(new_direction_angle.cos(), new_direction_angle.sin());
 }
 
-fn turn_right(vehicle_components: &mut VehicleComponents, delta_time: f32) {
-    let rotation_amount = vehicle_components.rotation_speed * delta_time;
-    let new_direction_angle = direction_angle(vehicle_components) - rotation_amount;
-    vehicle_components.direction =
-        Vector2::new(new_direction_angle.cos(), new_direction_angle.sin());
+fn turn_right(vehicle: &mut VehicleComponents, delta_time: f32) {
+    let rotation_amount = vehicle.rotation_speed * delta_time;
+    let new_direction_angle = direction_angle(&vehicle) - rotation_amount;
+    vehicle.direction =
+        Vec2::new(new_direction_angle.cos(), new_direction_angle.sin());
 }
 
-fn direction_angle(vehicle_components: &mut VehicleComponents) -> f32 {
-    vehicle_components
+fn direction_angle(vehicle: &VehicleComponents) -> f32 {
+    vehicle
         .direction
         .y
-        .atan2(vehicle_components.direction.x)
+        .atan2(vehicle.direction.x)
 }
 
-fn update_sprite_index(vehicle_components: &mut VehicleComponents) -> usize {
-    let angle = direction_angle(vehicle_components);
+fn update_sprite_index_and_hitbox_index(vehicle: &mut VehicleComponents) {
+    let angle = direction_angle(vehicle);
     let normalized_angle = (angle + 2.0 * PI) % (2.0 * PI);
     let north_sprite_index = 36; // Index of North-facing sprite
     let total_sprites = 48;
@@ -178,19 +149,15 @@ fn update_sprite_index(vehicle_components: &mut VehicleComponents) -> usize {
     let updated_sprite_index =
         (north_sprite_index as isize - index_offset).rem_euclid(total_sprites as isize) as usize;
 
-    if updated_sprite_index != vehicle_components.base.current_sprite_index {
-        vehicle_components.base.current_sprite_index = updated_sprite_index;
-        log::info!("Raw direction vector: {:?}", vehicle_components.direction);
+    if updated_sprite_index != vehicle.base.current_sprite_index {
+        vehicle.base.current_sprite_index = updated_sprite_index;
+        log::info!("Raw direction vector: {:?}", vehicle.direction);
         log::info!("Normalized direction angle: {} radians", normalized_angle);
         log::info!(
             "Updating sprite index: {} -> {}",
-            vehicle_components.base.current_sprite_index,
+            vehicle.base.current_sprite_index,
             updated_sprite_index
         );
     }
-    updated_sprite_index
-}
-
-fn update_hitbox_index(vehicle_components: &mut VehicleComponents, new_index: usize) {
-    vehicle_components.current_hitbox_index = new_index;
+    vehicle.current_hitbox_index = updated_sprite_index
 }

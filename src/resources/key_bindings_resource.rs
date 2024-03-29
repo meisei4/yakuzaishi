@@ -1,44 +1,71 @@
-use std::collections::HashMap;
-use std::path::PathBuf;
+use std::{collections::HashMap, fs};
 
-use amethyst::{
-    Error,
-    input::{InputBundle, StringBindings},
-    utils::application_root_dir,
-};
+use bevy::asset::ron;
+use bevy::prelude::{KeyCode, Resource};
+use serde::Deserialize;
 
-use crate::enums::entity_type::EntityType;
-
+#[derive(Resource)]
 pub struct KeyBindingsResource {
-    bindings: HashMap<EntityType, PathBuf>,
+    pub axes: HashMap<String, AxisBinding>,
+    pub actions: HashMap<String, ActionBinding>,
+}
+
+#[derive(Deserialize)]
+pub struct AxisBinding {
+    pub pos: KeyCode,
+    pub neg: KeyCode,
+}
+
+#[derive(Deserialize)]
+pub struct ActionBinding {
+    pub key: KeyCode,
+}
+
+#[derive(Deserialize)]
+struct KeyBindingsConfig {
+    axes: HashMap<String, AxisBindingConfig>,
+    actions: HashMap<String, ActionBindingConfig>,
+}
+
+#[derive(Deserialize)]
+struct AxisBindingConfig {
+    pos: String,
+    neg: String,
+}
+
+#[derive(Deserialize)]
+struct ActionBindingConfig {
+    key: String,
 }
 
 impl KeyBindingsResource {
-    pub fn load(entity_type: EntityType, key_bindings_file_path: &str) -> Result<Self, Error> {
-        let mut bindings = HashMap::new();
-        let app_root = application_root_dir()?;
-        let assets_path = app_root.join("assets");
-        let bindings_path = assets_path.join(key_bindings_file_path);
+    pub fn load(file_path: &str) -> Self {
+        let ron_data = fs::read_to_string(file_path)
+            .expect("Failed to read RON file");
 
-        bindings.insert(entity_type, bindings_path);
+        let config: KeyBindingsConfig = ron::from_str(&ron_data)
+            .expect("Failed to deserialize RON data");
 
-        Ok(Self { bindings })
+        let axes = config.axes.into_iter().map(|(k, v)| (k, AxisBinding {
+            pos: string_to_keycode(&v.pos),
+            neg: string_to_keycode(&v.neg),
+        })).collect();
+
+        let actions = config.actions.into_iter().map(|(k, v)| (k, ActionBinding {
+            key: string_to_keycode(&v.key),
+        })).collect();
+
+        Self { axes, actions }
     }
+}
 
-    pub fn get_bindings_path(&self, entity_type: &EntityType) -> Option<&PathBuf> {
-        self.bindings.get(entity_type)
-    }
-
-    pub fn get_input_bundle(
-        &self,
-        entity_type: &EntityType,
-    ) -> Result<InputBundle<StringBindings>, Error> {
-        let bindings_path = self.get_bindings_path(entity_type).ok_or_else(|| {
-            Error::from_string("Binding path not found for the given entity type")
-        })?;
-
-        InputBundle::<StringBindings>::new()
-            .with_bindings_from_file(bindings_path)
-            .map_err(Error::from)
+fn string_to_keycode(key: &str) -> KeyCode {
+    match key {
+        "W" => KeyCode::KeyW,
+        "A" => KeyCode::KeyA,
+        "S" => KeyCode::KeyS,
+        "D" => KeyCode::KeyD,
+        "Escape" => KeyCode::Escape,
+        _ => panic!("Unsupported key: {}", key),
     }
 }

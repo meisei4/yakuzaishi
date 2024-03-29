@@ -1,5 +1,7 @@
 # 薬剤師
 
+## Update: everything below is bogus info i am now converting everything to bevy ;_;
+
 ## Overview
 
 薬剤師 is a game project built with Rust, utilizing the Amethyst game engine (https://book.amethyst.rs/book/stable/)
@@ -46,7 +48,9 @@ assets
 
 To get started with 薬剤師:
 
-1. Ensure you have [Rust](https://www.rust-lang.org/tools/install) and [Cargo](https://doc.rust-lang.org/cargo/commands/cargo-install.html) installed (recommend [Rust Rover](https://www.jetbrains.com/help/rust/installation-guide.html) for debugging)
+1. Ensure you have [Rust](https://www.rust-lang.org/tools/install)
+   and [Cargo](https://doc.rust-lang.org/cargo/commands/cargo-install.html) installed (
+   recommend [Rust Rover](https://www.jetbrains.com/help/rust/installation-guide.html) for debugging)
 2. Clone the repository to your local machine.
 3. Navigate to the cloned directory and run `cargo build` to compile the project.
 4. Execute `cargo run` to launch the game.
