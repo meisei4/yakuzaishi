@@ -1,7 +1,7 @@
 pub mod components;
 pub mod enums;
 pub mod resources;
-pub mod state;
+pub mod startup;
 pub mod systems;
 
 // asset file locations

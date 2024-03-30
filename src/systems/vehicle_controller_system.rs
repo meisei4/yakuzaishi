@@ -1,11 +1,11 @@
 use std::f32::consts::PI;
 
-use bevy::{input::keyboard::KeyboardInput, prelude::{KeyCode, Query, Res, Sprite, Time, Transform, UVec2, Vec2}};
+use bevy::{input::ButtonInput, prelude::{KeyCode, Query, Res, Sprite, Time, Transform, UVec2, Vec2}};
 
 use crate::{components::vehicle_components::VehicleComponents, TILE_SIZE};
 
 pub fn vehicle_controller_system(time: Res<Time>,
-                                 keyboard_input: Res<KeyboardInput>,
+                                 keyboard_input: Res<ButtonInput<KeyCode>>,
                                  mut query: Query<(&mut VehicleComponents,
                                                    &mut Transform,
                                                    &mut Sprite)>,
@@ -21,7 +21,7 @@ pub fn vehicle_controller_system(time: Res<Time>,
 
 
 fn process_input(
-    keyboard_input: &Res<KeyboardInput>,
+    keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle: &mut VehicleComponents,
     delta_time: f32,
 ) {
@@ -30,7 +30,7 @@ fn process_input(
 }
 
 fn handle_forward_movement(
-    keyboard_input: &Res<KeyboardInput>,
+    keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle_component: &mut VehicleComponents,
     delta_time: f32,
 ) {
@@ -43,7 +43,7 @@ fn handle_forward_movement(
 }
 
 fn handle_turning(
-    keyboard_input: &Res<KeyboardInput>,
+    keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle_component: &mut VehicleComponents,
     delta_time: f32,
 ) {

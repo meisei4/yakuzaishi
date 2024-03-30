@@ -1,6 +1,6 @@
 use bevy::prelude::{App, AssetServer, ClearColor, Color, Commands, Res, ResMut, Startup, Update, Window, WindowPlugin};
 
-use yakuzaishi::{state::main_game_state::Yakuzaishi, systems::{camera_tracking_system::camera_tracking_system, vehicle_controller_system::vehicle_controller_system}};
+use yakuzaishi::{startup::startup_system::Yakuzaishi, systems::{camera_tracking_system::camera_tracking_system, vehicle_controller_system::vehicle_controller_system}};
 
 fn main() {
     //log4rs::init_file("log4rs.yaml", Default::default()).unwrap();
@@ -26,8 +26,8 @@ fn init_game_state_system(
     asset_server: Res<AssetServer>,
     mut yakuzaishi: ResMut<Yakuzaishi>,
 ) {
-    //TODO: this is hilariously awful design now that i understand more about bevy systems
-    //  but i am trying to speedrun my way to 0 compile errors
-    //  while also maintaining my old implementation practices
-    yakuzaishi.init_game_state(command_buffer, &asset_server);
+    //TODO: Initialize the asset texture_atlas_layouts
+
+
+    yakuzaishi.init_game_state(command_buffer, asset_server, texture_atlas_layouts);
 }
