@@ -1,9 +1,9 @@
 #![enable(implicit_some)]
-List((
+SpriteSheetSpec(
     texture_width: 251,
     texture_height: 553,
     sprites: [
-        (
+        SpriteSpec(
             // 0: Brown_CIVIC_CLEAN_All_000.png
             x: 1,
             y: 1,
@@ -11,7 +11,7 @@ List((
             height: 38,
             offsets: (2, 3),
         ),
-        (
+        SpriteSpec(
             // 1: Brown_CIVIC_CLEAN_All_001.png
             x: 61,
             y: 1,
@@ -19,7 +19,7 @@ List((
             height: 38,
             offsets: (2, 3),
         ),
-        (
+        SpriteSpec(
             // 2: Brown_CIVIC_CLEAN_All_002.png
             x: 121,
             y: 1,
@@ -35,7 +35,7 @@ List((
             height: 45,
             offsets: (2, 2.5),
         ),
-        (
+        SpriteSpec(
             // 4: Brown_CIVIC_CLEAN_All_004.png
             x: 1,
             y: 48,
@@ -43,7 +43,7 @@ List((
             height: 48,
             offsets: (2, 2),
         ),
-        (
+        SpriteSpec(
             // 5: Brown_CIVIC_CLEAN_All_005.png
             x: 65,
             y: 48,
@@ -51,7 +51,7 @@ List((
             height: 51,
             offsets: (1.5, 1.5),
         ),
-        (
+        SpriteSpec(
             // 6: Brown_CIVIC_CLEAN_All_006.png
             x: 126,
             y: 48,
@@ -59,7 +59,7 @@ List((
             height: 52,
             offsets: (1.5, 1),
         ),
-        (
+        SpriteSpec(
             // 7: Brown_CIVIC_CLEAN_All_007.png
             x: 183,
             y: 48,
@@ -67,7 +67,7 @@ List((
             height: 52,
             offsets: (1, 1),
         ),
-        (
+        SpriteSpec(
             // 8: Brown_CIVIC_CLEAN_All_008.png
             x: 1,
             y: 102,
@@ -75,7 +75,7 @@ List((
             height: 52,
             offsets: (0.5, 1),
         ),
-        (
+        SpriteSpec(
             // 9: Brown_CIVIC_CLEAN_All_009.png
             x: 48,
             y: 102,
@@ -83,7 +83,7 @@ List((
             height: 51,
             offsets: (0.5, 0.5),
         ),
-        (
+        SpriteSpec(
             // 10: Brown_CIVIC_CLEAN_All_010.png
             x: 91,
             y: 102,
@@ -91,7 +91,7 @@ List((
             height: 51,
             offsets: (0, 0.5),
         ),
-        (
+        SpriteSpec(
             // 11: Brown_CIVIC_CLEAN_All_011.png
             x: 131,
             y: 102,
@@ -99,7 +99,7 @@ List((
             height: 51,
             offsets: (-0.5, 0.5),
         ),
-        (
+        SpriteSpec(
             // 12: Brown_CIVIC_CLEAN_All_012.png
             x: 170,
             y: 102,
@@ -107,7 +107,7 @@ List((
             height: 50,
             offsets: (0, 1),
         ),
-        (
+        SpriteSpec(
             // 13: Brown_CIVIC_CLEAN_All_013.png
             x: 210,
             y: 102,
@@ -115,7 +115,7 @@ List((
             height: 51,
             offsets: (0.5, 0.5),
         ),
-        (
+        SpriteSpec(
             // 14: Brown_CIVIC_CLEAN_All_014.png
             x: 1,
             y: 156,
@@ -123,7 +123,7 @@ List((
             height: 51,
             offsets: (-0.5, 0.5),
         ),
-        (
+        SpriteSpec(
             // 15: Brown_CIVIC_CLEAN_All_015.png
             x: 42,
             y: 156,
@@ -131,7 +131,7 @@ List((
             height: 51,
             offsets: (-1, 0.5),
         ),
-        (
+        SpriteSpec(
             // 16: Brown_CIVIC_CLEAN_All_016.png
             x: 86,
             y: 156,
@@ -139,7 +139,7 @@ List((
             height: 52,
             offsets: (-1, 1),
         ),
-        (
+        SpriteSpec(
             // 17: Brown_CIVIC_CLEAN_All_017.png
             x: 134,
             y: 156,
@@ -147,7 +147,7 @@ List((
             height: 52,
             offsets: (-1.5, 1),
         ),
-        (
+        SpriteSpec(
             // 18: Brown_CIVIC_CLEAN_All_018.png
             x: 187,
             y: 156,
@@ -155,7 +155,7 @@ List((
             height: 52,
             offsets: (-1.5, 1),
         ),
-        (
+        SpriteSpec(
             // 19: Brown_CIVIC_CLEAN_All_019.png
             x: 1,
             y: 210,
@@ -163,7 +163,7 @@ List((
             height: 51,
             offsets: (-2, 1.5),
         ),
-        (
+        SpriteSpec(
             // 20: Brown_CIVIC_CLEAN_All_020.png
             x: 61,
             y: 210,
@@ -171,7 +171,7 @@ List((
             height: 50,
             offsets: (-1.5, 2),
         ),
-        (
+        SpriteSpec(
             // 21: Brown_CIVIC_CLEAN_All_021.png
             x: 124,
             y: 210,
@@ -179,7 +179,7 @@ List((
             height: 48,
             offsets: (-2, 2),
         ),
-        (
+        SpriteSpec(
             // 22: Brown_CIVIC_CLEAN_All_022.png
             x: 188,
             y: 210,
@@ -187,7 +187,7 @@ List((
             height: 45,
             offsets: (-2, 2.5),
         ),
-        (
+        SpriteSpec(
             // 23: Brown_CIVIC_CLEAN_All_023.png
             x: 1,
             y: 263,
@@ -195,7 +195,7 @@ List((
             height: 42,
             offsets: (-2, 3),
         ),
-        (
+        SpriteSpec(
             // 24: Brown_CIVIC_CLEAN_All_024.png
             x: 63,
             y: 263,
@@ -203,7 +203,7 @@ List((
             height: 38,
             offsets: (-2, 3),
         ),
-        (
+        SpriteSpec(
             // 25: Brown_CIVIC_CLEAN_All_025.png
             x: 123,
             y: 263,
@@ -211,7 +211,7 @@ List((
             height: 40,
             offsets: (-2, 4),
         ),
-        (
+        SpriteSpec(
             // 26: Brown_CIVIC_CLEAN_All_026.png
             x: 185,
             y: 263,
@@ -219,7 +219,7 @@ List((
             height: 42,
             offsets: (-2, 5),
         ),
-        (
+        SpriteSpec(
             // 27: Brown_CIVIC_CLEAN_All_027.png
             x: 1,
             y: 307,
@@ -227,7 +227,7 @@ List((
             height: 43,
             offsets: (-2, 6.5),
         ),
-        (
+        SpriteSpec(
             // 28: Brown_CIVIC_CLEAN_All_028.png
             x: 65,
             y: 307,
@@ -235,7 +235,7 @@ List((
             height: 46,
             offsets: (-1.5, 6),
         ),
-        (
+        SpriteSpec(
             // 29: Brown_CIVIC_CLEAN_All_029.png
             x: 128,
             y: 307,
@@ -243,7 +243,7 @@ List((
             height: 47,
             offsets: (-2, 6.5),
         ),
-        (
+        SpriteSpec(
             // 30: Brown_CIVIC_CLEAN_All_030.png
             x: 188,
             y: 307,
@@ -251,7 +251,7 @@ List((
             height: 49,
             offsets: (-1.5, 6.5),
         ),
-        (
+        SpriteSpec(
             // 31: Brown_CIVIC_CLEAN_All_031.png
             x: 1,
             y: 358,
@@ -259,7 +259,7 @@ List((
             height: 49,
             offsets: (-1.5, 6.5),
         ),
-        (
+        SpriteSpec(
             // 32: Brown_CIVIC_CLEAN_All_032.png
             x: 54,
             y: 358,
@@ -267,7 +267,7 @@ List((
             height: 49,
             offsets: (-1, 6.5),
         ),
-        (
+        SpriteSpec(
             // 33: Brown_CIVIC_CLEAN_All_033.png
             x: 102,
             y: 358,
@@ -275,7 +275,7 @@ List((
             height: 48,
             offsets: (-1, 6),
         ),
-        (
+        SpriteSpec(
             // 34: Brown_CIVIC_CLEAN_All_034.png
             x: 146,
             y: 358,
@@ -283,7 +283,7 @@ List((
             height: 47,
             offsets: (-0.5, 6.5),
         ),
-        (
+        SpriteSpec(
             // 35: Brown_CIVIC_CLEAN_All_035.png
             x: 187,
             y: 358,
@@ -291,7 +291,7 @@ List((
             height: 46,
             offsets: (0.5, 6),
         ),
-        (
+        SpriteSpec(
             // 36: Brown_CIVIC_CLEAN_All_036.png
             x: 1,
             y: 409,
@@ -299,7 +299,7 @@ List((
             height: 45,
             offsets: (0, 6.5),
         ),
-        (
+        SpriteSpec(
             // 37: Brown_CIVIC_CLEAN_All_037.png
             x: 41,
             y: 409,
@@ -307,7 +307,7 @@ List((
             height: 46,
             offsets: (-0.5, 6),
         ),
-        (
+        SpriteSpec(
             // 38: Brown_CIVIC_CLEAN_All_038.png
             x: 80,
             y: 409,
@@ -315,7 +315,7 @@ List((
             height: 47,
             offsets: (0, 6.5),
         ),
-        (
+        SpriteSpec(
             // 39: Brown_CIVIC_CLEAN_All_039.png
             x: 120,
             y: 409,
@@ -323,7 +323,7 @@ List((
             height: 48,
             offsets: (0.5, 6),
         ),
-        (
+        SpriteSpec(
             // 40: Brown_CIVIC_CLEAN_All_040.png
             x: 163,
             y: 409,
@@ -331,7 +331,7 @@ List((
             height: 48,
             offsets: (0.5, 6),
         ),
-        (
+        SpriteSpec(
             // 41: Brown_CIVIC_CLEAN_All_041.png
             x: 1,
             y: 459,
@@ -339,7 +339,7 @@ List((
             height: 49,
             offsets: (1, 6.5),
         ),
-        (
+        SpriteSpec(
             // 42: Brown_CIVIC_CLEAN_All_042.png
             x: 53,
             y: 459,
@@ -347,7 +347,7 @@ List((
             height: 49,
             offsets: (1.5, 6.5),
         ),
-        (
+        SpriteSpec(
             // 43: Brown_CIVIC_CLEAN_All_043.png
             x: 110,
             y: 459,
@@ -355,7 +355,7 @@ List((
             height: 47,
             offsets: (1.5, 6.5),
         ),
-        (
+        SpriteSpec(
             // 44: Brown_CIVIC_CLEAN_All_044.png
             x: 171,
             y: 459,
@@ -363,7 +363,7 @@ List((
             height: 44,
             offsets: (2, 6),
         ),
-        (
+        SpriteSpec(
             // 45: Brown_CIVIC_CLEAN_All_045.png
             x: 1,
             y: 510,
@@ -371,7 +371,7 @@ List((
             height: 42,
             offsets: (2, 5),
         ),
-        (
+        SpriteSpec(
             // 46: Brown_CIVIC_CLEAN_All_046.png
             x: 65,
             y: 510,
@@ -379,7 +379,7 @@ List((
             height: 40,
             offsets: (2, 4),
         ),
-        (
+        SpriteSpec(
             // 47: Brown_CIVIC_CLEAN_All_047.png
             x: 127,
             y: 510,
@@ -388,4 +388,4 @@ List((
             offsets: (2, 3),
         )
     ]
-))
+)

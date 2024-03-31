@@ -2,7 +2,7 @@ use bevy::prelude::{Camera2dBundle, Commands, Transform};
 
 use crate::{CAMERA_HEIGHT, CAMERA_WIDTH, MAP_HEIGHT, MAP_WIDTH, TILE_SIZE};
 
-pub fn init_camera(command_buffer: &mut Commands) {
+pub fn init_camera(mut command_buffer: Commands) {
     let tile_centering_offset = TILE_SIZE / 2.0;
     let camera_x = (MAP_WIDTH * TILE_SIZE) / 2.0 - tile_centering_offset;
     let camera_y = (MAP_HEIGHT * TILE_SIZE) / 2.0 - tile_centering_offset;

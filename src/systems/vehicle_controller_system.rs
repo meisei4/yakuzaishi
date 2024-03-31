@@ -12,7 +12,7 @@ pub fn vehicle_controller_system(time: Res<Time>,
 ) {
     let delta_time = time.delta_seconds();
 
-    for (mut vehicle, mut transform, sprite) in query.iter_mut() {
+    for (mut vehicle, mut transform, _sprite) in query.iter_mut() {
         process_input(&keyboard_input, &mut vehicle, delta_time);
         update_position_and_transform(&mut vehicle, delta_time, &mut transform);
         update_sprite_index_and_hitbox_index(&mut vehicle);
