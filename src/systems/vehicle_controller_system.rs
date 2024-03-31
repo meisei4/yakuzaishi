@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use bevy::{input::ButtonInput, prelude::{KeyCode, Query, Res, Sprite, Time, Transform, UVec2, Vec2}};
+use bevy::{input::ButtonInput, prelude::{KeyCode, Query, Res, TextureAtlas, Time, Transform, UVec2, Vec2}};
 
 use crate::{components::vehicle_components::VehicleComponents, TILE_SIZE};
 
@@ -8,14 +8,15 @@ pub fn vehicle_controller_system(time: Res<Time>,
                                  keyboard_input: Res<ButtonInput<KeyCode>>,
                                  mut query: Query<(&mut VehicleComponents,
                                                    &mut Transform,
-                                                   &mut Sprite)>,
+                                                   &mut TextureAtlas)>,
 ) {
     let delta_time = time.delta_seconds();
 
-    for (mut vehicle, mut transform, _sprite) in query.iter_mut() {
+    for (mut vehicle, mut transform, mut atlas) in query.iter_mut() {
         process_input(&keyboard_input, &mut vehicle, delta_time);
         update_position_and_transform(&mut vehicle, delta_time, &mut transform);
         update_sprite_index_and_hitbox_index(&mut vehicle);
+        atlas.index = vehicle.base.current_sprite_index;
     }
 }
 

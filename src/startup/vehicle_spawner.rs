@@ -8,7 +8,7 @@ use rand::{seq::SliceRandom, thread_rng};
 use serde::Deserialize;
 use tiled::{FiniteTileLayer, LayerTile, Loader, Map, TileLayer};
 
-use crate::{components::vehicle_components::VehicleComponents, MAP_FILE_PATH, TILE_SIZE, TILESET_TEXTURE_FILE_PATH, VEHICLE_SPRITE_SHEET_FILE_PATH};
+use crate::{components::vehicle_components::VehicleComponents, MAP_FILE_PATH, TILE_SIZE, VEHICLE_SPRITE_SHEET_FILE_PATH, VEHICLE_TEXTURE_FILE_PATH};
 use crate::components::game_map_tile_components::{GameMapTileComponents, TileType};
 
 #[derive(Deserialize)]
@@ -64,7 +64,7 @@ fn queue_vehicle_spawn_command(mut command_buffer: Commands,
 
     command_buffer.spawn(())
         .insert(SpriteSheetBundle {
-            texture: asset_server.load(TILESET_TEXTURE_FILE_PATH),
+            texture: asset_server.load(VEHICLE_TEXTURE_FILE_PATH),
             atlas: TextureAtlas { layout: texture_atlas_layout_handle, index: 0 },
             transform,
             ..Default::default()
