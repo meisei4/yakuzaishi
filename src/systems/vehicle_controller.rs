@@ -37,55 +37,12 @@ fn handle_forward_movement(
     vehicle_component: &mut VehicleComponents,
     delta_time: f32,
 ) {
-    //TODO; Cool ass algebraic solution from gpt vs the if forward -> 1, if backward -> -1, else nothing -> 0 grossness
+    // Cool ass algebraic solution from gpt vs the if forward -> 1, if backward -> -1, else nothing -> 0 grossness
     let forward = keyboard_input.pressed(KeyCode::KeyW) as i32;
     let backward = keyboard_input.pressed(KeyCode::KeyS) as i32;
     let forward_movement = (forward - backward) as f32; // 1 if W is pressed, -1 if S is pressed, 0 otherwise
 
     adjust_speed(vehicle_component, forward_movement, delta_time);
-}
-
-fn handle_turning(
-    keyboard_input: &Res<ButtonInput<KeyCode>>,
-    vehicle_component: &mut VehicleComponents,
-    delta_time: f32,
-) {
-    let right = keyboard_input.pressed(KeyCode::KeyD) as i32;
-    let left = keyboard_input.pressed(KeyCode::KeyA) as i32;
-    let turn_movement = (right - left) as f32; // 1 if D is pressed, -1 if A is pressed, 0 otherwise
-
-    adjust_direction(vehicle_component, turn_movement, delta_time);
-}
-
-fn update_position_and_transform(
-    vehicle: &mut VehicleComponents,
-    delta_time: f32,
-    transform: &mut Transform,
-) {
-    let displacement = Vec2::new(
-        vehicle.direction.x * vehicle.speed,
-        vehicle.direction.y * vehicle.speed,
-    ) * delta_time;
-    vehicle.world_coordinate_position.x += displacement.x;
-    vehicle.world_coordinate_position.y += displacement.y;
-
-    // TODO: stop having to convert back and forth between world coordinates and tile coordinates
-    let new_tile_x = (vehicle.world_coordinate_position.x / TILE_SIZE).floor();
-    let new_tile_y = (vehicle.world_coordinate_position.y / TILE_SIZE).floor();
-    let new_tile = Vec2 {
-        x: new_tile_x,
-        y: new_tile_y,
-    };
-    if new_tile != vehicle.current_tile {
-        log::info!(
-            "Vehicle has moved to a new tile: {:?} from old tile {:?}",
-            new_tile,
-            vehicle.current_tile
-        );
-        vehicle.current_tile = new_tile;
-    }
-    transform.translation.x = vehicle.world_coordinate_position.x;
-    transform.translation.y = vehicle.world_coordinate_position.y;
 }
 
 fn adjust_speed(vehicle: &mut VehicleComponents, forward_movement: f32, delta_time: f32) {
@@ -110,6 +67,18 @@ fn decelerate(vehicle: &mut VehicleComponents, delta_time: f32) {
     }
 }
 
+fn handle_turning(
+    keyboard_input: &Res<ButtonInput<KeyCode>>,
+    vehicle_component: &mut VehicleComponents,
+    delta_time: f32,
+) {
+    let right = keyboard_input.pressed(KeyCode::KeyD) as i32;
+    let left = keyboard_input.pressed(KeyCode::KeyA) as i32;
+    let turn_movement = (right - left) as f32; // 1 if D is pressed, -1 if A is pressed, 0 otherwise
+
+    adjust_direction(vehicle_component, turn_movement, delta_time);
+}
+
 fn adjust_direction(vehicle: &mut VehicleComponents, turn_movement: f32, delta_time: f32) {
     if turn_movement > 0.0 {
         turn_right(vehicle, delta_time);
@@ -130,9 +99,37 @@ fn turn_right(vehicle: &mut VehicleComponents, delta_time: f32) {
     vehicle.direction = Vec2::new(new_direction_angle.cos(), new_direction_angle.sin());
 }
 
-fn direction_angle(vehicle: &VehicleComponents) -> f32 {
-    vehicle.direction.y.atan2(vehicle.direction.x)
+fn update_position_and_transform(
+    vehicle: &mut VehicleComponents,
+    delta_time: f32,
+    transform: &mut Transform,
+) {
+    let displacement = Vec2::new(
+        vehicle.direction.x * vehicle.speed,
+        vehicle.direction.y * vehicle.speed,
+    ) * delta_time;
+    vehicle.world_coordinate_position.x += displacement.x;
+    vehicle.world_coordinate_position.y += displacement.y;
+
+    // TODO: stop having to convert back and forth between world coordinates and tile coordinates
+    let new_tile_x = (vehicle.world_coordinate_position.x / TILE_SIZE).floor();
+    let new_tile_y = (vehicle.world_coordinate_position.y / TILE_SIZE).floor();
+    let new_tile = Vec2 {
+        x: new_tile_x,
+        y: new_tile_y,
+    };
+    if new_tile != vehicle.tile_coordinate_position {
+        log::info!(
+            "Vehicle has moved to a new tile: {:?} from old tile {:?}",
+            new_tile,
+            vehicle.tile_coordinate_position
+        );
+        vehicle.tile_coordinate_position = new_tile;
+    }
+    transform.translation.x = vehicle.world_coordinate_position.x;
+    transform.translation.y = vehicle.world_coordinate_position.y;
 }
+
 
 fn update_sprite_index(vehicle: &mut VehicleComponents) {
     let angle = direction_angle(vehicle);
@@ -148,12 +145,9 @@ fn update_sprite_index(vehicle: &mut VehicleComponents) {
 
     if updated_sprite_index != vehicle.current_sprite_index {
         vehicle.current_sprite_index = updated_sprite_index;
-        // log::info!("Raw direction vector: {:?}", vehicle.direction);
-        // log::info!("Normalized direction angle: {} radians", normalized_angle);
-        // log::info!(
-        //     "Updating sprite index: {} -> {}",
-        //     vehicle.current_sprite_index,
-        //     updated_sprite_index
-        // );
     }
+}
+
+fn direction_angle(vehicle: &VehicleComponents) -> f32 {
+    vehicle.direction.y.atan2(vehicle.direction.x)
 }

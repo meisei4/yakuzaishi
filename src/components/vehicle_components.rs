@@ -7,6 +7,7 @@ use crate::{
 
 #[derive(Component, Clone)]
 pub struct VehicleComponents {
+    pub tile_coordinate_position:Vec2,
     pub world_coordinate_position: Vec2,
     pub speed: f32,
     pub current_sprite_index: usize,
@@ -15,12 +16,12 @@ pub struct VehicleComponents {
     pub deceleration: f32,
     pub direction: Vec2,
     pub rotation_speed: f32,
-    pub current_tile: Vec2,
 }
 
 impl VehicleComponents {
     pub fn new(tile_spawn_coordinates: Vec2) -> Self {
         VehicleComponents {
+            tile_coordinate_position: tile_spawn_coordinates,
             world_coordinate_position: Vec2 {
                 x: tile_spawn_coordinates.x * TILE_SIZE,
                 y: tile_spawn_coordinates.y * TILE_SIZE,
@@ -32,7 +33,7 @@ impl VehicleComponents {
             deceleration: VEHICLE_DEFAULT_DECELERATION,
             direction: Vec2::new(0.0, 1.0),
             rotation_speed: VEHICLE_DEFAULT_RATE_OF_ROTATION,
-            current_tile: tile_spawn_coordinates,
+
         }
     }
 }
