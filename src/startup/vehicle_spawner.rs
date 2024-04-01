@@ -45,8 +45,8 @@ pub fn spawn_vehicle(command_buffer: Commands,
 
     if let Some(tile_coordinates) = select_random_tile_from_list_of_tiles(&drivable_tiles) {
         let world_spawn_coordinates = Vec2::new(
-            (tile_coordinates.x + 0.5) * TILE_SIZE, // Adjust for the center
-            (tile_coordinates.y + 0.5) * TILE_SIZE, // Adjust for the center
+            tile_coordinates.x * TILE_SIZE,
+            tile_coordinates.y * TILE_SIZE,
         );
 
         let texture_atlas_layout_handle = texture_atlas_layouts.add(vehicle_texture_atlas_layout);

@@ -3,7 +3,7 @@ use bevy::prelude::{App, ClearColor, Color, PluginGroup, Startup, Update, Window
 use bevy::window::WindowResolution;
 use bevy_ecs_tilemap::TilemapPlugin;
 
-use yakuzaishi::{CAMERA_HEIGHT, CAMERA_WIDTH, helpers};
+use yakuzaishi::helpers;
 use yakuzaishi::startup::{camera_initializer, tiled_map_render_hack, vehicle_spawner};
 use yakuzaishi::systems::{camera_tracking_system::camera_tracking_system, vehicle_controller_system::vehicle_controller_system};
 
@@ -13,7 +13,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Option::from(Window {
-                resolution: WindowResolution::new(CAMERA_WIDTH, CAMERA_HEIGHT),
+                resolution: WindowResolution::new(500.0, 500.0),
                 title: "Yakuzaishi".to_string(),
                 ..Default::default()
             }),

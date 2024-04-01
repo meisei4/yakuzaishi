@@ -112,7 +112,7 @@ impl AssetLoader for TiledLoader {
 
             let mut loader = tiled::Loader::with_cache_and_reader(
                 tiled::DefaultResourceCache::new(),
-                BytesResourceReader::new(&bytes, env::current_dir().unwrap().join("assets"))
+                BytesResourceReader::new(&bytes, env::current_dir().unwrap().join("assets")),
             );
             let map = loader.load_tmx_map(load_context.path()).map_err(|e| {
                 Error::new(ErrorKind::Other, format!("Could not load TMX map: {e}"))
@@ -236,12 +236,7 @@ pub fn process_loaded_maps(
                         y: tileset.spacing as f32,
                     };
 
-                    // Once materials have been created/added we need to then create the layers.
                     for (layer_index, layer) in tiled_map.map.layers().enumerate() {
-                        let offset_x = layer.offset_x;
-                        let offset_y = layer.offset_y;
-
-
                         let tiled::LayerType::Tiles(tile_layer) = layer.layer_type() else {
                             log::info!(
                                 "Skipping layer {} because only tile layers are supported.",
@@ -274,21 +269,14 @@ pub fn process_loaded_maps(
 
                         for x in 0..map_size.x {
                             for y in 0..map_size.y {
-                                // Transform TMX coords into bevy coords.
-                                let mapped_y = tiled_map.map.height - y;
-
-                                let mapped_x = x;
-                                let mapped_x = mapped_x as i32;
-                                let mapped_y = mapped_y as i32;
-
-                                let layer_tile = match layer_data.get_tile(mapped_x, mapped_y) {
+                                let layer_tile = match layer_data.get_tile(x as i32, y as i32) {
                                     Some(t) => t,
                                     None => {
                                         continue;
                                     }
                                 };
 
-                                let layer_tile_data = layer_data.get_tile_data(mapped_x, mapped_y);
+                                let layer_tile_data = layer_data.get_tile_data(x as i32, y as i32);
 
                                 let texture_index = layer_tile.id();
 
@@ -300,7 +288,7 @@ pub fn process_loaded_maps(
                                         texture_index: TileTextureIndex(texture_index),
                                         flip: TileFlip {
                                             x: layer_tile_data.unwrap().flip_h,
-                                            y: layer_tile_data.unwrap().flip_v,
+                                            y: !layer_tile_data.unwrap().flip_v,
                                             d: layer_tile_data.unwrap().flip_d,
                                         },
                                         ..Default::default()
@@ -319,12 +307,6 @@ pub fn process_loaded_maps(
                             texture: tilemap_texture.clone(),
                             tile_size: TilemapTileSize::new(TILE_SIZE, TILE_SIZE),
                             spacing: tile_spacing,
-                            transform: get_tilemap_center_transform(
-                                &map_size,
-                                &grid_size,
-                                &map_type,
-                                layer_index as f32,
-                            ) * Transform::from_xyz(offset_x, -offset_y, 0.0),
                             map_type,
                             render_settings: *render_settings,
                             ..Default::default()
