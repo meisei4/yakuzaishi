@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use bevy::{
-    asset::{AssetLoader, AssetPath, AsyncReadExt, io::Reader},
+    asset::{io::Reader, AssetLoader, AssetPath, AsyncReadExt},
     log,
     prelude::{
         Added, Asset, AssetApp, AssetEvent, AssetId, Assets, Bundle, Commands, Component,
@@ -15,7 +15,12 @@ use bevy::{
     reflect::TypePath,
     utils::{BoxedFuture, HashMap},
 };
-use bevy_ecs_tilemap::prelude::*;
+use bevy_ecs_tilemap::prelude::{
+    TileBundle, TileFlip, TilePos, TileStorage, TileTextureIndex, TilemapGridSize, TilemapId,
+    TilemapRenderSettings, TilemapSize, TilemapSpacing, TilemapTexture, TilemapTileSize,
+    TilemapType,
+};
+use bevy_ecs_tilemap::TilemapBundle;
 use thiserror::Error;
 
 use crate::TILE_SIZE;
@@ -130,11 +135,12 @@ impl AssetLoader for TiledLoader {
                     .expect("The asset load context was empty.");
 
                 let img_source = Path::new(&img.source);
-                let img_source = if tmx_dir.ends_with("map_data") && img_source.starts_with("map_data") {
-                    img_source.strip_prefix("map_data").unwrap()
-                } else {
-                    img_source
-                };
+                let img_source =
+                    if tmx_dir.ends_with("map_data") && img_source.starts_with("map_data") {
+                        img_source.strip_prefix("map_data").unwrap()
+                    } else {
+                        img_source
+                    };
                 let tile_path = tmx_dir.join(img_source);
                 log::info!("tile path: {}", tile_path.display());
 
@@ -226,10 +232,10 @@ pub fn process_loaded_maps(
                 // this means we need to load each combination of tileset and layer separately.
                 for (tileset_index, tileset) in tiled_map.map.tilesets().iter().enumerate() {
                     let Some(tilemap_texture) = tiled_map.tilemap_textures.get(&tileset_index)
-                        else {
-                            log::warn!("Skipped creating layer with missing tilemap textures.");
-                            continue;
-                        };
+                    else {
+                        log::warn!("Skipped creating layer with missing tilemap textures.");
+                        continue;
+                    };
 
                     let tile_spacing = TilemapSpacing {
                         x: tileset.spacing as f32,
@@ -288,7 +294,7 @@ pub fn process_loaded_maps(
                                         texture_index: TileTextureIndex(texture_index),
                                         flip: TileFlip {
                                             x: layer_tile_data.unwrap().flip_h,
-                                            y: !layer_tile_data.unwrap().flip_v,
+                                            y: !layer_tile_data.unwrap().flip_v, //TODO still need to flip each tile vertically for some reason
                                             d: layer_tile_data.unwrap().flip_d,
                                         },
                                         ..Default::default()

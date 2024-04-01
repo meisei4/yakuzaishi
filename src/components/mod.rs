@@ -1,3 +1,2 @@
-pub mod base_components;
-pub mod game_map_tile_components;
+pub mod map_tile_component;
 pub mod vehicle_components;

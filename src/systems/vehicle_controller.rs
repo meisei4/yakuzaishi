@@ -1,25 +1,27 @@
 use std::f32::consts::PI;
 
-use bevy::{input::ButtonInput, prelude::{KeyCode, Query, Res, TextureAtlas, Time, Transform, UVec2, Vec2}};
+use bevy::{
+    input::ButtonInput,
+    prelude::{KeyCode, Query, Res, TextureAtlas, Time, Transform, Vec2},
+};
 
-use crate::{components::vehicle_components::VehicleComponents, TILE_SIZE};
+use crate::components::vehicle_components::VehicleComponents;
+use crate::TILE_SIZE;
 
-pub fn vehicle_controller_system(time: Res<Time>,
-                                 keyboard_input: Res<ButtonInput<KeyCode>>,
-                                 mut query: Query<(&mut VehicleComponents,
-                                                   &mut Transform,
-                                                   &mut TextureAtlas)>,
+pub fn vehicle_controller_system(
+    time: Res<Time>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut query: Query<(&mut VehicleComponents, &mut Transform, &mut TextureAtlas)>,
 ) {
     let delta_time = time.delta_seconds();
 
     for (mut vehicle, mut transform, mut atlas) in query.iter_mut() {
         process_input(&keyboard_input, &mut vehicle, delta_time);
         update_position_and_transform(&mut vehicle, delta_time, &mut transform);
-        update_sprite_index_and_hitbox_index(&mut vehicle);
-        atlas.index = vehicle.base.current_sprite_index;
+        update_sprite_index(&mut vehicle);
+        atlas.index = vehicle.current_sprite_index;
     }
 }
-
 
 fn process_input(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
@@ -55,18 +57,25 @@ fn handle_turning(
     adjust_direction(vehicle_component, turn_movement, delta_time);
 }
 
-fn update_position_and_transform(vehicle: &mut VehicleComponents, delta_time: f32, transform: &mut Transform) {
+fn update_position_and_transform(
+    vehicle: &mut VehicleComponents,
+    delta_time: f32,
+    transform: &mut Transform,
+) {
     let displacement = Vec2::new(
-        vehicle.direction.x * vehicle.base.speed,
-        vehicle.direction.y * vehicle.base.speed,
+        vehicle.direction.x * vehicle.speed,
+        vehicle.direction.y * vehicle.speed,
     ) * delta_time;
-    vehicle.base.position.x += displacement.x;
-    vehicle.base.position.y += displacement.y;
+    vehicle.world_coordinate_position.x += displacement.x;
+    vehicle.world_coordinate_position.y += displacement.y;
 
     // TODO: stop having to convert back and forth between world coordinates and tile coordinates
-    let new_tile_x = (vehicle.base.position.x / TILE_SIZE).floor();
-    let new_tile_y = (vehicle.base.position.y / TILE_SIZE).floor();
-    let new_tile = UVec2::new(new_tile_x as u32, new_tile_y as u32);
+    let new_tile_x = (vehicle.world_coordinate_position.x / TILE_SIZE).floor();
+    let new_tile_y = (vehicle.world_coordinate_position.y / TILE_SIZE).floor();
+    let new_tile = Vec2 {
+        x: new_tile_x,
+        y: new_tile_y,
+    };
     if new_tile != vehicle.current_tile {
         log::info!(
             "Vehicle has moved to a new tile: {:?} from old tile {:?}",
@@ -75,15 +84,11 @@ fn update_position_and_transform(vehicle: &mut VehicleComponents, delta_time: f3
         );
         vehicle.current_tile = new_tile;
     }
-    transform.translation.x = vehicle.base.position.x;
-    transform.translation.y = vehicle.base.position.y;
+    transform.translation.x = vehicle.world_coordinate_position.x;
+    transform.translation.y = vehicle.world_coordinate_position.y;
 }
 
-fn adjust_speed(
-    vehicle: &mut VehicleComponents,
-    forward_movement: f32,
-    delta_time: f32,
-) {
+fn adjust_speed(vehicle: &mut VehicleComponents, forward_movement: f32, delta_time: f32) {
     if forward_movement > 0.0 {
         accelerate(vehicle, delta_time * forward_movement);
     } else if forward_movement < 0.0 {
@@ -92,24 +97,20 @@ fn adjust_speed(
 }
 
 fn accelerate(vehicle: &mut VehicleComponents, delta_time: f32) {
-    vehicle.base.speed += vehicle.acceleration * delta_time;
-    if vehicle.base.speed > vehicle.max_speed {
-        vehicle.base.speed = vehicle.max_speed;
+    vehicle.speed += vehicle.acceleration * delta_time;
+    if vehicle.speed > vehicle.max_speed {
+        vehicle.speed = vehicle.max_speed;
     }
 }
 
 fn decelerate(vehicle: &mut VehicleComponents, delta_time: f32) {
-    vehicle.base.speed -= vehicle.deceleration * delta_time;
-    if vehicle.base.speed < 0.0 {
-        vehicle.base.speed = 0.0;
+    vehicle.speed -= vehicle.deceleration * delta_time;
+    if vehicle.speed < 0.0 {
+        vehicle.speed = 0.0;
     }
 }
 
-fn adjust_direction(
-    vehicle: &mut VehicleComponents,
-    turn_movement: f32,
-    delta_time: f32,
-) {
+fn adjust_direction(vehicle: &mut VehicleComponents, turn_movement: f32, delta_time: f32) {
     if turn_movement > 0.0 {
         turn_right(vehicle, delta_time);
     } else if turn_movement < 0.0 {
@@ -120,25 +121,20 @@ fn adjust_direction(
 fn turn_left(vehicle: &mut VehicleComponents, delta_time: f32) {
     let rotation_amount = vehicle.rotation_speed * delta_time;
     let new_direction_angle = direction_angle(&vehicle) + rotation_amount;
-    vehicle.direction =
-        Vec2::new(new_direction_angle.cos(), new_direction_angle.sin());
+    vehicle.direction = Vec2::new(new_direction_angle.cos(), new_direction_angle.sin());
 }
 
 fn turn_right(vehicle: &mut VehicleComponents, delta_time: f32) {
     let rotation_amount = vehicle.rotation_speed * delta_time;
     let new_direction_angle = direction_angle(&vehicle) - rotation_amount;
-    vehicle.direction =
-        Vec2::new(new_direction_angle.cos(), new_direction_angle.sin());
+    vehicle.direction = Vec2::new(new_direction_angle.cos(), new_direction_angle.sin());
 }
 
 fn direction_angle(vehicle: &VehicleComponents) -> f32 {
-    vehicle
-        .direction
-        .y
-        .atan2(vehicle.direction.x)
+    vehicle.direction.y.atan2(vehicle.direction.x)
 }
 
-fn update_sprite_index_and_hitbox_index(vehicle: &mut VehicleComponents) {
+fn update_sprite_index(vehicle: &mut VehicleComponents) {
     let angle = direction_angle(vehicle);
     let normalized_angle = (angle + 2.0 * PI) % (2.0 * PI);
     let north_sprite_index = 36; // Index of North-facing sprite
@@ -150,15 +146,14 @@ fn update_sprite_index_and_hitbox_index(vehicle: &mut VehicleComponents) {
     let updated_sprite_index =
         (north_sprite_index as isize - index_offset).rem_euclid(total_sprites as isize) as usize;
 
-    if updated_sprite_index != vehicle.base.current_sprite_index {
-        vehicle.base.current_sprite_index = updated_sprite_index;
+    if updated_sprite_index != vehicle.current_sprite_index {
+        vehicle.current_sprite_index = updated_sprite_index;
         // log::info!("Raw direction vector: {:?}", vehicle.direction);
         // log::info!("Normalized direction angle: {} radians", normalized_angle);
         // log::info!(
         //     "Updating sprite index: {} -> {}",
-        //     vehicle.base.current_sprite_index,
+        //     vehicle.current_sprite_index,
         //     updated_sprite_index
         // );
     }
-    vehicle.current_hitbox_index = updated_sprite_index
 }
