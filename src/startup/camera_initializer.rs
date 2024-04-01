@@ -1,4 +1,4 @@
-use bevy::prelude::{Camera2dBundle, Commands, Transform};
+use bevy::prelude::{Camera, Camera2dBundle, Commands, Transform};
 
 use crate::{CAMERA_HEIGHT, CAMERA_WIDTH, MAP_HEIGHT, MAP_WIDTH, TILE_SIZE};
 
@@ -10,6 +10,11 @@ pub fn init_camera(mut command_buffer: Commands) {
 
     command_buffer.spawn(Camera2dBundle {
         transform: Transform::from_xyz(camera_x, camera_y, camera_z),
+
+        camera: Camera {
+            order: 1, // to avoid the ambiguity warning:  Camera order ambiguities detected for active cameras with the following priorities: {(0, Some(Window(NormalizedWindowRef(0v1))))}
+            ..Default::default()
+        },
         ..Default::default()
     });
 

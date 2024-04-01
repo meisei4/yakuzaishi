@@ -152,13 +152,13 @@ fn update_sprite_index_and_hitbox_index(vehicle: &mut VehicleComponents) {
 
     if updated_sprite_index != vehicle.base.current_sprite_index {
         vehicle.base.current_sprite_index = updated_sprite_index;
-        log::info!("Raw direction vector: {:?}", vehicle.direction);
-        log::info!("Normalized direction angle: {} radians", normalized_angle);
-        log::info!(
-            "Updating sprite index: {} -> {}",
-            vehicle.base.current_sprite_index,
-            updated_sprite_index
-        );
+        // log::info!("Raw direction vector: {:?}", vehicle.direction);
+        // log::info!("Normalized direction angle: {} radians", normalized_angle);
+        // log::info!(
+        //     "Updating sprite index: {} -> {}",
+        //     vehicle.base.current_sprite_index,
+        //     updated_sprite_index
+        // );
     }
     vehicle.current_hitbox_index = updated_sprite_index
 }

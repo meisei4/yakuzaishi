@@ -24,7 +24,7 @@ struct SpriteSpec {
     y: u32,
     width: u32,
     height: u32,
-    offsets: (f32, f32),
+    // offsets: (f32, f32), TODO: not sure why these exist in the output ron file
 }
 
 pub fn spawn_vehicle(command_buffer: Commands,
@@ -59,7 +59,7 @@ fn queue_vehicle_spawn_command(mut command_buffer: Commands,
                                texture_atlas_layout_handle: Handle<TextureAtlasLayout>,
                                spawn_position: Vec2,
 ) {
-    let transform = Transform::from_xyz(spawn_position.x, spawn_position.y, 0.0);
+    let transform = Transform::from_xyz(spawn_position.x, spawn_position.y, 1.0); // 1.0 to render on top of the map
     let vehicle_components = VehicleComponents::new(spawn_position.x, spawn_position.y);
 
     command_buffer.spawn(())

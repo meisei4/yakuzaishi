@@ -4,7 +4,7 @@ use bevy::window::WindowResolution;
 use bevy_ecs_tilemap::TilemapPlugin;
 
 use yakuzaishi::{CAMERA_HEIGHT, CAMERA_WIDTH, helpers};
-use yakuzaishi::startup::{bevy_ecs_tilemap_initial_render_system, camera_initializer, vehicle_spawner};
+use yakuzaishi::startup::{camera_initializer, tiled_map_render_hack, vehicle_spawner};
 use yakuzaishi::systems::{camera_tracking_system::camera_tracking_system, vehicle_controller_system::vehicle_controller_system};
 
 fn main() {
@@ -20,9 +20,9 @@ fn main() {
             ..Default::default()
         }))
         .add_plugins(TilemapPlugin)
-        .add_plugins(helpers::tiled::TiledMapPlugin)
+        .add_plugins(helpers::tiled_hack::TiledMapPlugin)
         .insert_resource(ClearColor(Color::BLACK))
-        .add_systems(Startup, bevy_ecs_tilemap_initial_render_system::render_map)
+        .add_systems(Startup, tiled_map_render_hack::render_map)
         .add_systems(Startup, vehicle_spawner::spawn_vehicle)
         .add_systems(Startup, camera_initializer::init_camera)
         .add_systems(Update, camera_tracking_system)
