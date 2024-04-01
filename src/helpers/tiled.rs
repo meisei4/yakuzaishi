@@ -12,8 +12,10 @@
 //   * When the 'atlas' feature is enabled tilesets using a collection of images will be skipped.
 //   * Only finite tile layers are loaded. Infinite tile layers and object layers will be skipped.
 
-use std::io::{Cursor, ErrorKind};
-use std::path::Path;
+use std::env;
+use std::fs::File;
+use std::io::{Cursor, Error, ErrorKind};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use bevy::{
@@ -69,23 +71,36 @@ pub struct TiledMapBundle {
 
 struct BytesResourceReader {
     bytes: Arc<[u8]>,
+    assets_path: PathBuf,
 }
 
 impl BytesResourceReader {
-    fn new(bytes: &[u8]) -> Self {
+    fn new(bytes: &[u8], assets_path: PathBuf) -> Self {
         Self {
             bytes: Arc::from(bytes),
+            assets_path,
         }
     }
 }
 
 impl tiled::ResourceReader for BytesResourceReader {
-    type Resource = Cursor<Arc<[u8]>>;
+    type Resource = Box<dyn std::io::Read + Send + Sync>;
     type Error = std::io::Error;
 
-    fn read_from(&mut self, _path: &Path) -> std::result::Result<Self::Resource, Self::Error> {
-        // In this case, the path is ignored because the byte data is already provided.
-        Ok(Cursor::new(self.bytes.clone()))
+    fn read_from(&mut self, path: &Path) -> std::result::Result<Self::Resource, Self::Error> {
+        // Check if the path has a .tsx extension
+        if let Some(extension) = path.extension() {
+            if extension == "tsx" {
+                // If the file is a .tsx file, attempt to load it from the filesystem
+                let full_path = self.assets_path.join(path);
+                let file =
+                    File::open(&full_path).map_err(|err| Error::new(ErrorKind::NotFound, err))?;
+                return Ok(Box::new(file));
+            }
+        }
+
+        // If the path is not a .tsx file, load the byte data
+        Ok(Box::new(Cursor::new(self.bytes.clone())))
     }
 }
 
@@ -110,15 +125,20 @@ impl AssetLoader for TiledLoader {
         load_context: &'a mut bevy::asset::LoadContext,
     ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
         Box::pin(async move {
+            let tmx_dir = load_context
+                .path()
+                .parent()
+                .expect("The asset load context was empty.");
+
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
 
             let mut loader = tiled::Loader::with_cache_and_reader(
                 tiled::DefaultResourceCache::new(),
-                BytesResourceReader::new(&bytes),
+                BytesResourceReader::new(&bytes, env::current_dir().unwrap().join("assets"))
             );
             let map = loader.load_tmx_map(load_context.path()).map_err(|e| {
-                std::io::Error::new(ErrorKind::Other, format!("Could not load TMX map: {e}"))
+                Error::new(ErrorKind::Other, format!("Could not load TMX map: {e}"))
             })?;
 
             let mut tilemap_textures = HashMap::default();
@@ -166,8 +186,21 @@ impl AssetLoader for TiledLoader {
                             .path()
                             .parent()
                             .expect("The asset load context was empty.");
-                        let tile_path = tmx_dir.join(&img.source);
+                        // Assuming `img.source` starts with "map_data/", strip this part if `tmx_dir` already ends with it.
+                        // This avoids duplicating the "map_data" segment of the path.
+                        let img_source = Path::new(&img.source);
+                        let img_source = if tmx_dir.ends_with("map_data") && img_source.starts_with("map_data") {
+                            img_source.strip_prefix("map_data").unwrap()
+                        } else {
+                            img_source
+                        };
+
+                        let tile_path = tmx_dir.join(img_source);
+                        log::info!("tile path: {}", tile_path.display());
+                        // Use `tile_path` directly if it's meant to be relative to the `assets` directory
                         let asset_path = AssetPath::from(tile_path);
+                        log::info!("asset path: {}", asset_path.clone());
+
                         let texture: Handle<Image> = load_context.load(asset_path.clone());
 
                         TilemapTexture::Single(texture.clone())
