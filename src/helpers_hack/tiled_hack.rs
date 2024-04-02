@@ -1,35 +1,17 @@
-use std::env;
-use std::fs::File;
-use std::io::{Cursor, Error, ErrorKind};
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::collections::HashMap;
 
-use bevy::{
-    asset::{io::Reader, AssetLoader, AssetPath, AsyncReadExt},
-    log,
-    prelude::{
-        Added, Asset, AssetApp, AssetEvent, AssetId, Assets, Bundle, Commands, Component,
-        DespawnRecursiveExt, Entity, EventReader, GlobalTransform, Handle, Image, Plugin, Query,
-        Res, Transform, Update,
-    },
-    reflect::TypePath,
-    utils::{BoxedFuture, HashMap},
-};
-use bevy_ecs_tilemap::prelude::{
-    TileBundle, TileFlip, TilePos, TileStorage, TileTextureIndex, TilemapGridSize, TilemapId,
-    TilemapRenderSettings, TilemapSize, TilemapSpacing, TilemapTexture, TilemapTileSize,
-    TilemapType,
-};
-use bevy_ecs_tilemap::TilemapBundle;
-use thiserror::Error;
+use bevy::prelude::*;
+use bevy_ecs_tilemap::prelude::*;
+use tiled::{LayerType, TileLayer};
 
+use crate::helpers_hack::tiled_loader::TiledLoader;
 use crate::TILE_SIZE;
 
 #[derive(Default)]
 pub struct TiledMapPlugin;
 
 impl Plugin for TiledMapPlugin {
-    fn build(&self, app: &mut bevy::prelude::App) {
+    fn build(&self, app: &mut App) {
         app.init_asset::<TiledMap>()
             .register_asset_loader(TiledLoader)
             .add_systems(Update, process_loaded_maps);
@@ -42,7 +24,6 @@ pub struct TiledMap {
     pub tilemap_textures: HashMap<usize, TilemapTexture>,
 }
 
-// Stores a list of tiled layers.
 #[derive(Component, Default)]
 pub struct TiledLayersStorage {
     pub storage: HashMap<u32, Entity>,
@@ -57,124 +38,10 @@ pub struct TiledMapBundle {
     pub render_settings: TilemapRenderSettings,
 }
 
-struct BytesResourceReader {
-    bytes: Arc<[u8]>,
-    assets_path: PathBuf,
-}
-
-impl BytesResourceReader {
-    fn new(bytes: &[u8], assets_path: PathBuf) -> Self {
-        Self {
-            bytes: Arc::from(bytes),
-            assets_path,
-        }
-    }
-}
-
-impl tiled::ResourceReader for BytesResourceReader {
-    type Resource = Box<dyn std::io::Read + Send + Sync>;
-    type Error = std::io::Error;
-
-    fn read_from(&mut self, path: &Path) -> std::result::Result<Self::Resource, Self::Error> {
-        // Check if the path has a .tsx extension
-        if let Some(extension) = path.extension() {
-            if extension == "tsx" {
-                // If the file is a .tsx file, attempt to load it from the filesystem
-                let full_path = self.assets_path.join(path);
-                let file =
-                    File::open(&full_path).map_err(|err| Error::new(ErrorKind::NotFound, err))?;
-                return Ok(Box::new(file));
-            }
-        }
-        // If the path is not a .tsx file, load the byte data
-        Ok(Box::new(Cursor::new(self.bytes.clone())))
-    }
-}
-
-pub struct TiledLoader;
-
-#[derive(Debug, Error)]
-pub enum TiledAssetLoaderError {
-    /// An [IO](std::io) Error
-    #[error("Could not load Tiled file: {0}")]
-    Io(#[from] std::io::Error),
-}
-
-impl AssetLoader for TiledLoader {
-    type Asset = TiledMap;
-    type Settings = ();
-    type Error = TiledAssetLoaderError;
-
-    fn load<'a>(
-        &'a self,
-        reader: &'a mut Reader,
-        _settings: &'a Self::Settings,
-        load_context: &'a mut bevy::asset::LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
-        Box::pin(async move {
-            let mut bytes = Vec::new();
-            reader.read_to_end(&mut bytes).await?;
-
-            let mut loader = tiled::Loader::with_cache_and_reader(
-                tiled::DefaultResourceCache::new(),
-                BytesResourceReader::new(&bytes, env::current_dir().unwrap().join("assets")),
-            );
-            let map = loader.load_tmx_map(load_context.path()).map_err(|e| {
-                Error::new(ErrorKind::Other, format!("Could not load TMX map: {e}"))
-            })?;
-
-            let mut tilemap_textures = HashMap::default();
-
-            for (tileset_index, tileset) in map.tilesets().iter().enumerate() {
-                // Directly work with `img` assuming `tileset.image` is always `Some(img)`
-                let img = tileset.image.as_ref().expect("Tileset image is required");
-
-                let tmx_dir = load_context
-                    .path()
-                    .parent()
-                    .expect("The asset load context was empty.");
-
-                let img_source = Path::new(&img.source);
-                let img_source =
-                    if tmx_dir.ends_with("map_data") && img_source.starts_with("map_data") {
-                        img_source.strip_prefix("map_data").unwrap()
-                    } else {
-                        img_source
-                    };
-                let tile_path = tmx_dir.join(img_source);
-                log::info!("tile path: {}", tile_path.display());
-
-                let asset_path = AssetPath::from(tile_path);
-                log::info!("asset path: {}", asset_path.clone());
-
-                let texture: Handle<Image> = load_context.load(asset_path.clone());
-
-                let tilemap_texture = TilemapTexture::Single(texture.clone());
-
-                tilemap_textures.insert(tileset_index, tilemap_texture);
-            }
-
-            let asset_map = TiledMap {
-                map,
-                tilemap_textures,
-            };
-
-            log::info!("Loaded map: {}", load_context.path().display());
-            Ok(asset_map)
-        })
-    }
-
-    fn extensions(&self) -> &[&str] {
-        static EXTENSIONS: &[&str] = &["tmx"];
-        EXTENSIONS
-    }
-}
-
 pub fn process_loaded_maps(
     mut commands: Commands,
     mut map_events: EventReader<AssetEvent<TiledMap>>,
     maps: Res<Assets<TiledMap>>,
-    tile_storage_query: Query<(Entity, &TileStorage)>,
     mut map_query: Query<(
         &Handle<TiledMap>,
         &mut TiledLayersStorage,
@@ -188,16 +55,6 @@ pub fn process_loaded_maps(
             AssetEvent::Added { id } => {
                 log::info!("Map added!");
                 changed_maps.push(*id);
-            }
-            AssetEvent::Modified { id } => {
-                log::info!("Map changed!");
-                changed_maps.push(*id);
-            }
-            AssetEvent::Removed { id } => {
-                log::info!("Map removed!");
-                // if mesh was modified and removed in the same update, ignore the modification
-                // events are ordered so future modification events are ok
-                changed_maps.retain(|changed_handle| changed_handle == id);
             }
             _ => continue,
         }
@@ -215,21 +72,6 @@ pub fn process_loaded_maps(
                 continue;
             }
             if let Some(tiled_map) = maps.get(map_handle) {
-                // TODO: Create a RemoveMap component..
-                for layer_entity in layer_storage.storage.values() {
-                    if let Ok((_, layer_tile_storage)) = tile_storage_query.get(*layer_entity) {
-                        for tile in layer_tile_storage.iter().flatten() {
-                            commands.entity(*tile).despawn_recursive()
-                        }
-                    }
-                    // commands.entity(*layer_entity).despawn_recursive();
-                }
-
-                // The TilemapBundle requires that all tile images come exclusively from a single
-                // tiled texture or from a Vec of independent per-tile images. Furthermore, all of
-                // the per-tile images must be the same size. Since Tiled allows tiles of mixed
-                // tilesets on each layer and allows differently-sized tile images in each tileset,
-                // this means we need to load each combination of tileset and layer separately.
                 for (tileset_index, tileset) in tiled_map.map.tilesets().iter().enumerate() {
                     let Some(tilemap_texture) = tiled_map.tilemap_textures.get(&tileset_index)
                     else {
@@ -243,7 +85,7 @@ pub fn process_loaded_maps(
                     };
 
                     for (layer_index, layer) in tiled_map.map.layers().enumerate() {
-                        let tiled::LayerType::Tiles(tile_layer) = layer.layer_type() else {
+                        let LayerType::Tiles(tile_layer) = layer.layer_type() else {
                             log::info!(
                                 "Skipping layer {} because only tile layers are supported.",
                                 layer.id()
@@ -251,7 +93,7 @@ pub fn process_loaded_maps(
                             continue;
                         };
 
-                        let tiled::TileLayer::Finite(layer_data) = tile_layer else {
+                        let TileLayer::Finite(layer_data) = tile_layer else {
                             log::info!(
                                 "Skipping layer {} because only finite layers are supported.",
                                 layer.id()

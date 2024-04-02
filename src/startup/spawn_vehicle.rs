@@ -14,7 +14,10 @@ use tiled::{FiniteTileLayer, Loader, Map, TileLayer};
 use crate::components::{
     map_tile_component::MapTileComponent, vehicle_components::VehicleComponents,
 };
-use crate::{MAP_FILE_PATH, TILE_SIZE, VEHICLE_SPRITE_SHEET_FILE_PATH, VEHICLE_TEXTURE_FILE_PATH};
+use crate::{
+    MAP_FILE_PATH, OCEAN_MAP_FILE_PATH, TILE_SIZE, VEHICLE_SPRITE_SHEET_FILE_PATH,
+    VEHICLE_TEXTURE_FILE_PATH,
+};
 
 #[derive(Deserialize)]
 struct SpriteSheetSpec {
@@ -38,8 +41,8 @@ pub fn spawn_vehicle(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let tiled_map = Loader::new()
-        .load_tmx_map(Path::new(MAP_FILE_PATH))
-        .expect("Failed to load tilemap");  
+        .load_tmx_map(Path::new(OCEAN_MAP_FILE_PATH))
+        .expect("Failed to load tilemap");
 
     let sprite_sheet_spec = load_sprite_sheet_spec_from_file(VEHICLE_SPRITE_SHEET_FILE_PATH);
     let vehicle_texture_atlas_layout = create_texture_atlas(sprite_sheet_spec);
