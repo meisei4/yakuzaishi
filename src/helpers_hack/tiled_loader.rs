@@ -73,9 +73,10 @@ impl AssetLoader for TiledLoader {
 
                 let texture: Handle<Image> = load_context.load(asset_path.clone());
 
-                let tilemap_texture = TilemapTexture::Single(texture.clone());
-
-                tilemap_textures.insert(tileset_index, tilemap_texture);
+                let tilemap_texture_default = TilemapTexture::Single(texture.clone());
+                
+                
+                tilemap_textures.insert(tileset_index, tilemap_texture_default);
             }
 
             let asset_map = TiledMap {

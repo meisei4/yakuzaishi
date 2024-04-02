@@ -6,9 +6,9 @@ use bevy_ecs_tilemap::TilemapPlugin;
 use yakuzaishi::systems::{
     camera_tracker::camera_tracking_system, vehicle_controller::vehicle_controller_system,
 };
-use yakuzaishi::helpers_hack;
 use yakuzaishi::startup::{initialize_camera, render_map, spawn_vehicle};
 use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
+use yakuzaishi::plugins::tiled_map_plugin::TiledMapPlugin;
 
 
 fn main() {
@@ -23,7 +23,7 @@ fn main() {
             ..Default::default()
         }))
         .add_plugins(TilemapPlugin)
-        .add_plugins(helpers_hack::tiled_hack::TiledMapPlugin)
+        .add_plugins(TiledMapPlugin)
         .insert_resource(ClearColor(Color::BLACK))
         .add_systems(Startup, render_map::render_map)
         .add_systems(Startup, spawn_vehicle::spawn_vehicle)

@@ -15,11 +15,11 @@ pub fn vehicle_controller_system(
 ) {
     let delta_time = time.delta_seconds();
 
-    for (mut vehicle, mut transform, mut atlas) in query.iter_mut() {
+    for (mut vehicle, mut transform, mut vehicle_atlas) in query.iter_mut() {
         process_input(&keyboard_input, &mut vehicle, delta_time);
         update_position_and_transform(&mut vehicle, delta_time, &mut transform);
         update_sprite_index(&mut vehicle);
-        atlas.index = vehicle.current_sprite_index;
+        vehicle_atlas.index = vehicle.current_sprite_index;
     }
 }
 

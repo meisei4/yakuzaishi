@@ -1,2 +1,2 @@
 pub mod tiled_hack;
-mod tiled_loader;
+pub mod tiled_loader;

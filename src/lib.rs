@@ -2,6 +2,7 @@ pub mod components;
 pub mod helpers_hack;
 pub mod startup;
 pub mod systems;
+pub mod plugins;
 
 pub const VEHICLE_SPRITE_SHEET_FILE_PATH: &'static str =
     "assets/sprite_data/vehicle_spritesheet.ron";
@@ -14,9 +15,9 @@ pub const VEHICLE_DEFAULT_RATE_OF_ROTATION: f32 = 4.0;
 
 // TODO -------- v fix the assets vs project root folder loading -------------
 pub const MAP_FILE_PATH_ASSET: &'static str = "map_data/road_tilemap_1.tmx";
-pub const OCEAN_MAP_FILE_PATH_ASSET: &'static str = "map_data/ocean_map.tmx";
+pub const OCEAN_MAP_FILE_PATH_ASSET: &'static str = "map_data/ocean_animated.tmx";
 pub const MAP_FILE_PATH: &'static str = "assets/map_data/road_tilemap_1.tmx";
-pub const OCEAN_MAP_FILE_PATH: &'static str = "assets/map_data/ocean_map.tmx";
+pub const OCEAN_MAP_FILE_PATH: &'static str = "assets/map_data/ocean_animated.tmx";
 // TODO -------- ^ fix the assets vs project root folder loading -------------
 
 pub const FONT_PATH: &'static str = "font_data/saturn.ttf";
