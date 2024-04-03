@@ -5,29 +5,21 @@ use std::io::{Cursor, Error, ErrorKind, Read};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use bevy::asset::io::Reader;
 use bevy::asset::{AssetLoader, AssetPath, BoxedFuture, Handle, LoadContext};
+use bevy::asset::io::Reader;
 use bevy::prelude::Image;
 use bevy_ecs_tilemap::map::TilemapTexture;
 use futures_lite::AsyncReadExt;
-use thiserror::Error;
 use tiled::{DefaultResourceCache, Loader, ResourceReader};
 
-use crate::helpers_hack::tiled_hack::TiledMap;
+use crate::update_systems::process_tiled_maps::TiledMap;
 
 pub struct TiledLoader;
-
-#[derive(Debug, Error)]
-pub enum TiledAssetLoaderError {
-    /// An [IO](std::io) Error
-    #[error("Could not load Tiled file: {0}")]
-    Io(#[from] std::io::Error),
-}
 
 impl AssetLoader for TiledLoader {
     type Asset = TiledMap;
     type Settings = ();
-    type Error = TiledAssetLoaderError;
+    type Error = Error;
 
     fn load<'a>(
         &'a self,
@@ -74,8 +66,7 @@ impl AssetLoader for TiledLoader {
                 let texture: Handle<Image> = load_context.load(asset_path.clone());
 
                 let tilemap_texture_default = TilemapTexture::Single(texture.clone());
-                
-                
+
                 tilemap_textures.insert(tileset_index, tilemap_texture_default);
             }
 
