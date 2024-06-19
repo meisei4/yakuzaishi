@@ -1,40 +1,36 @@
 use bevy::asset::AssetApp;
-use bevy::DefaultPlugins;
-use bevy::prelude::{App, PluginGroup, Startup, Update, Window, WindowPlugin};
+use bevy::prelude::{App, DefaultPlugins, ImagePlugin, PluginGroup, Window, WindowPlugin};
 use bevy::window::WindowResolution;
 use bevy_ecs_tilemap::TilemapPlugin;
 
 use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
-use yakuzaishi::startup_systems::{initialize_camera, render_map, spawn_flying_entity};
-use yakuzaishi::update_systems::{
-    camera_tracker::camera_tracking_system, flying_entity_controller::vehicle_controller_system,
-    process_tiled_maps::TiledMap,
-};
-use yakuzaishi::update_systems::process_tiled_maps::process_tiled_maps;
-use yakuzaishi::update_systems::tiled_loader::TiledLoader;
+use yakuzaishi::startup_systems::process_tiled_maps::TiledMap;
+use yakuzaishi::startup_systems::tiled_loader::TiledLoader;
+use yakuzaishi::states::load::LoadStatePlugin;
+use yakuzaishi::states::run::RunStatePlugin;
+use yakuzaishi::states::state_enums::GameState;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Option::from(Window {
-                resolution: WindowResolution::new(
-                    NINTENDO_DS_SCREEN_WIDTH,
-                    NINTENDO_DS_SCREEN_HEIGHT,
-                ),
-                resizable: false,
-                title: "Yakuzaishi".to_string(),
+        .add_plugins(DefaultPlugins
+            .set(ImagePlugin::default_nearest())
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    resolution: WindowResolution::new(
+                        NINTENDO_DS_SCREEN_WIDTH,
+                        NINTENDO_DS_SCREEN_HEIGHT,
+                    ),
+                    resizable: false,
+                    title: "Yakuzaishi".to_string(),
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        }))
-        .add_systems(Startup, render_map::render_map)
-        .add_systems(Startup, spawn_flying_entity::spawn_vehicle)
-        .add_systems(Startup, initialize_camera::init_camera)
-        .add_systems(Update, camera_tracking_system)
-        .add_systems(Update, vehicle_controller_system)
+            }))
         .add_plugins(TilemapPlugin)
         .init_asset::<TiledMap>()
         .register_asset_loader(TiledLoader)
-        .add_systems(Update, process_tiled_maps) // TODO: How is this an Update system?
+        .add_plugins(LoadStatePlugin)
+        .add_plugins(RunStatePlugin)
+        .insert_state(GameState::Load) // Setting the initial state to Load
         .run();
 }

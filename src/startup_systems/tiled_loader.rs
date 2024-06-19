@@ -12,7 +12,7 @@ use bevy_ecs_tilemap::map::TilemapTexture;
 use futures_lite::AsyncReadExt;
 use tiled::{DefaultResourceCache, Loader, ResourceReader};
 
-use crate::update_systems::process_tiled_maps::TiledMap;
+use crate::startup_systems::process_tiled_maps::TiledMap;
 
 pub struct TiledLoader;
 
@@ -109,7 +109,7 @@ impl ResourceReader for BytesResourceReader {
             if extension == "tsx" {
                 let full_path = self.assets_path.join(path);
                 let file =
-                    File::open(&full_path).map_err(|err| Error::new(ErrorKind::NotFound, err))?;
+                    File::open(full_path).map_err(|err| Error::new(ErrorKind::NotFound, err))?;
                 return Ok(Box::new(file));
             }
         }
