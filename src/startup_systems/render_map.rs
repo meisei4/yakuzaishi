@@ -2,7 +2,7 @@ use bevy::prelude::{AssetServer, Bundle, Commands, GlobalTransform, Handle, Res,
 use bevy_ecs_tilemap::prelude::TilemapRenderSettings;
 
 use crate::OCEAN_MAP_FILE_PATH;
-use crate::update_systems::process_tiled_maps::TiledMap;
+use crate::startup_systems::process_tiled_maps::TiledMap;
 
 #[derive(Default, Bundle)]
 pub struct TiledMapBundle {

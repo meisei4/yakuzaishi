@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+
 use bevy::prelude::{Commands, Entity, Query, Res, Resource};
 use bevy_ecs_tilemap::tiles::{AnimatedTile, TileTextureIndex};
 
@@ -27,8 +28,8 @@ pub fn attach_animations_to_map(
     animation_data: Res<AnimationData>,
 ) {
     for (entity, texture_index) in query.iter() {
-        if let Some(animation) = animation_data.animations.get(&(texture_index.0 as u32)) {
-            commands.entity(entity).insert(animation.clone());
+        if let Some(animation) = animation_data.animations.get(&{ texture_index.0 }) {
+            commands.entity(entity).insert(*animation);
         }
     }
 }
