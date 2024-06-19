@@ -17,17 +17,12 @@ pub fn process_tiled_maps(
     map_assets: Res<Assets<TiledMap>>,
     mut map_query: Query<&Handle<TiledMap>>,
 ) {
-    log::info!("Starting to process tiled maps.");
     if let Some(map_handle) = map_query.iter_mut().next() {
         if let Some(tiled_map) = map_assets.get(map_handle) {
             for tileset_index in 0..tiled_map.map.tilesets().len() {
                 process_tileset(&mut commands, tiled_map, tileset_index);
             }
-        } else {
-            log::warn!("Failed to get tiled map from assets.");
         }
-    } else {
-        log::warn!("No map handle found in query.");
     }
 }
 

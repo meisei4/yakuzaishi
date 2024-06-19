@@ -31,6 +31,6 @@ fn main() {
         .register_asset_loader(TiledLoader)
         .add_plugins(LoadStatePlugin)
         .add_plugins(RunStatePlugin)
-        .insert_state(GameState::Load) // Setting the initial state to Load
+        .insert_state(GameState::Load)
         .run();
 }
