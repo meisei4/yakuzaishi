@@ -2,16 +2,16 @@ use bevy::app::{App, Plugin, Update};
 use bevy::asset::{Assets, AssetServer, Handle, LoadState};
 use bevy::prelude::{IntoSystemConfigs, NextState, OnEnter, OnExit, Query, Res, ResMut};
 
-use crate::startup_systems::{animation, initialize_camera, process_tiled_maps, render_map, spawn_flying_entity};
-use crate::startup_systems::process_tiled_maps::TiledMap;
 use crate::states::state_enums::GameState;
+use crate::systems::load_state::{animation, initialize_camera, load_map, process_tiled_maps, spawn_flying_entity};
+use crate::systems::load_state::process_tiled_maps::TiledMap;
 
 pub struct LoadStatePlugin;
 
 impl Plugin for LoadStatePlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(OnEnter(GameState::Load), render_map::render_map)
+            .add_systems(OnEnter(GameState::Load), load_map::load_map)
             .add_systems(Update, check_assets_loaded)
             .add_systems(
                 OnExit(GameState::Load),

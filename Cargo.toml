@@ -28,3 +28,4 @@ serde = { version = "1.0.197", features = ["derive"] }
 thiserror = "1.0.58"
 anyhow = "1.0.81"
 futures-lite = "2.3.0"
+lazy_static = "1.4.0"

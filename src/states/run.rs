@@ -1,7 +1,7 @@
 use bevy::app::{App, Plugin, Update};
 
-use crate::update_systems::camera_tracker::camera_tracking_system;
-use crate::update_systems::flying_entity_controller::vehicle_controller_system;
+use crate::systems::run_state::camera_tracker::camera_tracking_system;
+use crate::systems::run_state::flying_entity_controller::vehicle_controller_system;
 
 pub struct RunStatePlugin;
 

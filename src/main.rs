@@ -4,11 +4,11 @@ use bevy::window::WindowResolution;
 use bevy_ecs_tilemap::TilemapPlugin;
 
 use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
-use yakuzaishi::startup_systems::process_tiled_maps::TiledMap;
-use yakuzaishi::startup_systems::tiled_loader::TiledLoader;
 use yakuzaishi::states::load::LoadStatePlugin;
 use yakuzaishi::states::run::RunStatePlugin;
 use yakuzaishi::states::state_enums::GameState;
+use yakuzaishi::systems::load_state::process_tiled_maps::TiledMap;
+use yakuzaishi::systems::load_state::tiled_loader::TiledLoader;
 
 fn main() {
     App::new()

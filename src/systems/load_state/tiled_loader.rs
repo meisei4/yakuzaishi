@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::env;
 use std::fs::File;
 use std::io::{Cursor, Error, ErrorKind, Read};
 use std::path::{Path, PathBuf};
@@ -12,7 +11,8 @@ use bevy_ecs_tilemap::map::TilemapTexture;
 use futures_lite::AsyncReadExt;
 use tiled::{DefaultResourceCache, Loader, ResourceReader};
 
-use crate::startup_systems::process_tiled_maps::TiledMap;
+use crate::ASSETS_BASE_PATH;
+use crate::systems::load_state::process_tiled_maps::TiledMap;
 
 pub struct TiledLoader;
 
@@ -33,7 +33,7 @@ impl AssetLoader for TiledLoader {
 
             let mut loader = Loader::with_cache_and_reader(
                 DefaultResourceCache::new(),
-                BytesResourceReader::new(&bytes, env::current_dir().unwrap().join("assets")),
+                BytesResourceReader::new(&bytes, ASSETS_BASE_PATH.clone()),
             );
             let map = loader.load_tmx_map(load_context.path()).map_err(|e| {
                 Error::new(ErrorKind::Other, format!("Could not load TMX map: {e}"))

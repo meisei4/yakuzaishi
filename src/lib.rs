@@ -1,7 +1,13 @@
+use std::env;
+use std::path::PathBuf;
+
 pub mod components;
-pub mod startup_systems;
-pub mod update_systems;
+pub mod systems;
 pub mod states;
+
+lazy_static::lazy_static! {
+    pub static ref ASSETS_BASE_PATH: PathBuf = env::current_dir().unwrap().join("assets");
+}
 
 pub const VEHICLE_SPRITE_SHEET_FILE_PATH: &str =
     "assets/sprite_data/vehicle_spritesheet.ron";
