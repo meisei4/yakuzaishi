@@ -24,7 +24,7 @@ pub fn setup_map_animation_data(mut commands: Commands) {
 
     let animated_tile = AnimatedTile {
         start_idx: 40,
-        end_idx: 55,
+        end_idx: 54,
         speed: 0.50,
     };
 

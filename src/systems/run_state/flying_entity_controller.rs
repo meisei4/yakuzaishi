@@ -24,7 +24,7 @@ pub fn vehicle_controller_system(
         transform.translation.x = vehicle.world_coordinate_position.x;
         transform.translation.y = vehicle.world_coordinate_position.y;
         update_tile_position(&mut vehicle);
-        update_sprite_index(&mut vehicle);
+        // update_sprite_index(&mut vehicle);
         player_entity_texture_atlas.index = vehicle.current_sprite_index;
     }
 }
@@ -50,7 +50,7 @@ fn handle_y_axis_movement(
     } else {
         vehicle_component.y_axis_speed = 0.0;
     }
-    let forward_movement_amount = vehicle_component.y_axis_speed * delta_time;
+    let forward_movement_amount = (vehicle_component.y_axis_speed * delta_time).round();
     vehicle_component.world_coordinate_position.y += forward_movement_amount;
 }
 
@@ -63,13 +63,18 @@ fn handle_x_axis_strafing(
     let strafe_left = keyboard_input.pressed(KeyCode::KeyA) as i32;
     let strafe_direction = (strafe_right - strafe_left) as f32; // 1 if D is pressed, -1 if A is pressed, 0 otherwise
 
-    let strafe_amount = vehicle_component.x_axis_strafe_speed * delta_time * strafe_direction;
+    let strafe_amount =
+        (vehicle_component.x_axis_strafe_speed * delta_time * strafe_direction).round();
     vehicle_component.world_coordinate_position.x += strafe_amount;
 }
 
 fn update_tile_position(vehicle: &mut FlyingEntityComponents) {
-    let new_tile_x = (vehicle.world_coordinate_position.x / TILE_SIZE).floor();
-    let new_tile_y = (vehicle.world_coordinate_position.y / TILE_SIZE).floor();
+    //TODO: the TILE_SIZE centering and just coordinate system in general needs to be fixed i think,
+    // seems too hacky
+    let new_tile_x =
+        ((vehicle.world_coordinate_position.x + (TILE_SIZE / 2.0)) / TILE_SIZE).floor();
+    let new_tile_y =
+        ((vehicle.world_coordinate_position.y + (TILE_SIZE / 2.0)) / TILE_SIZE).floor();
     let new_tile = Vec2 {
         x: new_tile_x,
         y: new_tile_y,
