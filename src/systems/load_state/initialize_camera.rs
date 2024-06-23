@@ -13,4 +13,3 @@ pub fn init_camera(mut command_buffer: Commands) {
         ..Default::default()
     });
 }
-
