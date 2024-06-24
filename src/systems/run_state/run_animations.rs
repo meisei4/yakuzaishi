@@ -7,7 +7,8 @@ use crate::systems::load_state::load_animations::{AnimatedTile, AnimationTimer};
 
 pub fn animate_overlapped_tile(
     time: Res<Time>,
-    mut flying_entity_query: Query<&FlyingEntityComponents>,
+    //mut entity_query: Query<&RotationalVehicleComponents>,
+    mut entity_query: Query<&FlyingEntityComponents>,
     mut tile_query: Query<(
         &TilePos,
         &mut AnimationTimer,
@@ -15,10 +16,10 @@ pub fn animate_overlapped_tile(
         &mut TileTextureIndex,
     )>,
 ) {
-    if let Ok(flying_entity) = flying_entity_query.get_single_mut() {
+    if let Ok(entity) = entity_query.get_single_mut() {
         let current_tile_pos = TilePos {
-            x: flying_entity.tile_coordinate_position.x as u32,
-            y: flying_entity.tile_coordinate_position.y as u32,
+            x: entity.tile_coordinate_position.x as u32,
+            y: entity.tile_coordinate_position.y as u32,
         };
 
         for (tile_pos, mut animation_timer, animated_tile, mut tilemap_texture_index) in

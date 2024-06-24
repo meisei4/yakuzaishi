@@ -8,7 +8,7 @@ use bevy::{
 use crate::{DEFAULT_SPEED, TILE_SIZE};
 use crate::components::flying_entity_components::FlyingEntityComponents;
 
-pub fn vehicle_controller_system(
+pub fn flying_entity_controller_system(
     time: Res<Time>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(
@@ -20,16 +20,19 @@ pub fn vehicle_controller_system(
     let delta_time = time.delta_seconds();
 
     for (mut vehicle, mut transform, mut player_entity_texture_atlas) in query.iter_mut() {
-        process_input(&keyboard_input, &mut vehicle, delta_time);
+        //TODO FlyingEntity and rotational vehicle entity testing
+
+        // Flying
+        process_input_flying_entity(&keyboard_input, &mut vehicle, delta_time);
         transform.translation.x = vehicle.world_coordinate_position.x;
         transform.translation.y = vehicle.world_coordinate_position.y;
         update_tile_position(&mut vehicle);
-        // update_sprite_index(&mut vehicle);
+        update_sprite_index(&mut vehicle);
         player_entity_texture_atlas.index = vehicle.current_sprite_index;
     }
 }
 
-fn process_input(
+fn process_input_flying_entity(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle: &mut FlyingEntityComponents,
     delta_time: f32,
@@ -90,7 +93,7 @@ fn update_tile_position(vehicle: &mut FlyingEntityComponents) {
 }
 
 fn update_sprite_index(vehicle: &mut FlyingEntityComponents) {
-    let angle = direction_angle(vehicle);
+    let angle = direction_angle_fly(vehicle);
     let normalized_angle = (angle + 2.0 * PI) % (2.0 * PI);
     let north_sprite_index = 36; // Index of North-facing sprite
     let total_sprites = 48;
@@ -106,6 +109,6 @@ fn update_sprite_index(vehicle: &mut FlyingEntityComponents) {
     }
 }
 
-fn direction_angle(vehicle: &FlyingEntityComponents) -> f32 {
+fn direction_angle_fly(vehicle: &FlyingEntityComponents) -> f32 {
     vehicle.direction.y.atan2(vehicle.direction.x)
 }
