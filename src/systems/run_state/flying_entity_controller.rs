@@ -8,7 +8,7 @@ use bevy::{
 use crate::{DEFAULT_SPEED, TILE_SIZE};
 use crate::components::flying_entity_components::FlyingEntityComponents;
 
-pub fn vehicle_controller_system(
+pub fn flying_entity_controller_system(
     time: Res<Time>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(
@@ -20,7 +20,10 @@ pub fn vehicle_controller_system(
     let delta_time = time.delta_seconds();
 
     for (mut vehicle, mut transform, mut player_entity_texture_atlas) in query.iter_mut() {
-        process_input(&keyboard_input, &mut vehicle, delta_time);
+        //TODO FlyingEntity and rotational vehicle entity testing
+
+        // Flying
+        process_input_flying_entity(&keyboard_input, &mut vehicle, delta_time);
         transform.translation.x = vehicle.world_coordinate_position.x;
         transform.translation.y = vehicle.world_coordinate_position.y;
         update_tile_position(&mut vehicle);
@@ -29,7 +32,7 @@ pub fn vehicle_controller_system(
     }
 }
 
-fn process_input(
+fn process_input_flying_entity(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle: &mut FlyingEntityComponents,
     delta_time: f32,
@@ -50,7 +53,7 @@ fn handle_y_axis_movement(
     } else {
         vehicle_component.y_axis_speed = 0.0;
     }
-    let forward_movement_amount = vehicle_component.y_axis_speed * delta_time;
+    let forward_movement_amount = (vehicle_component.y_axis_speed * delta_time).round();
     vehicle_component.world_coordinate_position.y += forward_movement_amount;
 }
 
@@ -63,13 +66,18 @@ fn handle_x_axis_strafing(
     let strafe_left = keyboard_input.pressed(KeyCode::KeyA) as i32;
     let strafe_direction = (strafe_right - strafe_left) as f32; // 1 if D is pressed, -1 if A is pressed, 0 otherwise
 
-    let strafe_amount = vehicle_component.x_axis_strafe_speed * delta_time * strafe_direction;
+    let strafe_amount =
+        (vehicle_component.x_axis_strafe_speed * delta_time * strafe_direction).round();
     vehicle_component.world_coordinate_position.x += strafe_amount;
 }
 
 fn update_tile_position(vehicle: &mut FlyingEntityComponents) {
-    let new_tile_x = (vehicle.world_coordinate_position.x / TILE_SIZE).floor();
-    let new_tile_y = (vehicle.world_coordinate_position.y / TILE_SIZE).floor();
+    //TODO: the TILE_SIZE centering and just coordinate system in general needs to be fixed i think,
+    // seems too hacky
+    let new_tile_x =
+        ((vehicle.world_coordinate_position.x + (TILE_SIZE / 2.0)) / TILE_SIZE).floor();
+    let new_tile_y =
+        ((vehicle.world_coordinate_position.y + (TILE_SIZE / 2.0)) / TILE_SIZE).floor();
     let new_tile = Vec2 {
         x: new_tile_x,
         y: new_tile_y,
@@ -85,7 +93,7 @@ fn update_tile_position(vehicle: &mut FlyingEntityComponents) {
 }
 
 fn update_sprite_index(vehicle: &mut FlyingEntityComponents) {
-    let angle = direction_angle(vehicle);
+    let angle = direction_angle_fly(vehicle);
     let normalized_angle = (angle + 2.0 * PI) % (2.0 * PI);
     let north_sprite_index = 36; // Index of North-facing sprite
     let total_sprites = 48;
@@ -101,6 +109,6 @@ fn update_sprite_index(vehicle: &mut FlyingEntityComponents) {
     }
 }
 
-fn direction_angle(vehicle: &FlyingEntityComponents) -> f32 {
+fn direction_angle_fly(vehicle: &FlyingEntityComponents) -> f32 {
     vehicle.direction.y.atan2(vehicle.direction.x)
 }

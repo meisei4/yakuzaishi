@@ -23,7 +23,6 @@ struct SpriteSpec {
     y: f32,
     width: f32,
     height: f32,
-    // offsets: (f32, f32), TODO: not sure why these exist in the sprites .ron file
 }
 
 pub fn spawn_vehicle(
@@ -36,7 +35,7 @@ pub fn spawn_vehicle(
 
     let texture_atlas_layout_handle = texture_atlas_layouts.add(vehicle_texture_atlas_layout);
 
-    let tile_spawn_coordinates = Vec2 { x: 5.0, y: 1.0 }; // TODO: figure out some logic to choose spawn?
+    let tile_spawn_coordinates = Vec2 { x: 0.0, y: 0.0 }; // TODO: figure out some logic to choose spawn?
     let world_spawn_coordinates = Vec2 {
         x: tile_spawn_coordinates.x * TILE_SIZE,
         y: tile_spawn_coordinates.y * TILE_SIZE,
@@ -45,6 +44,7 @@ pub fn spawn_vehicle(
     let transform = Transform::from_xyz(world_spawn_coordinates.x, world_spawn_coordinates.y, 1.0);
 
     commands.spawn((
+        //RotationalVehicleComponents::new(tile_spawn_coordinates),
         FlyingEntityComponents::new(tile_spawn_coordinates),
         SpriteSheetBundle {
             texture: asset_server.load(VEHICLE_TEXTURE_FILE_PATH),

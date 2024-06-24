@@ -1,7 +1,12 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use bevy_ecs_tilemap::prelude::*;
+use bevy_ecs_tilemap::map::{
+    TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTexture, TilemapTileSize,
+    TilemapType,
+};
+use bevy_ecs_tilemap::TilemapBundle;
+use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TilePos, TileStorage, TileTextureIndex};
 use tiled::{LayerType, TileLayer};
 
 use crate::TILE_SIZE;
@@ -26,11 +31,7 @@ pub fn process_tiled_maps(
     }
 }
 
-fn process_tileset(
-    commands: &mut Commands,
-    tiled_map: &TiledMap,
-    tileset_index: usize,
-) {
+fn process_tileset(commands: &mut Commands, tiled_map: &TiledMap, tileset_index: usize) {
     let tileset = &tiled_map.map.tilesets()[tileset_index];
     let tilemap_texture = &tiled_map.tilemap_textures[&tileset_index];
 
@@ -50,7 +51,8 @@ fn process_tileset(
                 x: tiled_map.map.tile_width as f32,
                 y: tiled_map.map.tile_height as f32,
             };
-            let tile_storage = process_tile_layer(commands, tile_layer, map_size, TilemapId(layer_entity));
+            let tile_storage =
+                process_tile_layer(commands, tile_layer, map_size, TilemapId(layer_entity));
 
             commands.entity(layer_entity).insert(TilemapBundle {
                 grid_size,
@@ -78,9 +80,7 @@ fn process_tile_layer(
     tilemap_id: TilemapId,
 ) -> TileStorage {
     let TileLayer::Finite(layer_data) = tile_layer else {
-        log::info!(
-            "Skipping layer because only finite layers are supported."
-        );
+        log::info!("Skipping layer because only finite layers are supported.");
         return TileStorage::empty(map_size);
     };
 
@@ -97,7 +97,8 @@ fn process_tile_layer(
                     y: !layer_tile_data.flip_v,
                     d: layer_tile_data.flip_d,
                 };
-                let tile_entity = create_tile_entity(commands, tile_pos, tilemap_id, texture_index, flip);
+                let tile_entity =
+                    create_tile_entity(commands, tile_pos, tilemap_id, texture_index, flip);
                 tile_storage.set(&tile_pos, tile_entity);
             }
         }
@@ -123,7 +124,3 @@ fn create_tile_entity(
 
     entity_builder.id()
 }
-
-
-
-
