@@ -1,6 +1,7 @@
 use std::fs;
 
 use bevy::asset::ron;
+use bevy::core::Name;
 use bevy::prelude::{
     Assets, AssetServer, Commands, Rect, Res, ResMut, SpriteSheetBundle, TextureAtlas,
     TextureAtlasLayout, Transform, Vec2,
@@ -23,6 +24,7 @@ struct SpriteSpec {
     y: f32,
     width: f32,
     height: f32,
+    // offsets: (f32, f32), TODO: not sure why these exist in the sprites .ron file
 }
 
 pub fn spawn_vehicle(
@@ -43,19 +45,20 @@ pub fn spawn_vehicle(
 
     let transform = Transform::from_xyz(world_spawn_coordinates.x, world_spawn_coordinates.y, 1.0);
 
-    commands.spawn((
-        //RotationalVehicleComponents::new(tile_spawn_coordinates),
-        FlyingEntityComponents::new(tile_spawn_coordinates),
-        SpriteSheetBundle {
-            texture: asset_server.load(VEHICLE_TEXTURE_FILE_PATH),
-            atlas: TextureAtlas {
-                layout: texture_atlas_layout_handle,
-                index: 0,
+    commands
+        .spawn((
+            FlyingEntityComponents::new(tile_spawn_coordinates),
+            SpriteSheetBundle {
+                texture: asset_server.load(VEHICLE_TEXTURE_FILE_PATH),
+                atlas: TextureAtlas {
+                    layout: texture_atlas_layout_handle,
+                    index: 0,
+                },
+                transform,
+                ..Default::default()
             },
-            transform,
-            ..Default::default()
-        },
-    ));
+        ))
+        .insert(Name::new("Flying Entity"));
 }
 
 fn load_sprite_sheet_spec_from_file(file_path: &str) -> SpriteSheetSpec {

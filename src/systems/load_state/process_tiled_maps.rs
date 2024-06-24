@@ -54,16 +54,19 @@ fn process_tileset(commands: &mut Commands, tiled_map: &TiledMap, tileset_index:
             let tile_storage =
                 process_tile_layer(commands, tile_layer, map_size, TilemapId(layer_entity));
 
-            commands.entity(layer_entity).insert(TilemapBundle {
-                grid_size,
-                size: map_size,
-                storage: tile_storage,
-                texture: tilemap_texture.clone(),
-                tile_size: TilemapTileSize::new(TILE_SIZE, TILE_SIZE),
-                spacing: tile_spacing,
-                map_type: TilemapType::Square,
-                ..Default::default()
-            });
+            commands
+                .entity(layer_entity)
+                .insert(TilemapBundle {
+                    grid_size,
+                    size: map_size,
+                    storage: tile_storage,
+                    texture: tilemap_texture.clone(),
+                    tile_size: TilemapTileSize::new(TILE_SIZE, TILE_SIZE),
+                    spacing: tile_spacing,
+                    map_type: TilemapType::Square,
+                    ..Default::default()
+                })
+                .insert(Name::new("TiledMap Tiles Entity"));
         } else {
             log::info!(
                 "Skipping layer {} because only tile layers are supported.",
@@ -121,6 +124,5 @@ fn create_tile_entity(
         flip,
         ..Default::default()
     });
-
     entity_builder.id()
 }

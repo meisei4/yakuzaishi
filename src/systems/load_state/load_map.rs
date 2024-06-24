@@ -1,3 +1,4 @@
+use bevy::core::Name;
 use bevy::prelude::{AssetServer, Bundle, Commands, GlobalTransform, Handle, Res, Transform};
 use bevy_ecs_tilemap::prelude::TilemapRenderSettings;
 
@@ -15,8 +16,10 @@ pub struct TiledMapBundle {
 pub fn load_map(mut commands: Commands, asset_server: Res<AssetServer>) {
     let map_handle: Handle<TiledMap> = asset_server.load(OCEAN_MAP_FILE_PATH);
 
-    commands.spawn(TiledMapBundle {
-        tiled_map: map_handle,
-        ..Default::default()
-    });
+    commands
+        .spawn(TiledMapBundle {
+            tiled_map: map_handle,
+            ..Default::default()
+        })
+        .insert(Name::new("TiledMap Bundle Entity"));
 }
