@@ -3,6 +3,7 @@ use bevy::prelude::{App, DefaultPlugins, ImagePlugin, PluginGroup, Window, Windo
 use bevy::window::WindowResolution;
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use tracy_client::Client;
 
 use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
 use yakuzaishi::states::load::LoadStatePlugin;
@@ -12,6 +13,7 @@ use yakuzaishi::systems::load_state::process_tiled_maps::TiledMap;
 use yakuzaishi::systems::load_state::tiled_loader::TiledLoader;
 
 fn main() {
+    let _tracy_client = Client::start();
     App::new()
         .add_plugins(
             DefaultPlugins

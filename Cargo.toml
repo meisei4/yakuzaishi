@@ -30,4 +30,4 @@ anyhow = "1.0.81"
 futures-lite = "2.3.0"
 lazy_static = "1.4.0"
 bevy-inspector-egui = { git = "https://github.com/jakobhellermann/bevy-inspector-egui", branch = "main" }
-
+tracy-client = "0.17.0"

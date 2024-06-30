@@ -2,15 +2,15 @@ use std::env;
 use std::path::PathBuf;
 
 pub mod components;
-pub mod systems;
+pub mod events;
 pub mod states;
+pub mod systems;
 
 lazy_static::lazy_static! {
     pub static ref ASSETS_BASE_PATH: PathBuf = env::current_dir().unwrap().join("assets");
 }
 
-pub const VEHICLE_SPRITE_SHEET_FILE_PATH: &str =
-    "assets/sprite_data/vehicle_spritesheet.ron";
+pub const VEHICLE_SPRITE_SHEET_FILE_PATH: &str = "assets/sprite_data/vehicle_spritesheet.ron";
 pub const VEHICLE_TEXTURE_FILE_PATH: &str = "sprite_data/vehicle_spritesheet.png";
 
 pub const DEFAULT_SPEED: f32 = 150.0;
