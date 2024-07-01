@@ -51,3 +51,39 @@ pub fn handle_overlap_event(
         }
     }
 }
+
+pub fn animate_overlapped_tile_continuous(
+    time: Res<Time>,
+    //mut entity_query: Query<&RotationalVehicleComponents>,
+    mut entity_query: Query<&FlyingEntityComponents>,
+    mut tile_query: Query<(
+        &TilePos,
+        &mut AnimationTimer,
+        &AnimatedTile,
+        &mut TileTextureIndex,
+    )>,
+) {
+    let _span = span!("tile animation continuous");
+    if let Ok(entity) = entity_query.get_single_mut() {
+        let current_tile_pos = TilePos {
+            x: entity.tile_coordinate_position.x as u32,
+            y: entity.tile_coordinate_position.y as u32,
+        };
+
+        for (tile_pos, mut animation_timer, animated_tile, mut tilemap_texture_index) in
+            tile_query.iter_mut()
+        {
+            if *tile_pos == current_tile_pos {
+                // Tick the tile's animation timer while the vehicle is on the tile
+                animation_timer.tick(time.delta());
+                if animation_timer.just_finished() {
+                    tilemap_texture_index.0 = if tilemap_texture_index.0 == animated_tile.end_idx {
+                        animated_tile.start_idx
+                    } else {
+                        tilemap_texture_index.0 + 1
+                    };
+                }
+            }
+        }
+    }
+}

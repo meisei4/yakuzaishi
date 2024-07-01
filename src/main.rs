@@ -21,8 +21,8 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         resolution: WindowResolution::new(
-                            NINTENDO_DS_SCREEN_WIDTH * 3.0,
-                            NINTENDO_DS_SCREEN_HEIGHT * 3.0,
+                            NINTENDO_DS_SCREEN_WIDTH * 2.0,
+                            NINTENDO_DS_SCREEN_HEIGHT * 2.0,
                         ),
                         resizable: false,
                         title: "Yakuzaishi".to_string(),
