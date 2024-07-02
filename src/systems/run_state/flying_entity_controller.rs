@@ -4,47 +4,80 @@ use bevy::{
     input::ButtonInput,
     prelude::{KeyCode, Query, Res, TextureAtlas, Time, Transform, Vec2},
 };
+use bevy::math::Vec3;
+use bevy::prelude::Fixed;
 
 use crate::{DEFAULT_SPEED, TILE_SIZE};
 use crate::components::flying_entity_components::FlyingEntityComponents;
+use crate::components::motion_states::{CurrentMotionState, OldMotionState};
 
-pub fn flying_entity_controller_system(
-    time: Res<Time>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
+pub fn apply_motion_states_system(
+    fixed_time: Res<Time<Fixed>>,
     mut query: Query<(
         &mut FlyingEntityComponents,
         &mut Transform,
         &mut TextureAtlas,
+        &CurrentMotionState,
+        &OldMotionState,
     )>,
 ) {
-    let delta_time = time.delta_seconds();
+    for (mut vehicle, mut transform, mut player_entity_texture_atlas, state, old_state) in
+        query.iter_mut()
+    {
+        let a = fixed_time.overstep_fraction();
+        transform.translation = old_state.position.lerp(state.position, a);
+        vehicle.world_coordinate_position.x = transform.translation.x;
+        vehicle.world_coordinate_position.y = transform.translation.y;
 
-    for (mut vehicle, mut transform, mut player_entity_texture_atlas) in query.iter_mut() {
-        //TODO FlyingEntity and rotational vehicle entity testing
-
-        // Flying
-        process_input_flying_entity(&keyboard_input, &mut vehicle, delta_time);
-        transform.translation.x = vehicle.world_coordinate_position.x;
-        transform.translation.y = vehicle.world_coordinate_position.y;
         update_tile_position(&mut vehicle);
         update_sprite_index(&mut vehicle);
         player_entity_texture_atlas.index = vehicle.current_sprite_index;
     }
 }
 
+pub fn update_motion_states_system(
+    time: Res<Time>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut query: Query<(
+        &mut FlyingEntityComponents,
+        &mut CurrentMotionState,
+        &mut OldMotionState,
+    )>,
+) {
+    for (mut vehicle, mut state, mut old_state) in query.iter_mut() {
+        process_input_flying_entity(
+            &keyboard_input,
+            &mut vehicle,
+            &mut state,
+            &mut old_state,
+            &time,
+        );
+    }
+}
+
 fn process_input_flying_entity(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle: &mut FlyingEntityComponents,
-    delta_time: f32,
+    state: &mut CurrentMotionState,
+    old_state: &mut OldMotionState,
+    time: &Time,
 ) {
-    handle_y_axis_movement(keyboard_input, vehicle, delta_time);
-    handle_x_axis_strafing(keyboard_input, vehicle, delta_time);
+    handle_y_axis_movement(keyboard_input, vehicle);
+    handle_x_axis_strafing(keyboard_input, vehicle);
+    let state = &mut *state;
+    // Update motion states
+    old_state.position = state.position;
+    state.motion = Vec3 {
+        x: vehicle.x_axis_strafe_speed,
+        y: vehicle.y_axis_speed,
+        z: 0.0,
+    };
+    state.position += state.motion * time.delta_seconds();
 }
 
 fn handle_y_axis_movement(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle_component: &mut FlyingEntityComponents,
-    delta_time: f32,
 ) {
     if keyboard_input.pressed(KeyCode::KeyW) {
         vehicle_component.y_axis_speed = DEFAULT_SPEED;
@@ -53,22 +86,17 @@ fn handle_y_axis_movement(
     } else {
         vehicle_component.y_axis_speed = 0.0;
     }
-    let forward_movement_amount = (vehicle_component.y_axis_speed * delta_time).round();
-    vehicle_component.world_coordinate_position.y += forward_movement_amount;
 }
 
 fn handle_x_axis_strafing(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle_component: &mut FlyingEntityComponents,
-    delta_time: f32,
 ) {
     let strafe_right = keyboard_input.pressed(KeyCode::KeyD) as i32;
     let strafe_left = keyboard_input.pressed(KeyCode::KeyA) as i32;
     let strafe_direction = (strafe_right - strafe_left) as f32; // 1 if D is pressed, -1 if A is pressed, 0 otherwise
 
-    let strafe_amount =
-        (vehicle_component.x_axis_strafe_speed * delta_time * strafe_direction).round();
-    vehicle_component.world_coordinate_position.x += strafe_amount;
+    vehicle_component.x_axis_strafe_speed = DEFAULT_SPEED * strafe_direction;
 }
 
 fn update_tile_position(vehicle: &mut FlyingEntityComponents) {

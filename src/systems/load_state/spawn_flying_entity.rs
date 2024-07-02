@@ -2,6 +2,7 @@ use std::fs;
 
 use bevy::asset::ron;
 use bevy::core::Name;
+use bevy::math::Vec3;
 use bevy::prelude::{
     Assets, AssetServer, Commands, Rect, Res, ResMut, SpriteSheetBundle, TextureAtlas,
     TextureAtlasLayout, Transform, Vec2,
@@ -10,6 +11,7 @@ use serde::Deserialize;
 
 use crate::{TILE_SIZE, VEHICLE_SPRITE_SHEET_FILE_PATH, VEHICLE_TEXTURE_FILE_PATH};
 use crate::components::flying_entity_components::FlyingEntityComponents;
+use crate::components::motion_states::{CurrentMotionState, OldMotionState};
 
 #[derive(Deserialize)]
 struct SpriteSheetSpec {
@@ -44,7 +46,18 @@ pub fn spawn_vehicle(
     };
 
     let transform = Transform::from_xyz(world_spawn_coordinates.x, world_spawn_coordinates.y, 1.0);
+    let current_motion = CurrentMotionState {
+        position: Vec3 {
+            x: world_spawn_coordinates.x,
+            y: world_spawn_coordinates.y,
+            z: 1.0,
+        },
 
+        motion: Default::default(),
+    };
+    let old_motion = OldMotionState {
+        position: Default::default(),
+    };
     commands
         .spawn((
             FlyingEntityComponents::new(tile_spawn_coordinates),
@@ -57,6 +70,8 @@ pub fn spawn_vehicle(
                 transform,
                 ..Default::default()
             },
+            current_motion,
+            old_motion,
         ))
         .insert(Name::new("Flying Entity"));
 }
