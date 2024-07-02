@@ -1,4 +1,4 @@
-use bevy::app::{App, Plugin, Update};
+use bevy::app::{App, FixedUpdate, Plugin, Update};
 
 use crate::events::tile_animation::TileAnimationEvent;
 use crate::systems::run_state::camera_tracker::camera_tracking_system;
@@ -13,14 +13,15 @@ pub struct RunStatePlugin;
 impl Plugin for RunStatePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<TileAnimationEvent>()
-            //.add_systems(FixedUpdate, (update_motion_states_system))
+            .add_systems(
+                FixedUpdate,
+                (update_motion_states_system, apply_motion_states_system),
+            )
             .add_systems(
                 Update,
                 (
                     camera_tracking_system,
                     rotation_vehicle_controller_system,
-                    update_motion_states_system,
-                    apply_motion_states_system,
                     // For continuous:
                     animate_overlapped_tile_continuous,
                     // for event based:
