@@ -8,6 +8,7 @@ use crate::{
 #[derive(Component, Clone)]
 pub struct RotationalVehicleComponents {
     pub tile_coordinate_position: Vec2,
+    //TODO: figure out if the entity coordinates can be replaced by motion states components
     pub world_coordinate_position: Vec2,
     pub speed: f32,
     pub current_sprite_index: usize,

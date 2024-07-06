@@ -3,5 +3,5 @@ use bevy_ecs_tilemap::tiles::TilePos;
 
 #[derive(Event)]
 pub struct TileAnimationEvent {
-    pub(crate) tile_pos: TilePos,
+    pub tile_pos: TilePos,
 }
