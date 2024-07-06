@@ -8,17 +8,17 @@ use bevy::math::Vec3;
 use bevy::prelude::Fixed;
 
 use crate::{DEFAULT_SPEED, TILE_SIZE};
+use crate::components::entity_movement_states::{CurrentMovementState, PreviousMovementState};
 use crate::components::flying_entity_components::FlyingEntityComponents;
-use crate::components::motion_states::{CurrentMotionState, OldMotionState};
 
-pub fn apply_motion_states_system(
+pub fn apply_entity_movement_states_system(
     fixed_time: Res<Time<Fixed>>,
     mut query: Query<(
         &mut FlyingEntityComponents,
         &mut Transform,
         &mut TextureAtlas,
-        &CurrentMotionState,
-        &OldMotionState,
+        &CurrentMovementState,
+        &PreviousMovementState,
     )>,
 ) {
     for (mut vehicle, mut transform, mut player_entity_texture_atlas, state, old_state) in
@@ -35,21 +35,21 @@ pub fn apply_motion_states_system(
     }
 }
 
-pub fn update_motion_states_system(
+pub fn update_entity_movement_states_system(
     time: Res<Time>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut query: Query<(
         &mut FlyingEntityComponents,
-        &mut CurrentMotionState,
-        &mut OldMotionState,
+        &mut CurrentMovementState,
+        &mut PreviousMovementState,
     )>,
 ) {
-    for (mut vehicle, mut state, mut old_state) in query.iter_mut() {
+    for (mut vehicle, mut state, mut prev_state) in query.iter_mut() {
         process_input_flying_entity(
             &keyboard_input,
             &mut vehicle,
             &mut state,
-            &mut old_state,
+            &mut prev_state,
             &time,
         );
     }
@@ -58,21 +58,21 @@ pub fn update_motion_states_system(
 fn process_input_flying_entity(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
     vehicle: &mut FlyingEntityComponents,
-    state: &mut CurrentMotionState,
-    old_state: &mut OldMotionState,
+    state: &mut CurrentMovementState,
+    prev_state: &mut PreviousMovementState,
     time: &Time,
 ) {
     handle_y_axis_movement(keyboard_input, vehicle);
     handle_x_axis_strafing(keyboard_input, vehicle);
     let state = &mut *state;
     // Update motion states
-    old_state.position = state.position;
-    state.motion = Vec3 {
+    prev_state.position = state.position;
+    state.movement = Vec3 {
         x: vehicle.x_axis_strafe_speed,
         y: vehicle.y_axis_speed,
         z: 0.0,
     };
-    state.position += state.motion * time.delta_seconds();
+    state.position += state.movement * time.delta_seconds();
 }
 
 fn handle_y_axis_movement(
