@@ -14,7 +14,7 @@ lazy_static::lazy_static! {
 pub const VEHICLE_SPRITE_SHEET_FILE_PATH: &str = "assets/sprite_data/vehicle_spritesheet.ron";
 pub const VEHICLE_TEXTURE_FILE_PATH: &str = "sprite_data/vehicle_spritesheet.png";
 
-pub const DEFAULT_SPEED: f32 = 150.0;
+pub const DEFAULT_SPEED: f32 = 90.0;
 pub const DEFAULT_RATE_OF_ROTATION: f32 = 4.0;
 
 pub const VEHICLE_DEFAULT_MAX_SPEED: f32 = 150.0;
