@@ -19,7 +19,7 @@ impl Plugin for RunStatePlugin {
                 // For continuous:
                 animate_overlapped_tile_continuous,
                 // for event based:
-                //animate_overlapped_tile_event_based,
+                // animate_overlapped_tile_event_based,
                 // handle_overlap_event,
             ),
         );

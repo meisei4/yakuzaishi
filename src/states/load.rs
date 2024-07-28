@@ -4,7 +4,7 @@ use bevy::prelude::{IntoSystemConfigs, NextState, OnEnter, OnExit, Query, Res, R
 
 use crate::states::state_enums::GameState;
 use crate::systems::load_state::{
-    initialize_camera, load_animations, load_map, process_tiled_maps, spawn_flying_entity,
+    initialize_camera, load_map, process_tiled_maps, setup_map_animation_data, spawn_flying_entity,
 };
 use crate::systems::load_state::process_tiled_maps::TiledMap;
 
@@ -18,12 +18,12 @@ impl Plugin for LoadStatePlugin {
                 OnExit(GameState::Load),
                 (
                     process_tiled_maps::process_tiled_maps,
-                    load_animations::setup_map_animation_data
+                    setup_map_animation_data::setup_map_animation_data
                         .after(process_tiled_maps::process_tiled_maps),
-                    load_animations::attach_animations_to_map
-                        .after(load_animations::setup_map_animation_data),
+                    setup_map_animation_data::attach_animations_to_map
+                        .after(setup_map_animation_data::setup_map_animation_data),
                     spawn_flying_entity::spawn_vehicle
-                        .after(load_animations::setup_map_animation_data),
+                        .after(setup_map_animation_data::setup_map_animation_data),
                     initialize_camera::init_camera.after(spawn_flying_entity::spawn_vehicle),
                 ),
             );

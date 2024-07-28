@@ -1,23 +1,12 @@
 use std::collections::HashMap;
 
-use bevy::prelude::{Commands, Component, Deref, DerefMut, Entity, Query, Res, Resource};
+use bevy::prelude::{Commands, Entity, Query, Res};
 use bevy::time::{Timer, TimerMode};
 use bevy_ecs_tilemap::tiles::TileTextureIndex;
 
-#[derive(Resource)]
-pub struct AnimationData {
-    animations: HashMap<u32, AnimatedTile>,
-}
-
-#[derive(Component)]
-pub struct AnimatedTile {
-    pub start_idx: u32,
-    pub end_idx: u32,
-    pub speed: f32,
-}
-
-#[derive(Component, Deref, DerefMut)]
-pub struct AnimationTimer(Timer);
+use crate::components::animated_tile::AnimatedTile;
+use crate::components::animation_timer::AnimationTimer;
+use crate::resources::animation_data::AnimationData;
 
 pub fn setup_map_animation_data(mut commands: Commands) {
     let mut animations = HashMap::new();

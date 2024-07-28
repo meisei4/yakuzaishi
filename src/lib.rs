@@ -3,6 +3,7 @@ use std::path::PathBuf;
 
 pub mod components;
 pub mod events;
+pub mod resources;
 pub mod states;
 pub mod systems;
 
