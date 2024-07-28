@@ -3,10 +3,10 @@ use bevy_ecs_tilemap::prelude::TileTextureIndex;
 use bevy_ecs_tilemap::tiles::TilePos;
 use tracy_client::span;
 
+use crate::components::animated_tile::AnimatedTile;
 use crate::components::animation_timer::AnimationTimer;
 use crate::components::flying_entity_components::FlyingEntityComponents;
 use crate::events::tile_animation::TileAnimationEvent;
-use crate::systems::load_state::setup_map_animation_data::AnimatedTile;
 
 pub fn animate_overlapped_tile_event_based(
     mut entity_query: Query<&FlyingEntityComponents>,

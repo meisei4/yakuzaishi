@@ -6,5 +6,5 @@ use crate::components::animated_tile::AnimatedTile;
 
 #[derive(Resource)]
 pub struct AnimationData {
-    pub(crate) animations: HashMap<u32, AnimatedTile>,
+    pub animations: HashMap<u32, AnimatedTile>,
 }

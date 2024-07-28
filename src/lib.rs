@@ -28,3 +28,6 @@ pub const TILE_SIZE: f32 = 64.0;
 
 pub const NINTENDO_DS_SCREEN_WIDTH: f32 = 256.0;
 pub const NINTENDO_DS_SCREEN_HEIGHT: f32 = 384.0;
+
+pub const WAKE_ANIMATION: &str = "";
+pub const SPLASH_ANIMATION: &str = "";

@@ -4,8 +4,9 @@ use bevy::prelude::{IntoSystemConfigs, NextState, OnEnter, OnExit, Query, Res, R
 
 use crate::states::state_enums::GameState;
 use crate::systems::load_state::{
-    initialize_camera, load_map, process_tiled_maps, setup_map_animation_data, spawn_flying_entity,
+    initialize_camera, load_map, process_tiled_maps, spawn_flying_entity,
 };
+use crate::systems::load_state::animation::setup_map_animation_data;
 use crate::systems::load_state::process_tiled_maps::TiledMap;
 
 pub struct LoadStatePlugin;
