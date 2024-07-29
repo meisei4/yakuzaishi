@@ -1,1 +1,1 @@
-pub mod animation_data;
+pub mod animation_resources;

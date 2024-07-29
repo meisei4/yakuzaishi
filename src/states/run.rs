@@ -1,7 +1,9 @@
 use bevy::app::{App, FixedUpdate, Plugin, Update};
 
 use crate::events::tile_animation::TileAnimationEvent;
-use crate::systems::run_state::animation::run_animations::animate_overlapped_tile_continuous;
+use crate::systems::run_state::animation::run_animations::{
+    animate_overlapped_tile_event_based, handle_overlap_event,
+};
 use crate::systems::run_state::camera_tracker::camera_tracking_system;
 use crate::systems::run_state::flying_entity_controller::{
     apply_entity_movement_states_system, update_entity_movement_states_system,
@@ -26,10 +28,11 @@ impl Plugin for RunStatePlugin {
                     camera_tracking_system,
                     rotation_vehicle_controller_system,
                     // For continuous:
-                    animate_overlapped_tile_continuous,
+                    // animate_overlapped_tile_continuous,
                     // for event based:
-                    //animate_overlapped_tile_event_based,
-                    // handle_overlap_event,
+                    animate_overlapped_tile_event_based,
+                    handle_overlap_event,
+                    // animate_overlay_around_player_entity,
                 ),
             );
     }

@@ -1,5 +1,7 @@
-use bevy::prelude::{Component, Handle, Image, Resource, TextureAtlasLayout};
+use bevy::prelude::Component;
 
+// TODO: merge this and the AnimationData component???? (all that component and resource stuff needs to be organized better
+// TODO: SERIOUSLY FIGURE OUT HOW TO ORGANIZE THESE KINDS OF OBJECTS BETTER
 #[derive(Component, Clone, Copy)]
 pub struct OverlayAnimation {
     pub start_idx: i32,
@@ -12,15 +14,4 @@ pub struct OverlayAnimation {
 pub enum AnimationType {
     Wake,
     Splash,
-}
-
-#[derive(Resource)]
-pub struct OverlayAnimationData {
-    // TODO: this is all explicitly written out not using any Hashmaps or anything, maybe add hashmap structure later
-    pub wake_animation: OverlayAnimation,
-    pub splash_animation: OverlayAnimation,
-    pub wake_texture_handle: Handle<Image>,
-    pub splash_texture_handle: Handle<Image>,
-    pub wake_texture_layout: Handle<TextureAtlasLayout>,
-    pub splash_texture_layout: Handle<TextureAtlasLayout>,
 }

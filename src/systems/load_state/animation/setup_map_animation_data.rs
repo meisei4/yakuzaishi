@@ -6,7 +6,7 @@ use bevy_ecs_tilemap::tiles::TileTextureIndex;
 
 use crate::components::animated_tile::AnimatedTile;
 use crate::components::animation_timer::AnimationTimer;
-use crate::resources::animation_data::AnimationData;
+use crate::resources::animation_resources::TileAnimationData;
 
 pub fn setup_map_animation_data(mut commands: Commands) {
     let mut animations = HashMap::new();
@@ -18,14 +18,14 @@ pub fn setup_map_animation_data(mut commands: Commands) {
     };
 
     animations.insert(40, animated_tile);
-    let animation_data = AnimationData { animations };
+    let animation_data = TileAnimationData { animations };
     commands.insert_resource(animation_data);
 }
 
 pub fn attach_animations_to_map(
     mut commands: Commands,
     query: Query<(Entity, &TileTextureIndex)>,
-    animation_data: Res<AnimationData>,
+    animation_data: Res<TileAnimationData>,
 ) {
     for (entity, texture_index) in query.iter() {
         if let Some(animated_tile) = animation_data.animations.get(&texture_index.0) {
