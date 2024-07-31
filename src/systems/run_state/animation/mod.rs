@@ -1,2 +1,2 @@
-pub mod run_overlay_animations;
-pub mod run_tile_animations;
+pub mod overlay_animation_update_system;
+pub mod tile_animation_update_system;

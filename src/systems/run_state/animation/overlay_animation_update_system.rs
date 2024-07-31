@@ -12,7 +12,7 @@ pub fn animate_overlay_animations(
         timer.0.tick(time.delta());
 
         if timer.0.just_finished() {
-            //TODO: Is there some sort of implied Copy or Clone happening here? When
+            //TODO: Is there some sort of implied Copy and or Clone happening here? I dont know why when
             // AnimationComponent doesnt derive copy or clone this next line doesnt work
             let animation = overlay_animation_data.wake_animation;
 

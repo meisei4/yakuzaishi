@@ -14,6 +14,8 @@ use tiled::{DefaultResourceCache, Loader, ResourceReader};
 use crate::ASSETS_BASE_PATH;
 use crate::resources::tiled_resources::TiledMap;
 
+//TODO: this is alot from the custom solution from bevy_ecs_tiled, so this needs to be looked at later
+
 pub struct TiledLoader;
 
 impl AssetLoader for TiledLoader {

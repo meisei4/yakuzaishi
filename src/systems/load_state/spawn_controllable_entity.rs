@@ -5,12 +5,12 @@ use bevy::prelude::{
     ResMut, SpriteSheetBundle, TextureAtlas, TextureAtlasLayout, Transform, Vec2, Visibility, With,
 };
 
-use crate::{TILE_SIZE, VEHICLE_TEXTURE_FILE_PATH};
-use crate::components::controlled_entity_components::ControlledEntityComponents;
+use crate::{OVERLAY_ANIMATION_TEXTURE_START_IDX, TILE_SIZE, VEHICLE_TEXTURE_FILE_PATH};
+use crate::components::controllable_entity_components::ControllableEntityComponents;
 use crate::components::entity_movement_states::{CurrentMovementState, PreviousMovementState};
 use crate::resources::animation_resources::ControlledAnimationResource;
 
-pub fn spawn_vehicle(
+pub fn spawn_controllable_entity(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
@@ -29,7 +29,10 @@ pub fn spawn_vehicle(
         controlled_animation_image_handle: vehicle_animation_image_handle,
         controlled_animation_texture_atlas: vehicle_texture_atlas_layout,
     });
-    let tile_spawn_coordinates = Vec2 { x: 0.0, y: 0.0 }; // TODO: figure out some logic to choose spawn?
+    // TODO: 0,0 should not be bottom left
+    //  anymore it should be top left
+    //  review CRT scanline order and latin writing conventions (japan didn't invent the computer)
+    let tile_spawn_coordinates = Vec2 { x: 0.0, y: 0.0 };
     let world_spawn_coordinates = Vec2 {
         x: tile_spawn_coordinates.x * TILE_SIZE,
         y: tile_spawn_coordinates.y * TILE_SIZE,
@@ -50,7 +53,7 @@ pub fn spawn_vehicle(
     };
     commands
         .spawn((
-            ControlledEntityComponents::new(tile_spawn_coordinates),
+            ControllableEntityComponents::new(tile_spawn_coordinates),
             transform,
             current_motion,
             old_motion,
@@ -61,10 +64,10 @@ pub fn spawn_vehicle(
         .insert(Name::new("Flying Entity"));
 }
 
-pub fn attach_sprite_to_flying_entity(
+pub fn attach_controlled_animations_to_controllable_entities(
     mut commands: Commands,
     vehicle_animation_resource: Res<ControlledAnimationResource>,
-    query: Query<Entity, With<ControlledEntityComponents>>,
+    query: Query<Entity, With<ControllableEntityComponents>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).insert(SpriteSheetBundle {
@@ -75,7 +78,7 @@ pub fn attach_sprite_to_flying_entity(
                 layout: vehicle_animation_resource
                     .controlled_animation_texture_atlas
                     .clone(),
-                index: 40, // TODO: do some sort of lib.rs const for starting index of complex animations??
+                index: OVERLAY_ANIMATION_TEXTURE_START_IDX,
             },
             ..Default::default()
         });

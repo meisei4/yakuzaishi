@@ -8,9 +8,9 @@ use bevy::prelude::{
 };
 use bevy::time::{Timer, TimerMode};
 
-use crate::{TILE_SIZE, WAKE_ANIMATION};
+use crate::{CONTROLLABLE_ENTITY_ANIMATION_START_IDX, TILE_SIZE, WAKE_ANIMATION};
 use crate::components::animation_components::{AnimationComponent, AnimationTimer};
-use crate::components::controlled_entity_components::ControlledEntityComponents;
+use crate::components::controllable_entity_components::ControllableEntityComponents;
 use crate::resources::animation_resources::OverlayAnimationResource;
 
 pub fn insert_overlay_animation_resources_into_gameworld(
@@ -29,6 +29,7 @@ pub fn insert_overlay_animation_resources_into_gameworld(
     ));
 
     commands.insert_resource(OverlayAnimationResource {
+        // TODO: perhaps move the initial values of these kinds of structs to a CONST module (like libs.rs)
         wake_animation: AnimationComponent {
             start_idx: 0,
             end_idx: 19,
@@ -39,10 +40,10 @@ pub fn insert_overlay_animation_resources_into_gameworld(
     });
 }
 
-pub fn attach_overlay_animations_to_controlled_entities(
+pub fn attach_overlay_animations_to_controllable_entities(
     mut commands: Commands,
     overlay_animation_data: Res<OverlayAnimationResource>,
-    query: Query<Entity, With<ControlledEntityComponents>>,
+    query: Query<Entity, With<ControllableEntityComponents>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).with_children(|parent| {
@@ -55,7 +56,7 @@ pub fn attach_overlay_animations_to_controlled_entities(
                         layout: overlay_animation_data
                             .overlay_animation_texture_atlas
                             .clone(),
-                        index: 0, // TODO: do some sort of lib.rs const for starting index of animations??
+                        index: CONTROLLABLE_ENTITY_ANIMATION_START_IDX,
                     },
                     transform: Transform::default(), // gets overwritten by the parent??
                     ..Default::default()

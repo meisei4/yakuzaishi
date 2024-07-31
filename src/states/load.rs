@@ -5,17 +5,17 @@ use bevy::prelude::{IntoSystemConfigs, NextState, OnEnter, OnExit, Query, Res, R
 use crate::resources::animation_resources::OverlayAnimationResource;
 use crate::resources::tiled_resources::TiledMap;
 use crate::states::state_enums::GameState;
-use crate::systems::load_state::animation_preparation::overlay_animation::{
-    attach_overlay_animations_to_controlled_entities,
+use crate::systems::load_state::animation_asset_prep::overlay_animation_prep::{
+    attach_overlay_animations_to_controllable_entities,
     insert_overlay_animation_resources_into_gameworld,
 };
-use crate::systems::load_state::animation_preparation::tile_animation::{
+use crate::systems::load_state::animation_asset_prep::tile_animation_prep::{
     attach_animations_to_individual_tile_entities, insert_tile_animation_resources_into_gameworld,
 };
 use crate::systems::load_state::init_camera::init_camera;
-use crate::systems::load_state::load_map::load_map;
 use crate::systems::load_state::process_tiled_maps::process_tiled_maps;
-use crate::systems::load_state::spawn_flying_entity::spawn_vehicle;
+use crate::systems::load_state::spawn_controllable_entity::spawn_controllable_entity;
+use crate::systems::load_state::spawn_tiled_map_entity::spawn_tiled_map_entity;
 
 pub struct LoadStatePlugin;
 
@@ -24,7 +24,7 @@ impl Plugin for LoadStatePlugin {
         app.add_systems(
             OnEnter(GameState::Load),
             (
-                load_map,
+                spawn_tiled_map_entity,
                 insert_overlay_animation_resources_into_gameworld,
                 insert_tile_animation_resources_into_gameworld,
             ),
@@ -37,11 +37,11 @@ impl Plugin for LoadStatePlugin {
                 insert_tile_animation_resources_into_gameworld.after(process_tiled_maps),
                 attach_animations_to_individual_tile_entities
                     .after(insert_tile_animation_resources_into_gameworld),
-                spawn_vehicle.after(insert_tile_animation_resources_into_gameworld),
+                spawn_controllable_entity.after(insert_tile_animation_resources_into_gameworld),
                 // COMMENT THIS OUT IF YOU WANT TO TURN OFF PLAYER ENTITY SPRITE
                 // attach_sprite_to_flying_entity.after(spawn_vehicle),
-                attach_overlay_animations_to_controlled_entities.after(spawn_vehicle),
-                init_camera.after(spawn_vehicle),
+                attach_overlay_animations_to_controllable_entities.after(spawn_controllable_entity),
+                init_camera.after(spawn_controllable_entity),
             ),
         );
     }
@@ -64,7 +64,7 @@ fn check_assets_loaded(
                         next_state.set(GameState::Run);
                         // TODO: somehow this system still keeps running when moved into Run state??
                         // info!(
-                        //     "All assets and animation_preparation data loaded, transitioning to GameState::Run"
+                        //     "All assets and animation_asset_prep data loaded, transitioning to GameState::Run"
                         // );
                         return;
                     }

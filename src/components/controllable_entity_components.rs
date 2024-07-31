@@ -3,7 +3,7 @@ use bevy::prelude::{Component, Vec2};
 use crate::{DEFAULT_RATE_OF_ROTATION, TILE_SIZE};
 
 #[derive(Component, Clone)]
-pub struct ControlledEntityComponents {
+pub struct ControllableEntityComponents {
     //TODO: figure out if the entity coordinates can be replaced by motion states components
     pub tile_coordinate_position: Vec2,
     pub world_coordinate_position: Vec2,
@@ -14,9 +14,9 @@ pub struct ControlledEntityComponents {
     pub rotation_speed: f32,
 }
 
-impl ControlledEntityComponents {
+impl ControllableEntityComponents {
     pub fn new(tile_spawn_coordinates: Vec2) -> Self {
-        ControlledEntityComponents {
+        ControllableEntityComponents {
             tile_coordinate_position: tile_spawn_coordinates,
             world_coordinate_position: Vec2 {
                 x: tile_spawn_coordinates.x * TILE_SIZE,

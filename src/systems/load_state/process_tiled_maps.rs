@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use bevy::prelude::*;
 use bevy_ecs_tilemap::map::{
     TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTexture, TilemapTileSize,
@@ -12,10 +10,12 @@ use tiled::{LayerType, TileLayer};
 use crate::resources::tiled_resources::TiledMap;
 use crate::TILE_SIZE;
 
+//TODO: this is alot from the custom solution from bevy_ecs_tiled, so this needs to be looked at later
+
 pub fn process_tiled_maps(
     mut commands: Commands,
     map_assets: Res<Assets<TiledMap>>, //TODO: learn about all the plural Assets (including TextureAtlasLayouts etc)
-    mut map_query: Query<&Handle<TiledMap>>,
+    mut map_query: Query<&Handle<TiledMap>>, // TODO: why is this an &
 ) {
     if let Some(map_handle) = map_query.iter_mut().next() {
         if let Some(tiled_map) = map_assets.get(map_handle) {
@@ -36,7 +36,6 @@ fn process_tileset(commands: &mut Commands, tiled_map: &TiledMap, tileset_index:
     };
 
     for layer in tiled_map.map.layers() {
-        //TODO: OH NOOOOOOOO
         let layer_entity = commands.spawn_empty().id();
         if let LayerType::Tiles(tile_layer) = layer.layer_type() {
             let map_size = TilemapSize {
