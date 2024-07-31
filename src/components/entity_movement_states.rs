@@ -4,7 +4,7 @@ use bevy::prelude::Component;
 #[derive(Component)]
 pub struct CurrentMovementState {
     pub position: Vec3,
-    pub movement: Vec3, // this is the vector of where the object is moving
+    pub movement: Vec3,
 }
 
 #[derive(Component)]

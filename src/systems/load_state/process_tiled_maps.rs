@@ -9,17 +9,12 @@ use bevy_ecs_tilemap::TilemapBundle;
 use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TilePos, TileStorage, TileTextureIndex};
 use tiled::{LayerType, TileLayer};
 
+use crate::resources::tiled_resources::TiledMap;
 use crate::TILE_SIZE;
-
-#[derive(TypePath, Asset)]
-pub struct TiledMap {
-    pub map: tiled::Map,
-    pub tilemap_textures: HashMap<usize, TilemapTexture>,
-}
 
 pub fn process_tiled_maps(
     mut commands: Commands,
-    map_assets: Res<Assets<TiledMap>>,
+    map_assets: Res<Assets<TiledMap>>, //TODO: learn about all the plural Assets (including TextureAtlasLayouts etc)
     mut map_query: Query<&Handle<TiledMap>>,
 ) {
     if let Some(map_handle) = map_query.iter_mut().next() {
@@ -41,6 +36,7 @@ fn process_tileset(commands: &mut Commands, tiled_map: &TiledMap, tileset_index:
     };
 
     for layer in tiled_map.map.layers() {
+        //TODO: OH NOOOOOOOO
         let layer_entity = commands.spawn_empty().id();
         if let LayerType::Tiles(tile_layer) = layer.layer_type() {
             let map_size = TilemapSize {

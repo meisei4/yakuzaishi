@@ -1,10 +1,10 @@
 use bevy::prelude::{Camera, Query, Transform, With};
 
-use crate::components::flying_entity_components::FlyingEntityComponents;
+use crate::components::controlled_entity_components::ControlledEntityComponents;
 
 pub fn camera_tracking_system(
     //entity_data_query: Query<&RotationalVehicleComponents>,
-    entity_data_query: Query<&FlyingEntityComponents>,
+    entity_data_query: Query<&ControlledEntityComponents>,
     mut camera_transforms: Query<&mut Transform, With<Camera>>,
 ) {
     if let Some(entity) = entity_data_query.iter().next() {

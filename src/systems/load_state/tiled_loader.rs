@@ -12,7 +12,7 @@ use futures_lite::AsyncReadExt;
 use tiled::{DefaultResourceCache, Loader, ResourceReader};
 
 use crate::ASSETS_BASE_PATH;
-use crate::systems::load_state::process_tiled_maps::TiledMap;
+use crate::resources::tiled_resources::TiledMap;
 
 pub struct TiledLoader;
 
