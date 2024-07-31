@@ -32,6 +32,8 @@ impl Plugin for LoadStatePlugin {
                 setup_map_animation_data.after(process_tiled_maps),
                 attach_animations_to_map.after(setup_map_animation_data),
                 spawn_vehicle.after(setup_map_animation_data),
+                //COMMENT THIS OUT IF YOU WANT TO TURN OFF PLAYER ENTITY SPRITE
+                //attach_sprite_to_flying_entity.after(spawn_vehicle),
                 attach_overlay_animations_to_flying_entities.after(spawn_vehicle),
                 init_camera.after(spawn_vehicle),
             ),
@@ -50,7 +52,7 @@ fn check_assets_loaded(
         if asset_server.get_load_state(map_handle.id()) == Some(LoadState::Loaded) {
             if map_assets.get(map_handle).is_some() {
                 if let Some(data) = overlay_animation_data {
-                    if asset_server.get_load_state(data.wake_texture_handle.id())
+                    if asset_server.get_load_state(data.overlay_animation_image_handle.id())
                         == Some(LoadState::Loaded)
                     {
                         next_state.set(GameState::Run);
@@ -65,7 +67,3 @@ fn check_assets_loaded(
         }
     }
 }
-//
-// fn cleanup_check_assets_loaded(mut commands: Commands) {
-//     commands.remove_system(check_assets_loaded);
-// }

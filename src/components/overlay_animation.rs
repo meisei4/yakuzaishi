@@ -1,4 +1,5 @@
-use bevy::prelude::Component;
+use bevy::asset::Handle;
+use bevy::prelude::{Component, TextureAtlasLayout};
 
 // TODO: merge this and the AnimationData component???? (all that component and resource stuff needs to be organized better
 // TODO: SERIOUSLY FIGURE OUT HOW TO ORGANIZE THESE KINDS OF OBJECTS BETTER
@@ -14,4 +15,10 @@ pub struct OverlayAnimation {
 pub enum AnimationType {
     Wake,
     Splash,
+}
+
+#[derive(Component)]
+pub struct OverlayAnimationTextureAtlas {
+    pub texture_atlas_layout: Handle<TextureAtlasLayout>,
+    pub index: usize,
 }
