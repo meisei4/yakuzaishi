@@ -2,31 +2,42 @@ use bevy::app::{App, Plugin, Update};
 use bevy::asset::{Assets, AssetServer, Handle, LoadState};
 use bevy::prelude::{IntoSystemConfigs, NextState, OnEnter, OnExit, Query, Res, ResMut};
 
+use crate::resources::animation_resources::OverlayAnimationData;
 use crate::states::state_enums::GameState;
-use crate::systems::load_state::{
-    initialize_camera, load_animations, load_map, process_tiled_maps, spawn_flying_entity,
+use crate::systems::load_state::animation::setup_map_animation_data::{
+    attach_animations_to_map, setup_map_animation_data,
 };
-use crate::systems::load_state::process_tiled_maps::TiledMap;
+use crate::systems::load_state::animation::setup_overlay_animation_data::{
+    attach_overlay_animations_to_flying_entities, load_and_setup_overlay_animation_data,
+};
+use crate::systems::load_state::initialize_camera::init_camera;
+use crate::systems::load_state::load_map;
+use crate::systems::load_state::process_tiled_maps::{process_tiled_maps, TiledMap};
+use crate::systems::load_state::spawn_flying_entity::spawn_vehicle;
 
 pub struct LoadStatePlugin;
 
 impl Plugin for LoadStatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Load), load_map::load_map)
-            .add_systems(Update, check_assets_loaded)
-            .add_systems(
-                OnExit(GameState::Load),
-                (
-                    process_tiled_maps::process_tiled_maps,
-                    load_animations::setup_map_animation_data
-                        .after(process_tiled_maps::process_tiled_maps),
-                    load_animations::attach_animations_to_map
-                        .after(load_animations::setup_map_animation_data),
-                    spawn_flying_entity::spawn_vehicle
-                        .after(load_animations::setup_map_animation_data),
-                    initialize_camera::init_camera.after(spawn_flying_entity::spawn_vehicle),
-                ),
-            );
+        app.add_systems(
+            OnEnter(GameState::Load),
+            (load_map::load_map, load_and_setup_overlay_animation_data),
+        )
+        .add_systems(Update, check_assets_loaded)
+        .add_systems(
+            OnExit(GameState::Load),
+            (
+                //cleanup_check_assets_loaded,
+                process_tiled_maps,
+                setup_map_animation_data.after(process_tiled_maps),
+                attach_animations_to_map.after(setup_map_animation_data),
+                spawn_vehicle.after(setup_map_animation_data),
+                //COMMENT THIS OUT IF YOU WANT TO TURN OFF PLAYER ENTITY SPRITE
+                //attach_sprite_to_flying_entity.after(spawn_vehicle),
+                attach_overlay_animations_to_flying_entities.after(spawn_vehicle),
+                init_camera.after(spawn_vehicle),
+            ),
+        );
     }
 }
 
@@ -35,11 +46,23 @@ fn check_assets_loaded(
     mut next_state: ResMut<NextState<GameState>>,
     map_assets: Res<Assets<TiledMap>>,
     map_query: Query<&Handle<TiledMap>>,
+    overlay_animation_data: Option<Res<OverlayAnimationData>>,
 ) {
     if let Some(map_handle) = map_query.iter().next() {
         if asset_server.get_load_state(map_handle.id()) == Some(LoadState::Loaded) {
             if map_assets.get(map_handle).is_some() {
-                next_state.set(GameState::Run);
+                if let Some(data) = overlay_animation_data {
+                    if asset_server.get_load_state(data.overlay_animation_image_handle.id())
+                        == Some(LoadState::Loaded)
+                    {
+                        next_state.set(GameState::Run);
+                        // TODO: somehow this system still keeps running when moved into Run state??
+                        // info!(
+                        //     "All assets and animation data loaded, transitioning to GameState::Run"
+                        // );
+                        return;
+                    }
+                }
             }
         }
     }

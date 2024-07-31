@@ -4,14 +4,15 @@ use bevy::asset::ron;
 use bevy::core::Name;
 use bevy::math::Vec3;
 use bevy::prelude::{
-    Assets, AssetServer, Commands, Rect, Res, ResMut, SpriteSheetBundle, TextureAtlas,
-    TextureAtlasLayout, Transform, Vec2,
+    Assets, AssetServer, Commands, Entity, GlobalTransform, InheritedVisibility, Query, Rect, Res,
+    ResMut, SpriteSheetBundle, TextureAtlas, TextureAtlasLayout, Transform, Vec2, Visibility, With,
 };
 use serde::Deserialize;
 
 use crate::{TILE_SIZE, VEHICLE_SPRITE_SHEET_FILE_PATH, VEHICLE_TEXTURE_FILE_PATH};
 use crate::components::entity_movement_states::{CurrentMovementState, PreviousMovementState};
 use crate::components::flying_entity_components::FlyingEntityComponents;
+use crate::resources::texture_atlas_resources::VehicleTextureAtlasHandle;
 
 #[derive(Deserialize)]
 struct SpriteSheetSpec {
@@ -31,14 +32,15 @@ struct SpriteSpec {
 
 pub fn spawn_vehicle(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let sprite_sheet_spec = load_sprite_sheet_spec_from_file(VEHICLE_SPRITE_SHEET_FILE_PATH);
     let vehicle_texture_atlas_layout = create_texture_atlas(sprite_sheet_spec);
 
     let texture_atlas_layout_handle = texture_atlas_layouts.add(vehicle_texture_atlas_layout);
-
+    commands.insert_resource(VehicleTextureAtlasHandle {
+        handle: texture_atlas_layout_handle.clone(),
+    });
     let tile_spawn_coordinates = Vec2 { x: 0.0, y: 0.0 }; // TODO: figure out some logic to choose spawn?
     let world_spawn_coordinates = Vec2 {
         x: tile_spawn_coordinates.x * TILE_SIZE,
@@ -61,19 +63,14 @@ pub fn spawn_vehicle(
     commands
         .spawn((
             FlyingEntityComponents::new(tile_spawn_coordinates),
-            SpriteSheetBundle {
-                texture: asset_server.load(VEHICLE_TEXTURE_FILE_PATH),
-                atlas: TextureAtlas {
-                    layout: texture_atlas_layout_handle,
-                    index: 0,
-                },
-                transform,
-                ..Default::default()
-            },
+            transform,
             current_motion,
             old_motion,
         ))
-        .insert(Name::new("Flying Entity"));
+        .insert(Name::new("Flying Entity"))
+        .insert(GlobalTransform::default())
+        .insert(Visibility::default())
+        .insert(InheritedVisibility::default());
 }
 
 fn load_sprite_sheet_spec_from_file(file_path: &str) -> SpriteSheetSpec {
@@ -100,4 +97,23 @@ fn create_texture_atlas(sprite_sheet_spec: SpriteSheetSpec) -> TextureAtlasLayou
         texture_atlas_layout.add_texture(rect);
     }
     texture_atlas_layout
+}
+
+pub fn attach_sprite_to_flying_entity(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    texture_atlas_handle: Res<VehicleTextureAtlasHandle>,
+    query: Query<(Entity, &Transform), With<FlyingEntityComponents>>,
+) {
+    for (entity, transform) in query.iter() {
+        commands.entity(entity).insert(SpriteSheetBundle {
+            texture: asset_server.load(VEHICLE_TEXTURE_FILE_PATH),
+            atlas: TextureAtlas {
+                layout: texture_atlas_handle.handle.clone(),
+                index: 0,
+            },
+            transform: transform.clone(),
+            ..Default::default()
+        });
+    }
 }

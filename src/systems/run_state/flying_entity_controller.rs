@@ -16,12 +16,12 @@ pub fn apply_entity_movement_states_system(
     mut query: Query<(
         &mut FlyingEntityComponents,
         &mut Transform,
-        &mut TextureAtlas,
+        Option<&mut TextureAtlas>,
         &CurrentMovementState,
         &PreviousMovementState,
     )>,
 ) {
-    for (mut vehicle, mut transform, mut player_entity_texture_atlas, state, old_state) in
+    for (mut vehicle, mut transform, player_entity_texture_atlas, state, old_state) in
         query.iter_mut()
     {
         let a = fixed_time.overstep_fraction();
@@ -31,7 +31,10 @@ pub fn apply_entity_movement_states_system(
 
         update_tile_position(&mut vehicle);
         update_sprite_index(&mut vehicle);
-        player_entity_texture_atlas.index = vehicle.current_sprite_index;
+        if let Some(mut player_entity_texture_atlas) = player_entity_texture_atlas {
+            update_sprite_index(&mut vehicle);
+            player_entity_texture_atlas.index = vehicle.current_sprite_index;
+        }
     }
 }
 
