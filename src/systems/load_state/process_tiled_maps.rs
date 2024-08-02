@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::map::{
-    TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTexture, TilemapTileSize,
-    TilemapType,
+    TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
 };
 use bevy_ecs_tilemap::TilemapBundle;
 use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TilePos, TileStorage, TileTextureIndex};

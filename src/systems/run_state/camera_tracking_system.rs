@@ -1,15 +1,21 @@
-use bevy::prelude::{Camera, Query, Transform, With};
+use bevy::math::Vec2;
+use bevy::prelude::{Camera, ParamSet, Query, Transform, With};
 
 use crate::components::controllable_entity_components::ControllableEntityComponents;
 
 pub fn camera_tracking_system(
-    entity_data_query: Query<&ControllableEntityComponents>,
-    mut camera_transforms: Query<&mut Transform, With<Camera>>,
+    mut param_set: ParamSet<(
+        Query<&Transform, With<ControllableEntityComponents>>,
+        Query<&mut Transform, With<Camera>>,
+    )>,
 ) {
-    if let Some(entity) = entity_data_query.iter().next() {
-        for mut camera_transform in camera_transforms.iter_mut() {
-            camera_transform.translation.x = entity.world_coordinate_position.x;
-            camera_transform.translation.y = entity.world_coordinate_position.y;
-        }
+    let mut temp_translation = Vec2 { x: 0.0, y: 0.0 };
+    for entity_transform in param_set.p0().iter_mut() {
+        temp_translation.x = entity_transform.translation.x;
+        temp_translation.y = entity_transform.translation.y;
+    }
+    for mut camera_transform in param_set.p1().iter_mut() {
+        camera_transform.translation.x = temp_translation.x;
+        camera_transform.translation.y = temp_translation.y;
     }
 }

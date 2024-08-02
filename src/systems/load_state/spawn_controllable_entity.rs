@@ -1,11 +1,13 @@
 use bevy::core::Name;
-use bevy::math::Vec3;
 use bevy::prelude::{
     Assets, AssetServer, Commands, Entity, GlobalTransform, InheritedVisibility, Query, Res,
     ResMut, SpriteSheetBundle, TextureAtlas, TextureAtlasLayout, Transform, Vec2, Visibility, With,
 };
 
-use crate::{OVERLAY_ANIMATION_TEXTURE_START_IDX, TILE_SIZE, VEHICLE_TEXTURE_FILE_PATH};
+use crate::{
+    CONTROLLABLE_ENTITY_ANIMATION_TEXTURE_START_IDX, CONTROLLABLE_ENTITY_Z_LEVEL, TILE_SIZE,
+    VEHICLE_TEXTURE_FILE_PATH,
+};
 use crate::components::controllable_entity_components::ControllableEntityComponents;
 use crate::components::entity_movement_states::{CurrentMovementState, PreviousMovementState};
 use crate::resources::animation_resources::ControlledAnimationResource;
@@ -32,28 +34,17 @@ pub fn spawn_controllable_entity(
     // TODO: 0,0 should not be bottom left
     //  anymore it should be top left
     //  review CRT scanline order and latin writing conventions (japan didn't invent the computer)
-    let tile_spawn_coordinates = Vec2 { x: 0.0, y: 0.0 };
-    let world_spawn_coordinates = Vec2 {
-        x: tile_spawn_coordinates.x * TILE_SIZE,
-        y: tile_spawn_coordinates.y * TILE_SIZE,
-    };
-
-    let transform = Transform::from_xyz(world_spawn_coordinates.x, world_spawn_coordinates.y, 1.0);
+    let transform = Transform::from_xyz(0.0, 0.0, CONTROLLABLE_ENTITY_Z_LEVEL);
     let current_motion = CurrentMovementState {
-        position: Vec3 {
-            x: world_spawn_coordinates.x,
-            y: world_spawn_coordinates.y,
-            z: 1.0,
-        },
-
+        position: transform.translation,
         movement: Default::default(),
     };
     let old_motion = PreviousMovementState {
-        position: Default::default(),
+        position: transform.translation,
     };
     commands
         .spawn((
-            ControllableEntityComponents::new(tile_spawn_coordinates),
+            ControllableEntityComponents::new(),
             transform,
             current_motion,
             old_motion,
@@ -61,7 +52,7 @@ pub fn spawn_controllable_entity(
         .insert(GlobalTransform::default())
         .insert(Visibility::default())
         .insert(InheritedVisibility::default())
-        .insert(Name::new("Flying Entity"));
+        .insert(Name::new("Controllable Entity"));
 }
 
 pub fn attach_controlled_animations_to_controllable_entities(
@@ -78,7 +69,7 @@ pub fn attach_controlled_animations_to_controllable_entities(
                 layout: vehicle_animation_resource
                     .controlled_animation_texture_atlas
                     .clone(),
-                index: OVERLAY_ANIMATION_TEXTURE_START_IDX,
+                index: CONTROLLABLE_ENTITY_ANIMATION_TEXTURE_START_IDX,
             },
             ..Default::default()
         });
