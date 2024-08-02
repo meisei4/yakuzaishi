@@ -5,11 +5,12 @@ use bevy::prelude::{
 };
 
 use crate::{
-    CONTROLLABLE_ENTITY_ANIMATION_TEXTURE_START_IDX, CONTROLLABLE_ENTITY_Z_LEVEL, TILE_SIZE,
-    VEHICLE_TEXTURE_FILE_PATH,
+    CONTROLLABLE_ENTITY_ANIMATION_TEXTURE_START_IDX, CONTROLLABLE_ENTITY_Z_LEVEL,
+    DEFAULT_SPAWN_TILE_X, DEFAULT_SPAWN_TILE_Y, TILE_SIZE, VEHICLE_TEXTURE_FILE_PATH,
 };
-use crate::components::controllable_entity_components::ControllableEntityComponents;
-use crate::components::entity_movement_states::{CurrentMovementState, PreviousMovementState};
+use crate::components::controllable_entity_components::{
+    PositionComponent, PreviousPositionComponent, VelocityVectorComponents,
+};
 use crate::resources::animation_resources::ControlledAnimationResource;
 
 pub fn spawn_controllable_entity(
@@ -34,17 +35,20 @@ pub fn spawn_controllable_entity(
     // TODO: 0,0 should not be bottom left
     //  anymore it should be top left
     //  review CRT scanline order and latin writing conventions (japan didn't invent the computer)
-    let transform = Transform::from_xyz(0.0, 0.0, CONTROLLABLE_ENTITY_Z_LEVEL);
-    let current_motion = CurrentMovementState {
+    let transform = Transform::from_xyz(
+        DEFAULT_SPAWN_TILE_X,
+        DEFAULT_SPAWN_TILE_Y,
+        CONTROLLABLE_ENTITY_Z_LEVEL,
+    );
+    let current_motion = PositionComponent {
         position: transform.translation,
-        movement: Default::default(),
     };
-    let old_motion = PreviousMovementState {
+    let old_motion = PreviousPositionComponent {
         position: transform.translation,
     };
     commands
         .spawn((
-            ControllableEntityComponents::new(),
+            VelocityVectorComponents::new(),
             transform,
             current_motion,
             old_motion,
@@ -58,7 +62,7 @@ pub fn spawn_controllable_entity(
 pub fn attach_controlled_animations_to_controllable_entities(
     mut commands: Commands,
     vehicle_animation_resource: Res<ControlledAnimationResource>,
-    query: Query<Entity, With<ControllableEntityComponents>>,
+    query: Query<Entity, With<VelocityVectorComponents>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).insert(SpriteSheetBundle {

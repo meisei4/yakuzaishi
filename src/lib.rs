@@ -22,6 +22,9 @@ pub const CAMERA_Z_LEVEL: f32 = 3.0;
 pub const OVERLAY_ANIMATIONS_Z_LEVEL: f32 = 2.0; //TODO: currently overlay Transform inherits from Parent Entity it is attached to, use later
 pub const CONTROLLABLE_ENTITY_Z_LEVEL: f32 = 1.0;
 
+pub const DEFAULT_SPAWN_TILE_X: f32 = 0.0;
+pub const DEFAULT_SPAWN_TILE_Y: f32 = 0.0;
+
 pub const TILE_SIZE: f32 = 64.0;
 pub const NINTENDO_DS_SCREEN_WIDTH: f32 = 256.0;
 pub const NINTENDO_DS_SCREEN_HEIGHT: f32 = 384.0;

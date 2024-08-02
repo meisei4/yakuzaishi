@@ -1,20 +1,29 @@
-use bevy::prelude::{Component, Vec2};
+use bevy::math::Vec3;
+use bevy::prelude::Component;
 
 #[derive(Component, Clone)]
-pub struct ControllableEntityComponents {
+pub struct VelocityVectorComponents {
     pub y_axis_speed: f32,
     pub x_axis_strafe_speed: f32,
-    pub current_sprite_index: usize,
-    pub direction: Vec2,
 }
 
-impl ControllableEntityComponents {
+impl VelocityVectorComponents {
     pub fn new() -> Self {
-        ControllableEntityComponents {
+        VelocityVectorComponents {
             y_axis_speed: 0.0,
-            x_axis_strafe_speed: 70.0,
-            current_sprite_index: 36,
-            direction: Vec2::new(0.0, 1.0),
+            x_axis_strafe_speed: 0.0,
         }
     }
+}
+
+// NOTE: these are based 100% on https://bevy-cheatbook.github.io/cookbook/smooth-movement.html
+
+#[derive(Component)]
+pub struct PositionComponent {
+    pub position: Vec3,
+}
+
+#[derive(Component)]
+pub struct PreviousPositionComponent {
+    pub position: Vec3,
 }

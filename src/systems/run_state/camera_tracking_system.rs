@@ -1,11 +1,11 @@
 use bevy::math::Vec2;
 use bevy::prelude::{Camera, ParamSet, Query, Transform, With};
 
-use crate::components::controllable_entity_components::ControllableEntityComponents;
+use crate::components::controllable_entity_components::VelocityVectorComponents;
 
 pub fn camera_tracking_system(
     mut param_set: ParamSet<(
-        Query<&Transform, With<ControllableEntityComponents>>,
+        Query<&Transform, With<VelocityVectorComponents>>,
         Query<&mut Transform, With<Camera>>,
     )>,
 ) {

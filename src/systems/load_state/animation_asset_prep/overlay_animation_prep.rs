@@ -14,7 +14,7 @@ use crate::{
     WAKE_ANIMATION_TILE_COLUMN_LENGTH, WAKE_ANIMATION_TILE_ROW_LENGTH,
 };
 use crate::components::animation_components::{AnimationComponent, AnimationTimer};
-use crate::components::controllable_entity_components::ControllableEntityComponents;
+use crate::components::controllable_entity_components::VelocityVectorComponents;
 use crate::resources::animation_resources::OverlayAnimationResource;
 
 pub fn insert_overlay_animation_resources_into_gameworld(
@@ -48,7 +48,7 @@ pub fn insert_overlay_animation_resources_into_gameworld(
 pub fn attach_overlay_animations_to_controllable_entities(
     mut commands: Commands,
     overlay_animation_data: Res<OverlayAnimationResource>,
-    query: Query<Entity, With<ControllableEntityComponents>>,
+    query: Query<Entity, With<VelocityVectorComponents>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).with_children(|parent| {
