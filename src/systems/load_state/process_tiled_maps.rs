@@ -3,7 +3,7 @@ use bevy_ecs_tilemap::map::{
     TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
 };
 use bevy_ecs_tilemap::TilemapBundle;
-use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TilePos, TileStorage, TileTextureIndex};
+use bevy_ecs_tilemap::tiles::{TileBundle, TilePos, TileStorage, TileTextureIndex};
 use tiled::{LayerType, TileLayer};
 
 use crate::resources::tiled_resources::TiledMap;
