@@ -48,7 +48,10 @@ pub fn spawn_controllable_entity(
     };
     commands
         .spawn((
-            VelocityVectorComponents::new(),
+            VelocityVectorComponents {
+                x_axis_displacement: 0.0,
+                y_axis_displacement: 0.0,
+            },
             transform,
             current_motion,
             old_motion,

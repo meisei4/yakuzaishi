@@ -1,19 +1,13 @@
 use bevy::math::Vec3;
 use bevy::prelude::Component;
 
+// TODO: you need to figure out how to rename this
+//  OR!! just provide a new component thing to properly distinguish Controllable entities when
+//  it comes to QUERYING
 #[derive(Component, Clone)]
 pub struct VelocityVectorComponents {
-    pub y_axis_speed: f32,
-    pub x_axis_strafe_speed: f32,
-}
-
-impl VelocityVectorComponents {
-    pub fn new() -> Self {
-        VelocityVectorComponents {
-            y_axis_speed: 0.0,
-            x_axis_strafe_speed: 0.0,
-        }
-    }
+    pub y_axis_displacement: f32,
+    pub x_axis_displacement: f32,
 }
 
 // NOTE: these are based 100% on https://bevy-cheatbook.github.io/cookbook/smooth-movement.html

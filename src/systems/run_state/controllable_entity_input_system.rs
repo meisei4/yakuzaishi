@@ -28,8 +28,8 @@ pub fn control_entity_position_smooth(
         process_input(&keyboard_input, &mut controllable_entity);
         prev_position.position = position.position;
         let position_displacement = Vec3 {
-            x: controllable_entity.x_axis_strafe_speed,
-            y: controllable_entity.y_axis_speed,
+            x: controllable_entity.x_axis_displacement,
+            y: controllable_entity.y_axis_displacement,
             z: 0.0,
         };
         position.position += position_displacement * fixed_time.delta_seconds();
@@ -49,11 +49,11 @@ fn handle_y_axis_movement(
     vehicle_component: &mut VelocityVectorComponents,
 ) {
     if keyboard_input.pressed(KeyCode::KeyW) {
-        vehicle_component.y_axis_speed = DEFAULT_SPEED;
+        vehicle_component.y_axis_displacement = DEFAULT_SPEED;
     } else if keyboard_input.pressed(KeyCode::KeyS) {
-        vehicle_component.y_axis_speed = -DEFAULT_SPEED;
+        vehicle_component.y_axis_displacement = -DEFAULT_SPEED;
     } else {
-        vehicle_component.y_axis_speed = 0.0;
+        vehicle_component.y_axis_displacement = 0.0;
     }
 }
 
@@ -65,5 +65,5 @@ fn handle_x_axis_movement(
     let strafe_left = keyboard_input.pressed(KeyCode::KeyA) as i32;
     let strafe_direction = (strafe_right - strafe_left) as f32; // 1 if D is pressed, -1 if A is pressed, 0 otherwise
 
-    vehicle_component.x_axis_strafe_speed = DEFAULT_SPEED * strafe_direction;
+    vehicle_component.x_axis_displacement = DEFAULT_SPEED * strafe_direction;
 }
