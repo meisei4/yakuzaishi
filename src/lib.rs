@@ -29,7 +29,7 @@ pub const TILE_SIZE: f32 = 64.0;
 pub const NINTENDO_DS_SCREEN_WIDTH: f32 = 256.0;
 pub const NINTENDO_DS_SCREEN_HEIGHT: f32 = 384.0;
 
-pub const VEHICLE_TEXTURE_FILE_PATH: &str = "sprite_data/vehicle_spritesheet.png";
+pub const VEHICLE_TEXTURE_FILE_PATH: &str = "sprite_data/iruka.png";
 
 pub const CONTROLLABLE_ENTITY_ANIMATION_TEXTURE_START_IDX: usize = 0;
 pub const CONTROLLABLE_ENTITY_ANIMATION_TEXTURE_END_IDX: usize = 0;

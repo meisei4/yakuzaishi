@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::asset::{Asset, Handle};
+use bevy::asset::Asset;
 use bevy::prelude::{Resource, TypePath};
 use bevy_ecs_tilemap::map::TilemapTexture;
 
@@ -10,11 +10,6 @@ use crate::components::animation_components::AnimationComponent;
 pub struct TiledMap {
     pub map: tiled::Map,
     pub tilemap_textures: HashMap<usize, TilemapTexture>,
-}
-
-#[derive(Resource)]
-pub struct TiledMapResource {
-    pub handle: Handle<TiledMap>,
 }
 
 #[derive(Resource)]

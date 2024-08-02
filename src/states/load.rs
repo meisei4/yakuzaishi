@@ -14,7 +14,9 @@ use crate::systems::load_state::animation_asset_prep::tile_animation_prep::{
 };
 use crate::systems::load_state::init_camera::init_camera;
 use crate::systems::load_state::process_tiled_maps::process_tiled_maps;
-use crate::systems::load_state::spawn_controllable_entity::spawn_controllable_entity;
+use crate::systems::load_state::spawn_controllable_entity::{
+    attach_controlled_animations_to_controllable_entities, spawn_controllable_entity,
+};
 use crate::systems::load_state::spawn_tiled_map_entity::spawn_tiled_map_entity;
 
 pub struct LoadStatePlugin;
@@ -39,7 +41,8 @@ impl Plugin for LoadStatePlugin {
                     .after(insert_tile_animation_resources_into_gameworld),
                 spawn_controllable_entity.after(insert_tile_animation_resources_into_gameworld),
                 // COMMENT THIS OUT IF YOU WANT TO TURN OFF PLAYER ENTITY SPRITE
-                // attach_sprite_to_flying_entity.after(spawn_vehicle),
+                attach_controlled_animations_to_controllable_entities
+                    .after(spawn_controllable_entity),
                 attach_overlay_animations_to_controllable_entities.after(spawn_controllable_entity),
                 init_camera.after(spawn_controllable_entity),
             ),
