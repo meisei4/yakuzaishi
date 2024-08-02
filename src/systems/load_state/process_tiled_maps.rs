@@ -1,26 +1,20 @@
-use std::collections::HashMap;
-
 use bevy::prelude::*;
 use bevy_ecs_tilemap::map::{
-    TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTexture, TilemapTileSize,
-    TilemapType,
+    TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
 };
 use bevy_ecs_tilemap::TilemapBundle;
-use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TilePos, TileStorage, TileTextureIndex};
+use bevy_ecs_tilemap::tiles::{TileBundle, TilePos, TileStorage, TileTextureIndex};
 use tiled::{LayerType, TileLayer};
 
+use crate::resources::tiled_resources::TiledMap;
 use crate::TILE_SIZE;
 
-#[derive(TypePath, Asset)]
-pub struct TiledMap {
-    pub map: tiled::Map,
-    pub tilemap_textures: HashMap<usize, TilemapTexture>,
-}
+//TODO: this is alot from the custom solution from bevy_ecs_tiled, so this needs to be looked at later
 
 pub fn process_tiled_maps(
     mut commands: Commands,
-    map_assets: Res<Assets<TiledMap>>,
-    mut map_query: Query<&Handle<TiledMap>>,
+    map_assets: Res<Assets<TiledMap>>, //TODO: learn about all the plural Assets (including TextureAtlasLayouts etc)
+    mut map_query: Query<&Handle<TiledMap>>, // TODO: why is this an &
 ) {
     if let Some(map_handle) = map_query.iter_mut().next() {
         if let Some(tiled_map) = map_assets.get(map_handle) {
@@ -92,16 +86,9 @@ fn process_tile_layer(
     for x in 0..map_size.x {
         for y in 0..map_size.y {
             if let Some(layer_tile) = layer_data.get_tile(x as i32, y as i32) {
-                let layer_tile_data = layer_data.get_tile_data(x as i32, y as i32).unwrap();
                 let texture_index = layer_tile.id();
                 let tile_pos = TilePos { x, y };
-                let flip = TileFlip {
-                    x: layer_tile_data.flip_h,
-                    y: !layer_tile_data.flip_v,
-                    d: layer_tile_data.flip_d,
-                };
-                let tile_entity =
-                    create_tile_entity(commands, tile_pos, tilemap_id, texture_index, flip);
+                let tile_entity = create_tile_entity(commands, tile_pos, tilemap_id, texture_index);
                 tile_storage.set(&tile_pos, tile_entity);
             }
         }
@@ -115,13 +102,13 @@ fn create_tile_entity(
     tile_pos: TilePos,
     tilemap_id: TilemapId,
     texture_index: u32,
-    flip: TileFlip,
 ) -> Entity {
     let entity_builder = commands.spawn(TileBundle {
         position: tile_pos,
         tilemap_id,
         texture_index: TileTextureIndex(texture_index),
-        flip,
+        // TODO: there may be some logic regarding flipping here that needs to be done, otherwise
+        //  figure out how to get TOPLEFT coordinates to work
         ..Default::default()
     });
     entity_builder.id()

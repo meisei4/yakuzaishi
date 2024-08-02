@@ -6,10 +6,10 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use tracy_client::Client;
 
 use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
+use yakuzaishi::resources::tiled_resources::TiledMap;
 use yakuzaishi::states::load::LoadStatePlugin;
 use yakuzaishi::states::run::RunStatePlugin;
 use yakuzaishi::states::state_enums::GameState;
-use yakuzaishi::systems::load_state::process_tiled_maps::TiledMap;
 use yakuzaishi::systems::load_state::tiled_loader::TiledLoader;
 
 fn main() {
