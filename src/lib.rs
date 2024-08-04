@@ -18,9 +18,11 @@ pub const VEHICLE_DEFAULT_DECELERATION: f32 = 100.0;
 
 pub const CAMERA_SCALE_MULTIPLIER: f32 = 0.5;
 
+//TODO: for this whol entire const file figure out when to use proper types (f32 doesnt make sense for tile coordinates etc)
 pub const CAMERA_Z_LEVEL: f32 = 3.0;
 pub const OVERLAY_ANIMATIONS_Z_LEVEL: f32 = 2.0; //TODO: currently overlay Transform inherits from Parent Entity it is attached to, use later
 pub const CONTROLLABLE_ENTITY_Z_LEVEL: f32 = 1.0;
+pub const ENVIRONMENT_ENTITY_Z_LEVEL: f32 = 1.0;
 
 pub const DEFAULT_SPAWN_TILE_X: f32 = 0.0;
 pub const DEFAULT_SPAWN_TILE_Y: f32 = 0.0;
@@ -44,3 +46,10 @@ pub const OVERLAY_ANIMATION_TEXTURE_END_IDX: u32 = 19;
 pub const OCEAN_MAP_FILE_PATH: &str = "map_data/small_map.tmx";
 pub const TILE_ANIMATION_TEXTURE_START_IDX: usize = 40;
 pub const TILE_ANIMATION_TEXTURE_END_IDX: usize = 59;
+
+pub const ENVIRONMENT_TEXTURE_FILE_PATH: &str = "sprite_data/Ikiikiiruka.png"; //TODO: reuse
+
+pub const ENVIRONMENTAL_ENTITY_SPAWN_X: f32 = 3.5;
+pub const ENVIRONMENTAL_ENTITY_SPAWN_Y: f32 = 3.5;
+
+pub const ENVIRONMENTAL_ENTITY_ANIMATION_TEXTURE_START_IDX: usize = 0;

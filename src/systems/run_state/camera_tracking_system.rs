@@ -2,14 +2,14 @@ use bevy::asset::Handle;
 use bevy::math::Vec2;
 use bevy::prelude::{Assets, Camera, ParamSet, Query, Res, Transform, With};
 
-use crate::components::controllable_entity_components::VelocityVectorComponents;
+use crate::components::controllable_entity_components::ControllableEntityComponents;
 use crate::resources::tiled_resources::TiledMap;
 
 pub fn camera_tracking_system(
     tiled_map_assets: Res<Assets<TiledMap>>,
     map_query: Query<&Handle<TiledMap>>,
     mut param_set: ParamSet<(
-        Query<&Transform, With<VelocityVectorComponents>>,
+        Query<&Transform, With<ControllableEntityComponents>>,
         Query<&mut Transform, With<Camera>>,
     )>,
 ) {

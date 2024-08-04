@@ -1,3 +1,4 @@
 pub mod animation_components;
+pub mod behavior_patterns;
 pub mod controllable_entity_components;
-mod environmental_entity;
+pub mod environmental_entity;

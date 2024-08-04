@@ -5,40 +5,33 @@ use bevy::{
 use bevy::math::Vec3;
 use bevy::prelude::Fixed;
 
-use crate::components::controllable_entity_components::{
-    PositionComponent, PreviousPositionComponent, VelocityVectorComponents,
-};
+use crate::components::controllable_entity_components::ControllableEntityComponents;
 use crate::DEFAULT_SPEED;
 
 pub fn control_entity_position_smooth(
     fixed_time: Res<Time<Fixed>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(
-        &mut Transform,
-        &mut VelocityVectorComponents,
-        &mut PositionComponent,
-        &mut PreviousPositionComponent,
-    )>,
+    mut query: Query<(&mut Transform, &mut ControllableEntityComponents)>,
 ) {
-    for (mut transform, mut controllable_entity, mut position, mut prev_position) in
-        query.iter_mut()
-    {
+    for (mut transform, mut controllable_entity) in query.iter_mut() {
         let a = fixed_time.overstep_fraction();
-        transform.translation = prev_position.position.lerp(position.position, a);
+        transform.translation = controllable_entity
+            .prev_position
+            .lerp(controllable_entity.position, a);
         process_input(&keyboard_input, &mut controllable_entity);
-        prev_position.position = position.position;
+        controllable_entity.prev_position = controllable_entity.position;
         let position_displacement = Vec3 {
             x: controllable_entity.x_axis_displacement,
             y: controllable_entity.y_axis_displacement,
             z: 0.0,
         };
-        position.position += position_displacement * fixed_time.delta_seconds();
+        controllable_entity.position += position_displacement * fixed_time.delta_seconds();
     }
 }
 
 fn process_input(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
-    controllable_entity: &mut VelocityVectorComponents,
+    controllable_entity: &mut ControllableEntityComponents,
 ) {
     handle_y_axis_movement(keyboard_input, controllable_entity);
     handle_x_axis_movement(keyboard_input, controllable_entity);
@@ -46,7 +39,7 @@ fn process_input(
 
 fn handle_y_axis_movement(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
-    vehicle_component: &mut VelocityVectorComponents,
+    vehicle_component: &mut ControllableEntityComponents,
 ) {
     if keyboard_input.pressed(KeyCode::KeyW) {
         vehicle_component.y_axis_displacement = DEFAULT_SPEED;
@@ -59,7 +52,7 @@ fn handle_y_axis_movement(
 
 fn handle_x_axis_movement(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
-    vehicle_component: &mut VelocityVectorComponents,
+    vehicle_component: &mut ControllableEntityComponents,
 ) {
     let strafe_right = keyboard_input.pressed(KeyCode::KeyD) as i32;
     let strafe_left = keyboard_input.pressed(KeyCode::KeyA) as i32;

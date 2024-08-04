@@ -5,12 +5,12 @@ use bevy_ecs_tilemap::tiles::TilePos;
 use tracy_client::span;
 
 use crate::components::animation_components::{AnimationComponent, AnimationTimer};
-use crate::components::controllable_entity_components::VelocityVectorComponents;
+use crate::components::controllable_entity_components::ControllableEntityComponents;
 use crate::events::tile_animation::TileAnimationEvent;
 use crate::TILE_SIZE;
 
 pub fn animate_overlapped_tile_event_based(
-    mut entity_query: Query<&Transform, With<VelocityVectorComponents>>,
+    mut entity_query: Query<&Transform, With<ControllableEntityComponents>>,
     mut overlap_event_writer: EventWriter<TileAnimationEvent>,
 ) {
     let _span = span!("tile animation_asset_prep event send");

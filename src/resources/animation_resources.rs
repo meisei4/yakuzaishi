@@ -13,15 +13,23 @@ use crate::components::animation_components::AnimationComponent;
 //        pretty much  that should be reused throughout the game world
 // - Handle (no idea why yet, but they are pointers so I think its to allow you to make your own?)
 
+// TODO: Since this gets attached to the controllable entity, need to figure out a way to avoid it from being attached in certain cases
 #[derive(Resource)]
-pub struct OverlayAnimationResource {
-    pub wake_animation: AnimationComponent,
-    pub overlay_animation_image_handle: Handle<Image>,
-    pub overlay_animation_texture_atlas: Handle<TextureAtlasLayout>,
+pub struct AnimationResource {
+    pub animation: AnimationComponent,
+    pub animation_image_handle: Handle<Image>,
+    pub animation_texture_atlas: Handle<TextureAtlasLayout>,
+}
+
+#[derive(Resource)]
+pub struct EnvironmentalEntityAnimationResource {
+    pub animation: AnimationComponent,
+    pub animation_image_handle: Handle<Image>,
+    pub animation_texture_atlas: Handle<TextureAtlasLayout>,
 }
 
 #[derive(Resource)]
 pub struct ControlledAnimationResource {
-    pub controlled_animation_image_handle: Handle<Image>,
-    pub controlled_animation_texture_atlas: Handle<TextureAtlasLayout>,
+    pub image_handle: Handle<Image>,
+    pub texture_atlas: Handle<TextureAtlasLayout>,
 }
