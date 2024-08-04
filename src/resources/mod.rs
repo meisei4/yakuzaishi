@@ -1,2 +1,2 @@
-pub mod animation_resources;
-pub mod tiled_resources;
+pub mod animation;
+pub mod tiled;

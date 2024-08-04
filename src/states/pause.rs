@@ -1,2 +1,0 @@
-pub struct PauseStatePlugin;
-//TODO

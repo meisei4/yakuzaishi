@@ -6,11 +6,9 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use tracy_client::Client;
 
 use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
-use yakuzaishi::resources::tiled_resources::TiledMap;
-use yakuzaishi::states::load::LoadStatePlugin;
-use yakuzaishi::states::run::RunStatePlugin;
-use yakuzaishi::states::state_enums::GameState;
-use yakuzaishi::systems::load_state::tiled_loader::TiledLoader;
+use yakuzaishi::resources::tiled::{TiledLoader, TiledMap};
+use yakuzaishi::states::{LoadStatePlugin, RunStatePlugin};
+use yakuzaishi::states::GameState::Load;
 
 fn main() {
     let _tracy_client = Client::start();
@@ -37,6 +35,6 @@ fn main() {
         .register_asset_loader(TiledLoader)
         .add_plugins(LoadStatePlugin)
         .add_plugins(RunStatePlugin)
-        .insert_state(GameState::Load)
+        .insert_state(Load)
         .run();
 }
