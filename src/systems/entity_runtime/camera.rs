@@ -2,14 +2,14 @@ use bevy::asset::Handle;
 use bevy::math::Vec2;
 use bevy::prelude::{Assets, Camera, ParamSet, Query, Res, Transform, With};
 
-use crate::components::player::PlayerEntityComponents;
+use crate::components::kinetic_entity::PlayerEntityTag;
 use crate::resources::tiled::TiledMap;
 
 pub fn track_camera(
     tiled_map_assets: Res<Assets<TiledMap>>,
     map_query: Query<&Handle<TiledMap>>,
     mut param_set: ParamSet<(
-        Query<&Transform, With<PlayerEntityComponents>>,
+        Query<&Transform, With<PlayerEntityTag>>,
         Query<&mut Transform, With<Camera>>,
     )>,
 ) {

@@ -8,7 +8,7 @@ use crate::{
     PLAYER_ENTITY_SPAWN_X, PLAYER_ENTITY_SPAWN_Y, PLAYER_ENTITY_TEXTURE_FILE_PATH,
     PLAYER_ENTITY_Z_LEVEL, TILE_SIZE,
 };
-use crate::components::player::PlayerEntityComponents;
+use crate::components::kinetic_entity::{KineticEntityComponents, PlayerEntityTag};
 use crate::resources::animation::PlayerEntityAnimationResource;
 
 pub fn spawn_player_entity(
@@ -41,7 +41,7 @@ pub fn spawn_player_entity(
         PLAYER_ENTITY_Z_LEVEL,
     );
 
-    let player_entity = PlayerEntityComponents {
+    let player_entity = KineticEntityComponents {
         x_axis_displacement: 0.0,
         y_axis_displacement: 0.0,
         position: transform.translation,
@@ -53,5 +53,6 @@ pub fn spawn_player_entity(
         .insert(GlobalTransform::default())
         .insert(Visibility::default())
         .insert(InheritedVisibility::default())
+        .insert(PlayerEntityTag)
         .insert(Name::new("Player Entity"));
 }

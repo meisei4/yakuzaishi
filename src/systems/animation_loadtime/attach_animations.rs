@@ -10,8 +10,8 @@ use crate::{
     ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX,
 };
 use crate::components::animation::{AnimationComponent, AnimationTimer};
-use crate::components::environment::EnvironmentEntityComponents;
-use crate::components::player::PlayerEntityComponents;
+use crate::components::kinetic_entity::EnvironmentEntityTag;
+use crate::components::kinetic_entity::PlayerEntityTag;
 use crate::resources::animation::{
     AnimationResource, EnvironmentEntityAnimationResource, PlayerEntityAnimationResource,
 };
@@ -43,7 +43,7 @@ pub fn attach_animations_to_individual_tile_entities(
 pub fn attach_base_textures_to_player_entities(
     mut commands: Commands,
     player_entity_animation_resource: Res<PlayerEntityAnimationResource>,
-    query: Query<Entity, With<PlayerEntityComponents>>,
+    query: Query<Entity, With<PlayerEntityTag>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).insert(SpriteSheetBundle {
@@ -60,7 +60,7 @@ pub fn attach_base_textures_to_player_entities(
 pub fn attach_animations_to_player_entities(
     mut commands: Commands,
     overlay_animation_data: Res<AnimationResource>,
-    query: Query<Entity, With<PlayerEntityComponents>>,
+    query: Query<Entity, With<PlayerEntityTag>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).with_children(|parent| {
@@ -86,7 +86,7 @@ pub fn attach_animations_to_player_entities(
 pub fn attach_animations_to_environment_entities(
     mut commands: Commands,
     overlay_animation_data: Res<EnvironmentEntityAnimationResource>,
-    query: Query<Entity, With<EnvironmentEntityComponents>>,
+    query: Query<Entity, With<EnvironmentEntityTag>>,
 ) {
     for entity in query.iter() {
         commands.entity(entity).with_children(|parent| {
