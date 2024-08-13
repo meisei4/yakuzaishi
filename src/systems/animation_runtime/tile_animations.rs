@@ -5,7 +5,7 @@ use bevy_ecs_tilemap::tiles::TilePos;
 use tracy_client::span;
 
 use crate::components::animation::{AnimationComponent, AnimationTimer};
-use crate::components::player::PlayerEntityComponents;
+use crate::components::kinetic_entity::PlayerEntityTag;
 use crate::TILE_SIZE;
 
 #[derive(Event)]
@@ -14,7 +14,7 @@ pub struct TileAnimationEvent {
 }
 
 pub fn animate_overlapped_tiles_event_based(
-    mut entity_query: Query<&Transform, With<PlayerEntityComponents>>,
+    mut entity_query: Query<&Transform, With<PlayerEntityTag>>,
     mut overlap_event_writer: EventWriter<TileAnimationEvent>,
 ) {
     let _span = span!("tile animation_loadtime event send");

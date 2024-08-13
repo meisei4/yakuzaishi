@@ -1,4 +1,11 @@
-use bevy::prelude::*;
+use bevy::math::Vec2;
+use bevy::prelude::Component;
+
+#[derive(Component)]
+pub enum BehaviorPattern {
+    FloatInCircle,
+    ZigZag,
+}
 
 #[derive(Component)]
 pub struct FloatInCircle {
@@ -11,10 +18,4 @@ pub struct FloatInCircle {
 pub struct ZigZag {
     pub speed: f32,
     pub direction: Vec2,
-}
-
-#[derive(Component)]
-pub struct Bounce {
-    pub speed: Vec2,
-    pub bounds: Vec2,
 }

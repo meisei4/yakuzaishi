@@ -3,15 +3,15 @@ use bevy::{
     prelude::{KeyCode, Query, Res, Time, Transform},
 };
 use bevy::math::Vec3;
-use bevy::prelude::Fixed;
+use bevy::prelude::{Fixed, With};
 
-use crate::components::player::PlayerEntityComponents;
+use crate::components::kinetic_entity::{KineticEntityComponents, PlayerEntityTag};
 use crate::DEFAULT_SPEED;
 
 pub fn control_player_entity(
     fixed_time: Res<Time<Fixed>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut query: Query<(&mut Transform, &mut PlayerEntityComponents)>,
+    mut query: Query<(&mut Transform, &mut KineticEntityComponents), With<PlayerEntityTag>>,
 ) {
     for (mut transform, mut player_entity) in query.iter_mut() {
         let a = fixed_time.overstep_fraction();
@@ -29,7 +29,7 @@ pub fn control_player_entity(
 
 fn process_input(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
-    player_entity: &mut PlayerEntityComponents,
+    player_entity: &mut KineticEntityComponents,
 ) {
     handle_y_axis_movement(keyboard_input, player_entity);
     handle_x_axis_movement(keyboard_input, player_entity);
@@ -37,7 +37,7 @@ fn process_input(
 
 fn handle_y_axis_movement(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
-    vehicle_component: &mut PlayerEntityComponents,
+    vehicle_component: &mut KineticEntityComponents,
 ) {
     if keyboard_input.pressed(KeyCode::KeyW) {
         vehicle_component.y_axis_displacement = DEFAULT_SPEED;
@@ -50,7 +50,7 @@ fn handle_y_axis_movement(
 
 fn handle_x_axis_movement(
     keyboard_input: &Res<ButtonInput<KeyCode>>,
-    vehicle_component: &mut PlayerEntityComponents,
+    vehicle_component: &mut KineticEntityComponents,
 ) {
     let strafe_right = keyboard_input.pressed(KeyCode::KeyD) as i32;
     let strafe_left = keyboard_input.pressed(KeyCode::KeyA) as i32;
