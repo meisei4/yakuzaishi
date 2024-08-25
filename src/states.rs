@@ -3,6 +3,7 @@ use bevy::asset::{Assets, AssetServer, Handle, LoadState};
 use bevy::prelude::{NextState, OnEnter, OnExit, Query, Res, ResMut, States};
 
 use crate::resources::animation::AnimationResource;
+use crate::resources::audio::add_audio_assets;
 use crate::resources::tiled::TiledMap;
 use crate::systems::animation_loadtime::attach_animations::{
     attach_animations_to_environment_entities, attach_animations_to_individual_tile_entities,
@@ -15,6 +16,7 @@ use crate::systems::animation_runtime::overlay_animations::animate_env_entity_an
 use crate::systems::animation_runtime::tile_animations::{
     animate_overlapped_tiles_event_based, handle_overlap_event, TileAnimationEvent,
 };
+use crate::systems::audio_runtime::background_music::start_background_audio;
 use crate::systems::entity_loadtime::camera::init_camera;
 use crate::systems::entity_loadtime::environment_entity::spawn_environment_entity;
 use crate::systems::entity_loadtime::player_entity::spawn_player_entity;
@@ -22,8 +24,10 @@ use crate::systems::entity_loadtime::tiled_map::{process_tiled_maps, spawn_tiled
 use crate::systems::entity_runtime::camera::track_camera;
 use crate::systems::entity_runtime::player_entity::control_player_entity;
 
-#[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {
+    #[default]
+    AudioAssetLoad,
     Load,
     Run,
 }
@@ -41,6 +45,7 @@ impl Plugin for LoadStatePlugin {
                 spawn_player_entity,
                 spawn_environment_entity,
                 init_camera,
+                add_audio_assets,
             ),
         )
         //TODO: check_assets_loaded needs to be improved to actually automatically check all generic asset_server
@@ -49,11 +54,12 @@ impl Plugin for LoadStatePlugin {
         .add_systems(
             OnExit(GameState::Load),
             (
-                process_tiled_maps,                            //TODO: REQUIRED OnExit
+                start_background_audio,
+                process_tiled_maps, //TODO: REQUIRED OnExit
                 attach_animations_to_individual_tile_entities, //TODO: REQUIRED OnExit
-                attach_base_textures_to_player_entities,       // TODO: REQUIRED OnExit
-                attach_animations_to_player_entities,          // TODO: REQUIRED OnExit
-                attach_animations_to_environment_entities,     // TODO: REQUIRED OnExit
+                attach_base_textures_to_player_entities, // TODO: REQUIRED OnExit
+                attach_animations_to_player_entities, // TODO: REQUIRED OnExit
+                attach_animations_to_environment_entities, // TODO: REQUIRED OnExit
             ),
         );
     }

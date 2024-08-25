@@ -50,6 +50,8 @@ pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX: u32 = 0;
 pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_END_IDX: u32 = 18;
 pub const ENVIRONMENT_ENTITY_ANIMATION_SPEED: f32 = 0.1;
 
+pub const SOUND_FILE: &str = "audio_data/samurai.wav";
+
 //-----------------ENTITY/GAME LOGIC-----------------
 pub const DEFAULT_SPEED: f32 = 90.0;
 pub const PLAYER_ENTITY_SPAWN_X: f32 = 0.0;
