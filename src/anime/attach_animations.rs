@@ -9,13 +9,12 @@ use bevy_ecs_tilemap::prelude::TileTextureIndex;
 use crate::{
     ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX,
 };
-use crate::components::animation::AnimationTimer;
-use crate::components::kinetic_entity::EnvironmentEntityTag;
-use crate::components::kinetic_entity::PlayerEntityTag;
-use crate::resources::animation::{
+use crate::anime::anime_component::AnimationTimer;
+use crate::anime::anime_res::{
     AnimationResource, EnvironmentEntityAnimationResource, PlayerEntityAnimationResource,
 };
-use crate::resources::tiled::TileAnimationResource;
+use crate::kinetic_entity::{EnvironmentEntityTag, PlayerEntityTag};
+use crate::map::tiled::TileAnimationResource;
 
 pub fn attach_animations_to_individual_tile_entities(
     mut commands: Commands,
@@ -23,7 +22,7 @@ pub fn attach_animations_to_individual_tile_entities(
     query: Query<(Entity, &TileTextureIndex)>,
 ) {
     for (entity, texture_index) in query.iter() {
-        //TODO: this is horrendous, look into how to add the animation data directly upon tile processing
+        //TODO: this is horrendous, look into how to add the anime data directly upon tile processing
         if texture_index.0 == animation_data.animation.start_idx {
             commands
                 .entity(entity)

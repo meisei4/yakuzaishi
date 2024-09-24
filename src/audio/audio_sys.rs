@@ -1,7 +1,7 @@
 use bevy::audio::{AudioBundle, PlaybackSettings};
 use bevy::prelude::{Commands, Res};
 
-use crate::resources::audio::AudioAssets;
+use crate::audio::audio_res::AudioAssets;
 
 pub fn start_background_audio(mut commands: Commands, audio_assets: Res<AudioAssets>) {
     commands.spawn(AudioBundle {

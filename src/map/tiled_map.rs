@@ -11,7 +11,7 @@ use bevy_ecs_tilemap::tiles::{TileBundle, TileTextureIndex};
 use tiled::{LayerType, TileLayer};
 
 use crate::{TILE_MAP_FILE_PATH, TILE_SIZE};
-use crate::resources::tiled::{TiledMap, TiledMapAssets};
+use crate::map::tiled::{TiledMap, TiledMapAssets};
 
 #[derive(Default, Bundle)]
 pub struct TiledMapBundle {

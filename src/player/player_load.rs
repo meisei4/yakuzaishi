@@ -5,8 +5,8 @@ use bevy::prelude::{
 };
 
 use crate::{PLAYER_ENTITY_SPAWN_X, PLAYER_ENTITY_SPAWN_Y, PLAYER_ENTITY_Z_LEVEL, TILE_SIZE};
-use crate::components::kinetic_entity::{KineticEntityComponents, PlayerEntityTag};
-use crate::resources::animation::{PlayerEntityAnimationAssets, PlayerEntityAnimationResource};
+use crate::anime::anime_res::{PlayerEntityAnimationAssets, PlayerEntityAnimationResource};
+use crate::kinetic_entity::{KineticEntityComponents, PlayerEntityTag};
 
 pub fn spawn_player_entity(
     mut commands: Commands,

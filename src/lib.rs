@@ -1,9 +1,13 @@
 use std::env;
 use std::path::PathBuf;
 
-pub mod components;
-pub mod resources;
-pub mod systems;
+pub mod anime;
+pub mod audio;
+pub mod camera;
+pub mod environment;
+pub mod kinetic_entity;
+pub mod map;
+pub mod player;
 
 lazy_static::lazy_static! {
     pub static ref ASSETS_BASE_PATH: PathBuf = env::current_dir().unwrap().join("assets");

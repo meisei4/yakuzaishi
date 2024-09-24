@@ -5,8 +5,8 @@ use bevy::{
 use bevy::math::Vec3;
 use bevy::prelude::{Fixed, With};
 
-use crate::components::kinetic_entity::{KineticEntityComponents, PlayerEntityTag};
 use crate::DEFAULT_SPEED;
+use crate::kinetic_entity::{KineticEntityComponents, PlayerEntityTag};
 
 pub fn control_player_entity(
     fixed_time: Res<Time<Fixed>>,

@@ -4,8 +4,7 @@ use bevy::prelude::{Commands, GlobalTransform, InheritedVisibility, Transform, V
 use crate::{
     ENVIRONMENT_ENTITY_SPAWN_X, ENVIRONMENT_ENTITY_SPAWN_Y, ENVIRONMENT_ENTITY_Z_LEVEL, TILE_SIZE,
 };
-use crate::components::kinetic_entity::EnvironmentEntityTag;
-use crate::components::kinetic_entity::KineticEntityComponents;
+use crate::kinetic_entity::{EnvironmentEntityTag, KineticEntityComponents};
 
 pub fn spawn_environment_entity(mut commands: Commands) {
     let transform = Transform::from_xyz(

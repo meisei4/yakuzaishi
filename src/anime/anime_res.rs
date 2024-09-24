@@ -2,7 +2,7 @@ use bevy::asset::Handle;
 use bevy::prelude::{Image, Resource, TextureAtlasLayout};
 use bevy_asset_loader::asset_collection::AssetCollection;
 
-use crate::components::animation::AnimationComponent;
+use crate::anime::anime_component::AnimationComponent;
 
 #[derive(AssetCollection, Resource)]
 pub struct AnimationAssets {

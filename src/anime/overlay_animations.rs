@@ -1,7 +1,7 @@
 use bevy::prelude::{Query, Res, TextureAtlas, Time};
 
-use crate::components::animation::AnimationTimer;
-use crate::resources::animation::{AnimationResource, EnvironmentEntityAnimationResource};
+use crate::anime::anime_component::AnimationTimer;
+use crate::anime::anime_res::{AnimationResource, EnvironmentEntityAnimationResource};
 
 pub fn animate_overlay_animations(
     time: Res<Time>,

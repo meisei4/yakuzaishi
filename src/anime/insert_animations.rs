@@ -10,12 +10,12 @@ use crate::{
     WAKE_ANIMATION_SPEED, WAKE_ANIMATION_TEXTURE_COLUMN_LENGTH, WAKE_ANIMATION_TEXTURE_END_IDX,
     WAKE_ANIMATION_TEXTURE_ROW_LENGTH, WAKE_ANIMATION_TEXTURE_START_IDX,
 };
-use crate::components::animation::AnimationComponent;
-use crate::resources::animation::{
+use crate::anime::anime_component::AnimationComponent;
+use crate::anime::anime_res::{
     AnimationAssets, AnimationResource, EnvironmentEntityAnimationAssets,
     EnvironmentEntityAnimationResource,
 };
-use crate::resources::tiled::TileAnimationResource;
+use crate::map::tiled::TileAnimationResource;
 
 pub fn insert_tile_animation_resources_into_world(mut commands: Commands) {
     let animation = AnimationComponent {
@@ -28,7 +28,7 @@ pub fn insert_tile_animation_resources_into_world(mut commands: Commands) {
     commands.insert_resource(animation_data);
 }
 
-//TODO: Split this method into two different systems, and ADD MARKERS for overlay vs environmental animation
+//TODO: Split this method into two different systems, and ADD MARKERS for overlay vs environmental anime
 // and ADD MARKERS!
 // and ADD MARKERS!
 // and ADD MARKERS to distinguish the resource or asset type (or even just Entity... i dont know)

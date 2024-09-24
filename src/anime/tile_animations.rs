@@ -4,8 +4,8 @@ use bevy_ecs_tilemap::prelude::TileTextureIndex;
 use bevy_ecs_tilemap::tiles::TilePos;
 use tracy_client::span;
 
-use crate::components::animation::{AnimationComponent, AnimationTimer};
-use crate::components::kinetic_entity::PlayerEntityTag;
+use crate::anime::anime_component::{AnimationComponent, AnimationTimer};
+use crate::kinetic_entity::PlayerEntityTag;
 use crate::TILE_SIZE;
 
 #[derive(Event)]

@@ -13,30 +13,29 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use tracy_client::Client;
 
 use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
-use yakuzaishi::resources::animation::{
-    AnimationAssets, AnimationResource, EnvironmentEntityAnimationAssets,
-    PlayerEntityAnimationAssets,
+use yakuzaishi::anime::anime_res::{
+    AnimationAssets, EnvironmentEntityAnimationAssets, PlayerEntityAnimationAssets,
 };
-use yakuzaishi::resources::audio::AudioAssets;
-use yakuzaishi::resources::tiled::{TiledLoader, TiledMap, TiledMapAssets};
-use yakuzaishi::systems::animation_loadtime::attach_animations::{
+use yakuzaishi::anime::attach_animations::{
     attach_animations_to_environment_entities, attach_animations_to_individual_tile_entities,
     attach_animations_to_player_entities, attach_base_textures_to_player_entities,
 };
-use yakuzaishi::systems::animation_loadtime::insert_animations::{
+use yakuzaishi::anime::insert_animations::{
     insert_overlay_animation_resources_into_world, insert_tile_animation_resources_into_world,
 };
-use yakuzaishi::systems::animation_runtime::overlay_animations::animate_env_entity_animations;
-use yakuzaishi::systems::animation_runtime::tile_animations::{
+use yakuzaishi::anime::overlay_animations::animate_env_entity_animations;
+use yakuzaishi::anime::tile_animations::{
     animate_overlapped_tiles_event_based, handle_overlap_event, TileAnimationEvent,
 };
-use yakuzaishi::systems::audio_runtime::background_music::start_background_audio;
-use yakuzaishi::systems::entity_loadtime::camera::init_camera;
-use yakuzaishi::systems::entity_loadtime::environment_entity::spawn_environment_entity;
-use yakuzaishi::systems::entity_loadtime::player_entity::spawn_player_entity;
-use yakuzaishi::systems::entity_loadtime::tiled_map::{process_tiled_maps, spawn_tiled_map_entity};
-use yakuzaishi::systems::entity_runtime::camera::track_camera;
-use yakuzaishi::systems::entity_runtime::player_entity::control_player_entity;
+use yakuzaishi::audio::audio_res::AudioAssets;
+use yakuzaishi::audio::audio_sys::start_background_audio;
+use yakuzaishi::camera::camera::track_camera;
+use yakuzaishi::camera::camera_load::init_camera;
+use yakuzaishi::environment::environment_load::spawn_environment_entity;
+use yakuzaishi::map::tiled::{TiledLoader, TiledMap, TiledMapAssets};
+use yakuzaishi::map::tiled_map::{process_tiled_maps, spawn_tiled_map_entity};
+use yakuzaishi::player::player_load::spawn_player_entity;
+use yakuzaishi::player::player_run::control_player_entity;
 
 fn main() {
     let _tracy_client = Client::start();
