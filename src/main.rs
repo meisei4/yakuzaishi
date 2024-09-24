@@ -3,7 +3,7 @@ use bevy::asset::{AssetApp, Assets, AssetServer, Handle, LoadState};
 use bevy::log::info;
 use bevy::prelude::{
     App, DefaultPlugins, ImagePlugin, in_state, IntoSystemConfigs, NextState, OnEnter, OnExit,
-    PluginGroup, Query, Res, ResMut, Window, WindowPlugin,
+    PluginGroup, Query, Res, ResMut, States, Window, WindowPlugin,
 };
 use bevy::window::WindowResolution;
 use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
@@ -114,6 +114,15 @@ fn main() {
             ),
         )
         .run();
+}
+
+#[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
+pub enum GameState {
+    #[default]
+    AssetLoading,
+    AssetProcessing,
+    Load,
+    Run,
 }
 
 // TODO: this is whack, i dont like it
