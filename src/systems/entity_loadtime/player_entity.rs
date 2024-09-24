@@ -1,22 +1,19 @@
 use bevy::core::Name;
 use bevy::prelude::{
-    Assets, AssetServer, Commands, GlobalTransform, InheritedVisibility, Res, ResMut,
-    TextureAtlasLayout, Transform, Vec2, Visibility,
+    Assets, Commands, GlobalTransform, InheritedVisibility, Res, ResMut, TextureAtlasLayout,
+    Transform, Vec2, Visibility,
 };
 
-use crate::{
-    PLAYER_ENTITY_SPAWN_X, PLAYER_ENTITY_SPAWN_Y, PLAYER_ENTITY_TEXTURE_FILE_PATH,
-    PLAYER_ENTITY_Z_LEVEL, TILE_SIZE,
-};
+use crate::{PLAYER_ENTITY_SPAWN_X, PLAYER_ENTITY_SPAWN_Y, PLAYER_ENTITY_Z_LEVEL, TILE_SIZE};
 use crate::components::kinetic_entity::{KineticEntityComponents, PlayerEntityTag};
-use crate::resources::animation::PlayerEntityAnimationResource;
+use crate::resources::animation::{PlayerEntityAnimationAssets, PlayerEntityAnimationResource};
 
 pub fn spawn_player_entity(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    player_assets: Res<PlayerEntityAnimationAssets>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let vehicle_animation_image_handle = asset_server.load(PLAYER_ENTITY_TEXTURE_FILE_PATH);
+    let vehicle_animation_image_handle = player_assets.image_handle.clone();
 
     let vehicle_texture_atlas_layout = texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
         Vec2::splat(TILE_SIZE),

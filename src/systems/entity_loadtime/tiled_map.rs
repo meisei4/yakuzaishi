@@ -1,5 +1,6 @@
 use bevy::asset::Assets;
 use bevy::core::Name;
+use bevy::log::info;
 use bevy::prelude::{AssetServer, Bundle, Commands, Entity, Handle, Query, Res};
 use bevy_ecs_tilemap::map::{
     TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
@@ -10,17 +11,15 @@ use bevy_ecs_tilemap::tiles::{TileBundle, TileTextureIndex};
 use tiled::{LayerType, TileLayer};
 
 use crate::{TILE_MAP_FILE_PATH, TILE_SIZE};
-use crate::resources::tiled::TiledMap;
+use crate::resources::tiled::{TiledMap, TiledMapAssets};
 
 #[derive(Default, Bundle)]
 pub struct TiledMapBundle {
     pub tiled_map: Handle<TiledMap>,
 }
 
-pub fn spawn_tiled_map_entity(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let map_handle: Handle<TiledMap> = asset_server.load(TILE_MAP_FILE_PATH);
-
-    //TODO: replace this all with the bevy_asset_loader
+pub fn spawn_tiled_map_entity(mut commands: Commands, tiled_asset: Res<TiledMapAssets>) {
+    let map_handle: Handle<TiledMap> = tiled_asset.tiled_map.clone();
     commands
         .spawn(TiledMapBundle {
             tiled_map: map_handle,
@@ -35,6 +34,7 @@ pub fn process_tiled_maps(
     map_assets: Res<Assets<TiledMap>>, //TODO: learn about all the plural Assets (including TextureAtlasLayouts etc)
     mut map_query: Query<&Handle<TiledMap>>, // TODO: why is this an &
 ) {
+    info!("process_tiled_maps: Starting");
     if let Some(map_handle) = map_query.iter_mut().next() {
         if let Some(tiled_map) = map_assets.get(map_handle) {
             for tileset_index in 0..tiled_map.map.tilesets().len() {
@@ -42,6 +42,7 @@ pub fn process_tiled_maps(
             }
         }
     }
+    info!("process_tiled_maps: ENDING");
 }
 
 fn process_tileset(commands: &mut Commands, tiled_map: &TiledMap, tileset_index: usize) {

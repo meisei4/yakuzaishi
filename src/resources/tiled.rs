@@ -31,7 +31,7 @@ pub struct TiledMap {
 
 #[derive(Resource)]
 pub struct TileAnimationResource {
-    pub animations: HashMap<u32, AnimationComponent>,
+    pub animation: AnimationComponent,
 }
 
 // TODO: this is alot from the custom solution from bevy_ecs_tiled, so this needs to be looked at later

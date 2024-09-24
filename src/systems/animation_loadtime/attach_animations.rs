@@ -9,7 +9,7 @@ use bevy_ecs_tilemap::prelude::TileTextureIndex;
 use crate::{
     ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX,
 };
-use crate::components::animation::{AnimationComponent, AnimationTimer};
+use crate::components::animation::AnimationTimer;
 use crate::components::kinetic_entity::EnvironmentEntityTag;
 use crate::components::kinetic_entity::PlayerEntityTag;
 use crate::resources::animation::{
@@ -23,12 +23,11 @@ pub fn attach_animations_to_individual_tile_entities(
     query: Query<(Entity, &TileTextureIndex)>,
 ) {
     for (entity, texture_index) in query.iter() {
-        if let Some(animated_tile) = animation_data.animations.get(&texture_index.0) {
-            commands.entity(entity).insert(AnimationComponent {
-                start_idx: animated_tile.start_idx,
-                end_idx: animated_tile.end_idx,
-                speed: animated_tile.speed,
-            });
+        //TODO: this is horrendous, look into how to add the animation data directly upon tile processing
+        if texture_index.0 == animation_data.animation.start_idx {
+            commands
+                .entity(entity)
+                .insert(animation_data.animation.clone());
             commands
                 .entity(entity)
                 .insert(AnimationTimer(Timer::from_seconds(
@@ -40,6 +39,7 @@ pub fn attach_animations_to_individual_tile_entities(
     }
 }
 
+// TODO: BIG TODO, I dont think the whole "insert, attach" is at all a proper decoupling. its overkill,
 pub fn attach_base_textures_to_player_entities(
     mut commands: Commands,
     player_entity_animation_resource: Res<PlayerEntityAnimationResource>,

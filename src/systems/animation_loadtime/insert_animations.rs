@@ -1,43 +1,44 @@
-use std::collections::HashMap;
-
-use bevy::asset::{Assets, AssetServer};
+use bevy::asset::Assets;
 use bevy::math::Vec2;
 use bevy::prelude::{Commands, Res, ResMut, TextureAtlasLayout};
 
 use crate::{
     ENVIRONMENT_ENTITY_ANIMATION_SPEED, ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_COLUMN_LENGTH,
-    ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_END_IDX, ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_FILE_PATH,
-    ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_ROW_LENGTH,
+    ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_END_IDX, ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_ROW_LENGTH,
     ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX, TILE_ANIMATION_SPEED,
     TILE_ANIMATION_TEXTURE_END_IDX, TILE_ANIMATION_TEXTURE_START_IDX, TILE_SIZE,
-    WAKE_ANIMATION_FILE_PATH, WAKE_ANIMATION_SPEED, WAKE_ANIMATION_TEXTURE_COLUMN_LENGTH,
-    WAKE_ANIMATION_TEXTURE_END_IDX, WAKE_ANIMATION_TEXTURE_ROW_LENGTH,
-    WAKE_ANIMATION_TEXTURE_START_IDX,
+    WAKE_ANIMATION_SPEED, WAKE_ANIMATION_TEXTURE_COLUMN_LENGTH, WAKE_ANIMATION_TEXTURE_END_IDX,
+    WAKE_ANIMATION_TEXTURE_ROW_LENGTH, WAKE_ANIMATION_TEXTURE_START_IDX,
 };
 use crate::components::animation::AnimationComponent;
-use crate::resources::animation::{AnimationResource, EnvironmentEntityAnimationResource};
+use crate::resources::animation::{
+    AnimationAssets, AnimationResource, EnvironmentEntityAnimationAssets,
+    EnvironmentEntityAnimationResource,
+};
 use crate::resources::tiled::TileAnimationResource;
 
 pub fn insert_tile_animation_resources_into_world(mut commands: Commands) {
-    let mut animations = HashMap::new();
-
-    let animated_tile = AnimationComponent {
+    let animation = AnimationComponent {
         start_idx: TILE_ANIMATION_TEXTURE_START_IDX,
         end_idx: TILE_ANIMATION_TEXTURE_END_IDX,
         speed: TILE_ANIMATION_SPEED,
     };
     //TODO: no idea why i have a hashmap here with the texture start idx as key, there was a reason when i first wrote it though
-    animations.insert(TILE_ANIMATION_TEXTURE_START_IDX, animated_tile);
-    let animation_data = TileAnimationResource { animations };
+    let animation_data = TileAnimationResource { animation };
     commands.insert_resource(animation_data);
 }
 
+//TODO: Split this method into two different systems, and ADD MARKERS for overlay vs environmental animation
+// and ADD MARKERS!
+// and ADD MARKERS!
+// and ADD MARKERS to distinguish the resource or asset type (or even just Entity... i dont know)
 pub fn insert_overlay_animation_resources_into_world(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    animation_assets: Res<AnimationAssets>,
+    environment_entity_animation_assets: Res<EnvironmentEntityAnimationAssets>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let overlay_animation_image = asset_server.load(WAKE_ANIMATION_FILE_PATH);
+    let overlay_animation_image = animation_assets.animation_image_handle.clone();
 
     let overlay_animation_texture_atlas = texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
         Vec2::splat(TILE_SIZE),
@@ -58,9 +59,9 @@ pub fn insert_overlay_animation_resources_into_world(
         animation_texture_atlas: overlay_animation_texture_atlas,
     });
 
-    // TODO: This is where things go wrong, this method shouldn't require as much bulk as it already has
-    let environment_animation_image_handle =
-        asset_server.load(ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_FILE_PATH);
+    let environment_animation_image_handle = environment_entity_animation_assets
+        .animation_image_handle
+        .clone();
 
     let environment_texture_atlas_layout =
         texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
