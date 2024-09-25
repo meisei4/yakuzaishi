@@ -14,7 +14,6 @@ use bevy_ecs_tilemap::map::TilemapTexture;
 use futures_lite::AsyncReadExt;
 use tiled::{DefaultResourceCache, Loader, ResourceReader};
 
-use crate::anime::anime_component::AnimationComponent;
 use crate::ASSETS_BASE_PATH;
 
 #[derive(AssetCollection, Resource)]

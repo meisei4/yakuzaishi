@@ -1,7 +1,7 @@
 use bevy::asset::Assets;
 use bevy::core::Name;
 use bevy::log::info;
-use bevy::prelude::{AssetServer, Bundle, Commands, Entity, Handle, Query, Res};
+use bevy::prelude::{Bundle, Commands, Entity, Handle, Query, Res};
 use bevy::time::{Timer, TimerMode};
 use bevy_ecs_tilemap::map::{
     TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
@@ -13,10 +13,11 @@ use tiled::{LayerType, TileLayer};
 
 use crate::{
     TILE_ANIMATION_SPEED, TILE_ANIMATION_TEXTURE_END_IDX, TILE_ANIMATION_TEXTURE_START_IDX,
-    TILE_MAP_FILE_PATH, TILE_SIZE,
+    TILE_SIZE,
 };
 use crate::anime::anime_component::{AnimationComponent, AnimationTimer};
 use crate::anime::anime_res::TileAnimationResource;
+use crate::map::tiled_components::TileEntityTag;
 use crate::map::tiled_res::{TiledMap, TiledMapAssets};
 
 #[derive(Default, Bundle)]
@@ -158,6 +159,7 @@ fn create_tile_entity(
     texture_index: u32,
     animation_data: &TileAnimationResource,
 ) -> Entity {
+    //TODO: this seems to be making redundant/duplicate entities just to have AnimatedTiles?
     let mut entity_builder = commands.spawn(TileBundle {
         position: tile_pos,
         tilemap_id,
@@ -168,13 +170,13 @@ fn create_tile_entity(
     });
 
     if texture_index == animation_data.animation.start_idx {
-        // Attach the animation components
         entity_builder
             .insert(animation_data.animation.clone())
             .insert(AnimationTimer(Timer::from_seconds(
                 animation_data.animation.speed,
                 TimerMode::Repeating,
             )))
+            .insert(TileEntityTag)
             .insert(Name::new("TileAnimation"));
     }
     entity_builder.id()

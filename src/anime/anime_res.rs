@@ -16,6 +16,7 @@ pub struct AnimationAssets {
     pub animation_image_handle: Handle<Image>,
 }
 
+//TODO: next turn the overlay animations into proper dynamic assets??????
 #[derive(Resource)]
 pub struct AnimationResource {
     pub animation: AnimationComponent,
@@ -29,7 +30,6 @@ pub struct EnvironmentEntityAnimationAssets {
     pub animation_image_handle: Handle<Image>,
 }
 
-// TODO: Figure out all the TextureAtlas nonsense aswell as the recoupling of "Insert" and "Attach"...
 #[derive(AssetCollection, Resource)]
 pub struct PlayerEntityAnimationAssets {
     #[asset(path = "sprite_data/iruka.png")]

@@ -1,9 +1,9 @@
 use bevy::app::{FixedUpdate, Update};
-use bevy::asset::{AssetApp, Assets, AssetServer, Handle, LoadState};
+use bevy::asset::AssetApp;
 use bevy::log::info;
 use bevy::prelude::{
     App, DefaultPlugins, ImagePlugin, in_state, IntoSystemConfigs, NextState, OnEnter, OnExit,
-    PluginGroup, Query, Res, ResMut, States, Window, WindowPlugin,
+    PluginGroup, ResMut, States, Window, WindowPlugin,
 };
 use bevy::window::WindowResolution;
 use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
@@ -16,12 +16,13 @@ use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
 use yakuzaishi::anime::anime_res::{
     AnimationAssets, EnvironmentEntityAnimationAssets, PlayerEntityAnimationAssets,
 };
-use yakuzaishi::anime::character_anime_sys::{
-    animate_env_entity_animations, animate_overlay_animations,
-    attach_animations_to_player_entities, insert_overlay_animation_resources_into_world,
-};
+use yakuzaishi::anime::environment_anime_sys::animate_env_entity_animations;
 use yakuzaishi::anime::map_anime_sys::{
     animate_overlapped_tiles_event_based, handle_overlap_event, TileAnimationEvent,
+};
+use yakuzaishi::anime::overlay_anime_sys::{
+    animate_overlay_animations, attach_animations_to_player_entities,
+    insert_overlay_animation_resources_into_world,
 };
 use yakuzaishi::audio::audio_res::AudioAssets;
 use yakuzaishi::audio::audio_sys::start_background_audio;
@@ -91,8 +92,8 @@ fn main() {
                 track_camera.run_if(in_state(GameState::Run)),
                 animate_overlapped_tiles_event_based.run_if(in_state(GameState::Run)),
                 handle_overlap_event.run_if(in_state(GameState::Run)),
-                // TODO: When I have the overlay animations on after like several environment entity animation loop cycles the sprite breaks
-                //animate_overlay_animations.run_if(in_state(GameState::Run)),
+                // TODO: sometimes when I have the overlay animations on after like several environment entity animation loop cycles the sprite breaks
+                animate_overlay_animations.run_if(in_state(GameState::Run)),
                 animate_env_entity_animations.run_if(in_state(GameState::Run)),
             ),
         )
