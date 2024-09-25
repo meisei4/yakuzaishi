@@ -17,7 +17,7 @@ use yakuzaishi::anime::anime_res::{
     AnimationAssets, EnvironmentEntityAnimationAssets, PlayerEntityAnimationAssets,
 };
 use yakuzaishi::anime::character_anime_sys::{
-    animate_env_entity_animations, attach_animations_to_environment_entities,
+    animate_env_entity_animations, animate_overlay_animations,
     attach_animations_to_player_entities, insert_overlay_animation_resources_into_world,
 };
 use yakuzaishi::anime::map_anime_sys::{
@@ -67,9 +67,9 @@ fn main() {
         .add_systems(
             OnEnter(GameState::AssetProcessing),
             (
+                insert_overlay_animation_resources_into_world,
                 start_background_audio,
                 spawn_tiled_map_entity, // TODO: I don't like the name of this because its spawning an asset dependant thing which i feel like should be called Load
-                insert_overlay_animation_resources_into_world,
                 spawn_player_entity,
                 spawn_environment_entity,
                 init_camera,
@@ -78,11 +78,7 @@ fn main() {
         )
         .add_systems(
             OnExit(GameState::AssetProcessing),
-            (
-                process_tiled_maps,
-                attach_animations_to_player_entities,
-                attach_animations_to_environment_entities,
-            ),
+            (process_tiled_maps, attach_animations_to_player_entities),
         )
         .add_event::<TileAnimationEvent>()
         .add_systems(
@@ -95,10 +91,8 @@ fn main() {
                 track_camera.run_if(in_state(GameState::Run)),
                 animate_overlapped_tiles_event_based.run_if(in_state(GameState::Run)),
                 handle_overlap_event.run_if(in_state(GameState::Run)),
-                // TODO: BIG TODO!!! this next line actually doesnt make sense
-                //  animate_env_entity_animations causes the player entity overlay to work and
-                //  in fact the animate_overlay_animations breaks the original animations...
-                // animate_overlay_animations.run_if(in_state(GameState::Run)),
+                // TODO: When I have the overlay animations on after like several environment entity animation loop cycles the sprite breaks
+                //animate_overlay_animations.run_if(in_state(GameState::Run)),
                 animate_env_entity_animations.run_if(in_state(GameState::Run)),
             ),
         )
