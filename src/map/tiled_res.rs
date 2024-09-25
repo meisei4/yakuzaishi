@@ -29,11 +29,6 @@ pub struct TiledMap {
     pub tilemap_textures: HashMap<usize, TilemapTexture>,
 }
 
-#[derive(Resource)]
-pub struct TileAnimationResource {
-    pub animation: AnimationComponent,
-}
-
 // TODO: this is alot from the custom solution from bevy_ecs_tiled, so this needs to be looked at later
 
 pub struct TiledLoader;

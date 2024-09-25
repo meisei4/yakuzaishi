@@ -4,6 +4,11 @@ use bevy_asset_loader::asset_collection::AssetCollection;
 
 use crate::anime::anime_component::AnimationComponent;
 
+#[derive(Resource)]
+pub struct TileAnimationResource {
+    pub animation: AnimationComponent,
+}
+
 #[derive(AssetCollection, Resource)]
 pub struct AnimationAssets {
     #[asset(path = "sprite_data/random_test_animations.png")]

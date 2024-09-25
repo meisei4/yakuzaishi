@@ -1,2 +1,2 @@
-pub mod tiled;
-pub mod tiled_map;
+pub mod tiled_res;
+pub mod tiled_sys;

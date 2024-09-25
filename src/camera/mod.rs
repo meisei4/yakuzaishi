@@ -1,2 +1,1 @@
-pub mod camera;
-pub mod camera_load;
+pub mod camera_sys;

@@ -1,12 +1,20 @@
+use bevy::core::Name;
 use bevy::math::Vec3;
-use bevy::prelude::{Event, EventReader, EventWriter, Query, Res, Time, Transform, With};
+use bevy::prelude::{
+    Commands, Entity, Event, EventReader, EventWriter, Query, Res, Time, Timer, TimerMode,
+    Transform, With,
+};
 use bevy_ecs_tilemap::prelude::TileTextureIndex;
 use bevy_ecs_tilemap::tiles::TilePos;
 use tracy_client::span;
 
+use crate::{
+    TILE_ANIMATION_SPEED, TILE_ANIMATION_TEXTURE_END_IDX, TILE_ANIMATION_TEXTURE_START_IDX,
+    TILE_SIZE,
+};
 use crate::anime::anime_component::{AnimationComponent, AnimationTimer};
+use crate::anime::anime_res::TileAnimationResource;
 use crate::kinetic_entity::PlayerEntityTag;
-use crate::TILE_SIZE;
 
 #[derive(Event)]
 pub struct TileAnimationEvent {
