@@ -9,22 +9,23 @@ use bevy::asset::Asset;
 use bevy::asset::io::Reader;
 use bevy::prelude::{Resource, TypePath};
 use bevy::prelude::Image;
+use bevy_asset_loader::asset_collection::AssetCollection;
 use bevy_ecs_tilemap::map::TilemapTexture;
 use futures_lite::AsyncReadExt;
 use tiled::{DefaultResourceCache, Loader, ResourceReader};
 
 use crate::ASSETS_BASE_PATH;
-use crate::components::animation::AnimationComponent;
+
+#[derive(AssetCollection, Resource)]
+pub struct TiledMapAssets {
+    #[asset(path = "map_data/water.tmx")]
+    pub tiled_map: Handle<TiledMap>,
+}
 
 #[derive(TypePath, Asset)]
 pub struct TiledMap {
     pub map: tiled::Map,
     pub tilemap_textures: HashMap<usize, TilemapTexture>,
-}
-
-#[derive(Resource)]
-pub struct TileAnimationResource {
-    pub animations: HashMap<u32, AnimationComponent>,
 }
 
 // TODO: this is alot from the custom solution from bevy_ecs_tiled, so this needs to be looked at later

@@ -1,10 +1,13 @@
 use std::env;
 use std::path::PathBuf;
 
-pub mod components;
-pub mod resources;
-pub mod states;
-pub mod systems;
+pub mod anime;
+pub mod audio;
+pub mod camera;
+pub mod environment;
+pub mod kinetic_entity;
+pub mod map;
+pub mod player;
 
 lazy_static::lazy_static! {
     pub static ref ASSETS_BASE_PATH: PathBuf = env::current_dir().unwrap().join("assets");
@@ -48,7 +51,9 @@ pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_COLUMN_LENGTH: usize = 8;
 pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_ROW_LENGTH: usize = 3;
 pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX: u32 = 0;
 pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_END_IDX: u32 = 18;
-pub const ENVIRONMENT_ENTITY_ANIMATION_SPEED: f32 = 0.1;
+pub const ENVIRONMENT_ENTITY_ANIMATION_SPEED: f32 = 0.2;
+
+pub const SOUND_FILE: &str = "audio_data/samurai.wav";
 
 //-----------------ENTITY/GAME LOGIC-----------------
 pub const DEFAULT_SPEED: f32 = 90.0;

@@ -1,9 +1,25 @@
 use bevy::asset::Handle;
 use bevy::math::Vec2;
-use bevy::prelude::{Assets, Camera, ParamSet, Query, Res, Transform, With};
+use bevy::prelude::{
+    Assets, Camera, Camera2dBundle, Commands, OrthographicProjection, ParamSet, Query, Res,
+    Transform, With,
+};
 
-use crate::components::kinetic_entity::PlayerEntityTag;
-use crate::resources::tiled::TiledMap;
+use crate::{CAMERA_SCALE_MULTIPLIER, CAMERA_Z_LEVEL};
+use crate::kinetic_entity::PlayerEntityTag;
+use crate::map::tiled_res::TiledMap;
+
+pub fn init_camera(mut command_buffer: Commands) {
+    command_buffer.spawn(Camera2dBundle {
+        //TODO: the 0.0, 0.0, is ugly here since only the Z value here is needed, and the rest could be initialized in the tracker?
+        transform: Transform::from_xyz(0.0, 0.0, CAMERA_Z_LEVEL),
+        projection: OrthographicProjection {
+            scale: CAMERA_SCALE_MULTIPLIER,
+            ..Default::default()
+        },
+        ..Default::default()
+    });
+}
 
 pub fn track_camera(
     tiled_map_assets: Res<Assets<TiledMap>>,
