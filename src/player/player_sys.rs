@@ -2,8 +2,8 @@ use bevy::core::Name;
 use bevy::input::ButtonInput;
 use bevy::math::Vec3;
 use bevy::prelude::{
-    Assets, Commands, Fixed, GlobalTransform, InheritedVisibility, KeyCode, Query, Res, ResMut,
-    TextureAtlasLayout, Time, Transform, Vec2, Visibility, With,
+    Assets, Commands, Fixed, KeyCode, Query, Res, ResMut, TextureAtlasLayout, Time, Transform,
+    Vec2, With,
 };
 use bevy::sprite::{SpriteSheetBundle, TextureAtlas};
 
@@ -12,11 +12,8 @@ use crate::{
     PLAYER_ENTITY_SPAWN_Y, PLAYER_ENTITY_Z_LEVEL, TILE_SIZE,
 };
 use crate::anime::anime_res::PlayerEntityAnimationAssets;
-use crate::kinetic_entity::{KineticEntityComponents, PlayerEntityTag};
-
-// TODO: 0,0 should not be bottom left
-//  anymore it should be top left
-//  review CRT scanline order and latin writing conventions (japan didn't invent the computer)
+use crate::bundles::PlayerBundle;
+use crate::kinetic_components::{KineticEntityComponents, PlayerEntityTag};
 
 pub fn spawn_player_entity(
     mut commands: Commands,
@@ -38,12 +35,6 @@ pub fn spawn_player_entity(
         index: PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX,
     };
 
-    let sprite_sheet_bundle = SpriteSheetBundle {
-        texture: vehicle_animation_image_handle.clone(),
-        atlas: texture_atlas,
-        ..Default::default()
-    };
-
     // TODO: 0,0 should not be bottom left
     //  anymore it should be top left
     //  review CRT scanline order and latin writing conventions (japan didn't invent the computer)
@@ -54,7 +45,14 @@ pub fn spawn_player_entity(
         PLAYER_ENTITY_Z_LEVEL,
     );
 
-    let player_entity = KineticEntityComponents {
+    let sprite_sheet_bundle = SpriteSheetBundle {
+        texture: vehicle_animation_image_handle.clone(),
+        atlas: texture_atlas,
+        transform,
+        ..Default::default()
+    };
+
+    let player_kinetics = KineticEntityComponents {
         x_axis_displacement: 0.0,
         y_axis_displacement: 0.0,
         position: transform.translation,
@@ -62,18 +60,12 @@ pub fn spawn_player_entity(
     };
 
     commands
-        .spawn((
-            player_entity,
-            transform,
-            //TODO: figure out THIS spawn/insert stuff
-            //sprite_sheet_bundle,
-            PlayerEntityTag,
-            Name::new("Player Entity"),
-        ))
-        .insert(sprite_sheet_bundle)
-        .insert(GlobalTransform::default())
-        .insert(Visibility::default())
-        .insert(InheritedVisibility::default());
+        .spawn(PlayerBundle {
+            name: Name::new("Player Entity"),
+            kinetics: player_kinetics,
+            sprite_sheet: sprite_sheet_bundle,
+        })
+        .insert(PlayerEntityTag);
 }
 
 pub fn control_player_entity(
