@@ -14,22 +14,21 @@ use tracy_client::Client;
 
 use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
 use yakuzaishi::anime::anime_res::{
-    AnimationAssets, EnvironmentEntityAnimationAssets, PlayerEntityAnimationAssets,
+    EnvironmentEntityAnimationAssets, OverlayAnimationAssets, PlayerEntityAnimationAssets,
 };
 use yakuzaishi::anime::environment_anime_sys::animate_env_entity_animations;
 use yakuzaishi::anime::map_anime_sys::{
     animate_overlapped_tiles_event_based, handle_overlap_event, TileAnimationEvent,
 };
 use yakuzaishi::anime::overlay_anime_sys::{
-    animate_overlay_animations, attach_animations_to_player_entities,
-    insert_overlay_animation_resources_into_world,
+    animate_overlay_animations, attach_overlay_animation_to_player_entity,
 };
 use yakuzaishi::audio::audio_res::AudioAssets;
 use yakuzaishi::audio::audio_sys::start_background_audio;
 use yakuzaishi::camera::camera_sys::{init_camera, track_camera};
 use yakuzaishi::environment::environment_sys::spawn_environment_entity;
 use yakuzaishi::map::tiled_res::{TiledLoader, TiledMap, TiledMapAssets};
-use yakuzaishi::map::tiled_sys::{process_tiled_maps, spawn_tiled_map_entity};
+use yakuzaishi::map::tiled_sys::spawn_tiled_map;
 use yakuzaishi::player::player_sys::{control_player_entity, spawn_player_entity};
 
 fn main() {
@@ -62,26 +61,29 @@ fn main() {
                 .load_collection::<AudioAssets>()
                 .load_collection::<TiledMapAssets>()
                 .load_collection::<PlayerEntityAnimationAssets>()
-                .load_collection::<AnimationAssets>()
+                .load_collection::<OverlayAnimationAssets>()
                 .load_collection::<EnvironmentEntityAnimationAssets>(),
         )
         .add_systems(
             OnEnter(GameState::AssetProcessing),
             (
-                insert_overlay_animation_resources_into_world,
                 start_background_audio,
-                spawn_tiled_map_entity, // TODO: I don't like the name of this because its spawning an asset dependant thing which i feel like should be called Load
+                spawn_tiled_map,
                 spawn_player_entity,
                 spawn_environment_entity,
                 init_camera,
-                transition_to_run_state, // TODO: even though transition_to_run_state might execute before spawn_tiled_map_entity completes, the state change to GameState::Run (and the application of Commands) won't happen until after all OnEnter(GameState::AssetProcessing) systems have run.
+                // TODO: even though transition_to_run_state might execute before
+                //  spawn_tiled_map_entity completes, the state change to GameState::Run
+                //  (and the application of Commands) won't happen until after all
+                //  OnEnter(GameState::AssetProcessing) systems have run.
+                transition_to_run_state,
             ),
         )
-        .add_systems(
-            OnExit(GameState::AssetProcessing),
-            (process_tiled_maps, attach_animations_to_player_entities),
-        )
         .add_event::<TileAnimationEvent>()
+        .add_systems(
+            OnEnter(GameState::Run),
+            attach_overlay_animation_to_player_entity,
+        )
         .add_systems(
             FixedUpdate,
             control_player_entity.run_if(in_state(GameState::Run)),
@@ -92,7 +94,8 @@ fn main() {
                 track_camera.run_if(in_state(GameState::Run)),
                 animate_overlapped_tiles_event_based.run_if(in_state(GameState::Run)),
                 handle_overlap_event.run_if(in_state(GameState::Run)),
-                // TODO: sometimes when I have the overlay animations on after like several environment entity animation loop cycles the sprite breaks
+                // TODO: sometimes when I have the overlay animations on after like several
+                //  environment entity animation loop cycles the sprite breaks
                 animate_overlay_animations.run_if(in_state(GameState::Run)),
                 animate_env_entity_animations.run_if(in_state(GameState::Run)),
             ),

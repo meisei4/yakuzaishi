@@ -3,15 +3,17 @@ use std::path::PathBuf;
 
 pub mod anime;
 pub mod audio;
+pub mod bundles;
 pub mod camera;
 pub mod environment;
-pub mod kinetic_entity;
+pub mod kinetic_components;
 pub mod map;
 pub mod player;
 
 lazy_static::lazy_static! {
     pub static ref ASSETS_BASE_PATH: PathBuf = env::current_dir().unwrap().join("assets");
 }
+//TODO: move all of these constants to their corresponding resource modules
 
 //-----------------GAME_WORLD CONFIGS/SETTINGS-----------------
 pub const TILE_SIZE: f32 = 64.0;
@@ -44,7 +46,7 @@ pub const WAKE_ANIMATION_SPEED: f32 = 0.05;
 pub const TILE_MAP_FILE_PATH: &str = "map_data/water.tmx";
 pub const TILE_ANIMATION_TEXTURE_START_IDX: u32 = 40;
 pub const TILE_ANIMATION_TEXTURE_END_IDX: u32 = 54;
-pub const TILE_ANIMATION_SPEED: f32 = 0.5;
+pub const TILE_ANIMATION_SPEED: f32 = 0.1;
 
 pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_FILE_PATH: &str = "sprite_data/Ikiikiiruka.png";
 pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_COLUMN_LENGTH: usize = 8;
@@ -52,8 +54,6 @@ pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_ROW_LENGTH: usize = 3;
 pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX: u32 = 0;
 pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_END_IDX: u32 = 18;
 pub const ENVIRONMENT_ENTITY_ANIMATION_SPEED: f32 = 0.2;
-
-pub const SOUND_FILE: &str = "audio_data/samurai.wav";
 
 //-----------------ENTITY/GAME LOGIC-----------------
 pub const DEFAULT_SPEED: f32 = 90.0;

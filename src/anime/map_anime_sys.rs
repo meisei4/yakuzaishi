@@ -1,11 +1,11 @@
 use bevy::math::Vec3;
-use bevy::prelude::{Event, EventReader, EventWriter, Query, Res, Time, Transform, With};
+use bevy::prelude::{Event, EventReader, EventWriter, Query, Res, Time, With};
 use bevy_ecs_tilemap::prelude::TileTextureIndex;
 use bevy_ecs_tilemap::tiles::TilePos;
 use tracy_client::span;
 
-use crate::anime::anime_component::{AnimationComponent, AnimationTimer};
-use crate::kinetic_entity::PlayerEntityTag;
+use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
+use crate::kinetic_components::{KineticEntityComponents, PlayerEntityTag};
 use crate::map::tiled_components::TileEntityTag;
 use crate::TILE_SIZE;
 
@@ -15,12 +15,12 @@ pub struct TileAnimationEvent {
 }
 
 pub fn animate_overlapped_tiles_event_based(
-    mut entity_query: Query<&Transform, With<PlayerEntityTag>>,
+    mut entity_query: Query<&KineticEntityComponents, With<PlayerEntityTag>>,
     mut overlap_event_writer: EventWriter<TileAnimationEvent>,
 ) {
     let _span = span!("tile animation_loadtime event send");
-    for player_entity_transform in entity_query.iter_mut() {
-        let current_tile_pos = calc_tile_pos(&player_entity_transform.translation);
+    for player_entity in entity_query.iter_mut() {
+        let current_tile_pos = calc_tile_pos(&player_entity.position);
         overlap_event_writer.send(TileAnimationEvent {
             tile_pos: current_tile_pos,
         });
@@ -35,6 +35,7 @@ pub fn handle_overlap_event(
             &TilePos,
             &mut AnimationTimer,
             &AnimationComponent,
+            //TODO: at somepoint shouldnt i be able to convert all texture stuff to TextureAtlases?
             &mut TileTextureIndex,
         ),
         With<TileEntityTag>,
@@ -43,14 +44,14 @@ pub fn handle_overlap_event(
     let _span = span!("tile animation_loadtime event read");
 
     for event in event_reader.read() {
-        for (tile_pos, mut animation_timer, animated_tile, mut tilemap_texture_index) in
+        for (tile_pos, mut animation_timer, animation, mut tilemap_texture_index) in
             tile_query.iter_mut()
         {
             if *tile_pos == event.tile_pos {
                 animation_timer.tick(time.delta());
                 if animation_timer.just_finished() {
-                    tilemap_texture_index.0 = if tilemap_texture_index.0 == animated_tile.end_idx {
-                        animated_tile.start_idx
+                    tilemap_texture_index.0 = if tilemap_texture_index.0 == animation.end_idx {
+                        animation.start_idx
                     } else {
                         tilemap_texture_index.0 + 1
                     };

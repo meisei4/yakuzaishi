@@ -2,8 +2,8 @@ use bevy::asset::Assets;
 use bevy::core::Name;
 use bevy::math::Vec2;
 use bevy::prelude::{
-    Commands, GlobalTransform, InheritedVisibility, Res, ResMut, SpriteSheetBundle, TextureAtlas,
-    TextureAtlasLayout, Timer, TimerMode, Transform, Visibility,
+    Commands, Res, ResMut, SpriteSheetBundle, TextureAtlas, TextureAtlasLayout, Timer, TimerMode,
+    Transform,
 };
 
 use crate::{
@@ -12,9 +12,10 @@ use crate::{
     ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX, ENVIRONMENT_ENTITY_SPAWN_X,
     ENVIRONMENT_ENTITY_SPAWN_Y, ENVIRONMENT_ENTITY_Z_LEVEL, TILE_SIZE,
 };
-use crate::anime::anime_component::{AnimationComponent, AnimationTimer};
+use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
 use crate::anime::anime_res::EnvironmentEntityAnimationAssets;
-use crate::kinetic_entity::{EnvironmentEntityTag, KineticEntityComponents};
+use crate::bundles::EnvironmentEntityBundle;
+use crate::kinetic_components::{EnvironmentEntityTag, KineticEntityComponents};
 
 pub fn spawn_environment_entity(
     mut commands: Commands,
@@ -40,7 +41,7 @@ pub fn spawn_environment_entity(
         texture: environment_entity_assets.animation_image_handle.clone(),
         atlas: TextureAtlas {
             layout: environment_texture_atlas_layout,
-            index: ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX as usize, //TODO see lib.rs todo about deciding datatypes
+            index: ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX as usize,
         },
         transform,
         ..Default::default()
@@ -52,28 +53,22 @@ pub fn spawn_environment_entity(
         speed: ENVIRONMENT_ENTITY_ANIMATION_SPEED,
     };
 
-    let env_entity = KineticEntityComponents {
+    let environment_entity_kinetics = KineticEntityComponents {
         y_axis_displacement: 0.0,
         x_axis_displacement: 0.0,
         position: transform.translation,
         prev_position: transform.translation,
     };
     commands
-        .spawn((
-            env_entity,
-            transform,
+        .spawn(EnvironmentEntityBundle {
+            name: Name::new("Environmental_Entity"),
+            kinetics: environment_entity_kinetics,
+            sprite_sheet: sprite_sheet_bundle,
             animation_component,
-            // TODO: same as the player spawning issue
-            // sprite_sheet_bundle
-            EnvironmentEntityTag,
-            Name::new("Environmental_Entity"),
-        ))
-        .insert(sprite_sheet_bundle)
-        .insert(AnimationTimer(Timer::from_seconds(
-            animation_component.speed,
-            TimerMode::Repeating,
-        )))
-        .insert(GlobalTransform::default())
-        .insert(Visibility::default())
-        .insert(InheritedVisibility::default());
+            animation_timer: AnimationTimer(Timer::from_seconds(
+                animation_component.speed,
+                TimerMode::Repeating,
+            )),
+        })
+        .insert(EnvironmentEntityTag);
 }
