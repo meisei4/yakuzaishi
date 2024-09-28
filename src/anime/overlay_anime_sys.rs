@@ -1,11 +1,12 @@
 use bevy::asset::Assets;
 use bevy::core::Name;
 use bevy::hierarchy::BuildChildren;
-use bevy::math::Vec2;
+use bevy::math::UVec2;
 use bevy::prelude::{
-    Commands, Entity, Query, Res, ResMut, SpriteSheetBundle, TextureAtlas, TextureAtlasLayout,
-    Time, Timer, TimerMode, With,
+    Commands, Entity, Query, Res, ResMut, TextureAtlas, TextureAtlasLayout, Time, Timer, TimerMode,
+    With,
 };
+use bevy::sprite::SpriteBundle;
 
 use crate::{
     TILE_SIZE, WAKE_ANIMATION_SPEED, WAKE_ANIMATION_TEXTURE_COLUMN_LENGTH,
@@ -25,7 +26,7 @@ pub fn attach_overlay_animation_to_player_entity(
     for entity in query.iter() {
         let overlay_animation_texture_atlas_layout =
             texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
-                Vec2::splat(TILE_SIZE),
+                UVec2::splat(TILE_SIZE as u32),
                 WAKE_ANIMATION_TEXTURE_COLUMN_LENGTH,
                 WAKE_ANIMATION_TEXTURE_ROW_LENGTH,
                 None,
@@ -40,14 +41,14 @@ pub fn attach_overlay_animation_to_player_entity(
 
         commands.entity(entity).with_children(|parent| {
             parent
-                .spawn(SpriteSheetBundle {
+                .spawn(SpriteBundle {
                     texture: overlay_animation_assets.animation_image_handle.clone(),
-                    atlas: TextureAtlas {
-                        layout: overlay_animation_texture_atlas_layout,
-                        index: WAKE_ANIMATION_TEXTURE_START_IDX as usize,
-                    },
                     transform: Default::default(), // gets overwritten by the parent??
                     ..Default::default()
+                })
+                .insert(TextureAtlas {
+                    layout: overlay_animation_texture_atlas_layout,
+                    index: WAKE_ANIMATION_TEXTURE_START_IDX as usize,
                 })
                 .insert(animation_component)
                 .insert(AnimationTimer(Timer::from_seconds(

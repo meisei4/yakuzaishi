@@ -37,7 +37,7 @@ pub fn track_camera(
     }
 
     let map_handle: Handle<TiledMap> = tiled_asset.tiled_map.clone();
-    if let Some(tiled_map) = map_assets.get(map_handle) {
+    if let Some(tiled_map) = map_assets.get(&map_handle) {
         let map_width = (tiled_map.map.width * tiled_map.map.tile_width) as f32;
         let map_height = (tiled_map.map.height * tiled_map.map.tile_height) as f32;
 

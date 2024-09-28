@@ -2,8 +2,8 @@ use bevy::app::{FixedUpdate, Update};
 use bevy::asset::AssetApp;
 use bevy::log::info;
 use bevy::prelude::{
-    App, DefaultPlugins, ImagePlugin, in_state, IntoSystemConfigs, NextState, OnEnter, OnExit,
-    PluginGroup, ResMut, States, Window, WindowPlugin,
+    App, AppExtStates, DefaultPlugins, ImagePlugin, in_state, IntoSystemConfigs, NextState,
+    OnEnter, OnExit, PluginGroup, ResMut, States, Window, WindowPlugin,
 };
 use bevy::window::WindowResolution;
 use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};

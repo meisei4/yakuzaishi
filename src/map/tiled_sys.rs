@@ -1,8 +1,8 @@
-use bevy::asset::Assets;
 use bevy::core::Name;
 use bevy::log::info;
-use bevy::prelude::{Bundle, Commands, Entity, Handle, Query, Res};
+use bevy::prelude::{Bundle, Commands, Entity, Query, Res};
 use bevy::time::{Timer, TimerMode};
+use bevy_asset::{Assets, Handle};
 use bevy_ecs_tilemap::map::{
     TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
 };
@@ -26,7 +26,7 @@ pub fn spawn_tiled_map(
 ) {
     info!("process_tiled_maps: Starting");
     let map_handle: Handle<TiledMap> = tiled_asset.tiled_map.clone();
-    if let Some(tiled_map) = map_assets.get(map_handle) {
+    if let Some(tiled_map) = map_assets.get(&map_handle) {
         for tileset_index in 0..tiled_map.map.tilesets().len() {
             process_tileset(&mut commands, tiled_map, tileset_index);
         }
@@ -64,7 +64,7 @@ fn process_tileset(commands: &mut Commands, tiled_map: &TiledMap, tileset_index:
                     size: map_size,
                     storage: tile_storage,
                     texture: tilemap_texture.clone(),
-                    tile_size: TilemapTileSize::new(TILE_SIZE, TILE_SIZE),
+                    tile_size: TilemapTileSize::new(TILE_SIZE as f32, TILE_SIZE as f32),
                     spacing: tile_spacing,
                     map_type: TilemapType::Square,
                     ..Default::default()

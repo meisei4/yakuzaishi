@@ -1,11 +1,10 @@
 use bevy::core::Name;
 use bevy::input::ButtonInput;
-use bevy::math::Vec3;
+use bevy::math::{UVec2, Vec3};
 use bevy::prelude::{
-    Assets, Commands, Fixed, KeyCode, Query, Res, ResMut, TextureAtlasLayout, Time, Transform,
-    Vec2, With,
+    Assets, Commands, Fixed, KeyCode, Query, Res, ResMut, TextureAtlasLayout, Time, Transform, With,
 };
-use bevy::sprite::{SpriteSheetBundle, TextureAtlas};
+use bevy::sprite::{SpriteBundle, TextureAtlas};
 
 use crate::{
     DEFAULT_SPEED, PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_SPAWN_X,
@@ -23,7 +22,7 @@ pub fn spawn_player_entity(
     let vehicle_animation_image_handle = player_assets.image_handle.clone();
 
     let vehicle_texture_atlas_layout = texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
-        Vec2::splat(TILE_SIZE),
+        UVec2::splat(TILE_SIZE as u32),
         1,
         1,
         None,
@@ -40,14 +39,13 @@ pub fn spawn_player_entity(
     //  review CRT scanline order and latin writing conventions (japan didn't invent the computer)
 
     let transform = Transform::from_xyz(
-        PLAYER_ENTITY_SPAWN_X * TILE_SIZE,
-        PLAYER_ENTITY_SPAWN_Y * TILE_SIZE,
+        (PLAYER_ENTITY_SPAWN_X * TILE_SIZE) as f32,
+        (PLAYER_ENTITY_SPAWN_Y * TILE_SIZE) as f32,
         PLAYER_ENTITY_Z_LEVEL,
     );
 
-    let sprite_sheet_bundle = SpriteSheetBundle {
+    let sprite_sheet = SpriteBundle {
         texture: vehicle_animation_image_handle.clone(),
-        atlas: texture_atlas,
         transform,
         ..Default::default()
     };
@@ -63,7 +61,8 @@ pub fn spawn_player_entity(
         .spawn(PlayerBundle {
             name: Name::new("Player Entity"),
             kinetics: player_kinetics,
-            sprite_sheet: sprite_sheet_bundle,
+            sprite_sheet,
+            texture_atlas,
         })
         .insert(PlayerEntityTag);
 }
