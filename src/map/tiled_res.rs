@@ -4,13 +4,15 @@ use std::io::{Cursor, Error, ErrorKind, Read};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use bevy::asset::{AssetLoader, AssetPath, BoxedFuture, Handle, LoadContext};
+use bevy::asset::{AssetLoader, AssetPath, LoadContext};
 use bevy::asset::Asset;
 use bevy::asset::io::Reader;
 use bevy::prelude::{Resource, TypePath};
-use bevy::prelude::Image;
+use bevy::utils::BoxedFuture;
+use bevy_asset::Handle;
 use bevy_asset_loader::asset_collection::AssetCollection;
 use bevy_ecs_tilemap::map::TilemapTexture;
+use bevy_render::texture::Image;
 use futures_lite::AsyncReadExt;
 use tiled::{DefaultResourceCache, Loader, ResourceReader};
 
