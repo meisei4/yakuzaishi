@@ -3,11 +3,13 @@ use bevy::asset::AssetApp;
 use bevy::log::info;
 use bevy::prelude::{
     App, AppExtStates, DefaultPlugins, ImagePlugin, in_state, IntoSystemConfigs, NextState,
-    OnEnter, OnExit, PluginGroup, ResMut, States, Window, WindowPlugin,
+    OnEnter, PluginGroup, ResMut, States, Window, WindowPlugin,
 };
+use bevy::sprite::Material2dPlugin;
 use bevy::window::WindowResolution;
 use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
 use bevy_asset_loader::prelude::ConfigureLoadingState;
+use bevy_ecs_tilemap::prelude::MaterialTilemapPlugin;
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use tracy_client::Client;
@@ -27,8 +29,9 @@ use yakuzaishi::audio::audio_res::AudioAssets;
 use yakuzaishi::audio::audio_sys::start_background_audio;
 use yakuzaishi::camera::camera_sys::{init_camera, track_camera};
 use yakuzaishi::environment::environment_sys::spawn_environment_entity;
+use yakuzaishi::map::fog_material::SimpleMaterial;
 use yakuzaishi::map::tiled_res::{TiledLoader, TiledMap, TiledMapAssets};
-use yakuzaishi::map::tiled_sys::spawn_tiled_map;
+use yakuzaishi::map::tiled_sys::{spawn_tiled_map, update_time_on_shader};
 use yakuzaishi::player::player_sys::{control_player_entity, spawn_player_entity};
 
 fn main() {
@@ -50,10 +53,14 @@ fn main() {
                     ..Default::default()
                 }),
         )
-        .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(TilemapPlugin)
+        .add_plugins((
+            WorldInspectorPlugin::new(),
+            TilemapPlugin,
+            MaterialTilemapPlugin::<SimpleTilemapMaterial>::default(),
+        ))
         .init_asset::<TiledMap>()
         .register_asset_loader(TiledLoader)
+        .add_event::<TileAnimationEvent>()
         .init_state::<GameState>()
         .add_loading_state(
             LoadingState::new(GameState::AssetLoading)
@@ -79,7 +86,6 @@ fn main() {
                 transition_to_run_state,
             ),
         )
-        .add_event::<TileAnimationEvent>()
         .add_systems(
             OnEnter(GameState::Run),
             attach_overlay_animation_to_player_entity,
@@ -98,6 +104,7 @@ fn main() {
                 //  environment entity animation loop cycles the sprite breaks
                 animate_overlay_animations.run_if(in_state(GameState::Run)),
                 animate_env_entity_animations.run_if(in_state(GameState::Run)),
+                update_time_on_shader.run_if(in_state(GameState::Run)),
             ),
         )
         .run();
