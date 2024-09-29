@@ -55,7 +55,8 @@ fn process_tileset(
         time: 0.0,
         density: 0.5,
         fog_color: Vec3::new(0.8, 0.8, 0.8),
-        ..default()
+        _padding: Vec3::ZERO,
+        tile_texture: tilemap_texture.image_handles()[tileset_index].clone(),
     });
 
     let tile_spacing = TilemapSpacing {
