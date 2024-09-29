@@ -2,15 +2,16 @@ use bevy::color::{Color, Srgba};
 use bevy::color::Color::LinearRgba;
 use bevy::core::Name;
 use bevy::log::info;
-use bevy::math::Vec2;
-use bevy::prelude::{Bundle, Commands, Entity, Query, Res, ResMut};
+use bevy::math::{Vec2, Vec3};
+use bevy::prelude::{Bundle, Commands, Entity, Query, Res, ResMut, Transform};
 use bevy::time::{Time, Timer, TimerMode};
+use bevy::utils::default;
 use bevy_asset::{Assets, AssetServer, Handle};
+use bevy_ecs_tilemap::{MaterialTilemapBundle, TilemapBundle};
 use bevy_ecs_tilemap::map::{
     TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
 };
-use bevy_ecs_tilemap::prelude::{TilePos, TileStorage};
-use bevy_ecs_tilemap::TilemapBundle;
+use bevy_ecs_tilemap::prelude::{get_tilemap_center_transform, TilePos, TileStorage};
 use bevy_ecs_tilemap::tiles::{TileBundle, TileTextureIndex};
 use bevy_render::texture::Image;
 use tiled::{LayerType, TileLayer};
@@ -20,7 +21,7 @@ use crate::{
     TILE_SIZE,
 };
 use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::map::fog_material::SimpleTilemapMaterial;
+use crate::map::fog_material::FogMaterial;
 use crate::map::tiled_components::TileEntityTag;
 use crate::map::tiled_res::{TiledMap, TiledMapAssets};
 
@@ -28,23 +29,14 @@ pub fn spawn_tiled_map(
     mut commands: Commands,
     map_assets: Res<Assets<TiledMap>>,
     tiled_asset: Res<TiledMapAssets>,
-    mut materials: ResMut<Assets<SimpleTilemapMaterial>>,
-    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<FogMaterial>>,
 ) {
     info!("process_tiled_maps: Starting");
     let map_handle: Handle<TiledMap> = tiled_asset.tiled_map.clone();
 
-    let water_texture_handle = asset_server.load("map_data/water.png");
-
     if let Some(tiled_map) = map_assets.get(&map_handle) {
         for tileset_index in 0..tiled_map.map.tilesets().len() {
-            process_tileset(
-                &mut commands,
-                tiled_map,
-                tileset_index,
-                &mut materials,
-                water_texture_handle.clone(),
-            );
+            process_tileset(&mut commands, tiled_map, tileset_index, &mut materials);
         }
     }
     info!("process_tiled_maps: ENDING");
@@ -54,17 +46,16 @@ fn process_tileset(
     commands: &mut Commands,
     tiled_map: &TiledMap,
     tileset_index: usize,
-    materials: &mut Assets<SimpleTilemapMaterial>,
-    image_handle: Handle<Image>,
+    materials: &mut Assets<FogMaterial>,
 ) {
     let tileset = &tiled_map.map.tilesets()[tileset_index];
     let tilemap_texture = &tiled_map.tilemap_textures[&tileset_index];
 
-    let fog_material_handle = materials.add(SimpleTilemapMaterial {
+    let fog_material_handle = materials.add(FogMaterial {
         time: 0.0,
-        tile_size: Vec2::new(TILE_SIZE, TILE_SIZE),
-        tileset_size: Vec2::new(512.0, 512.0),
-        base_texture: image_handle,
+        density: 0.5,
+        fog_color: Vec3::new(0.8, 0.8, 0.8),
+        ..default()
     });
 
     let tile_spacing = TilemapSpacing {
@@ -88,26 +79,18 @@ fn process_tileset(
 
             commands
                 .entity(layer_entity)
-                .insert(TilemapBundle {
+                .insert(MaterialTilemapBundle {
                     grid_size,
                     size: map_size,
                     storage: tile_storage,
                     texture: tilemap_texture.clone(),
-                    tile_size: TilemapTileSize::new(TILE_SIZE as f32, TILE_SIZE as f32),
-                    transform: Default::default(),
-                    global_transform: Default::default(),
-                    render_settings: Default::default(),
-                    visibility: Default::default(),
-                    inherited_visibility: Default::default(),
-                    view_visibility: Default::default(),
-                    frustum_culling: Default::default(),
+                    tile_size: TilemapTileSize::new(TILE_SIZE, TILE_SIZE),
+                    transform: Transform::from_xyz(0.0, 0.0, 0.0),
                     spacing: tile_spacing,
-                    map_type: TilemapType::Square,
-                    // TODO this is fucked up MaterialTilemap vs StandardTilemapMaterial ew
-                    material: fog_material_handle,
+                    material: fog_material_handle.clone(),
+                    ..Default::default()
                 })
-                .insert(Name::new("TiledMap With Fog Entity"))
-                .insert(fog_material_handle.clone());
+                .insert(Name::new("TiledMap With Fog Entity"));
         } else {
             log::info!(
                 "Skipping layer {} because only tile layers are supported.",
@@ -178,10 +161,7 @@ fn create_tile_entity(
 
 // SHADER STUFF:
 
-pub fn update_time_on_shader(
-    time: Res<Time>,
-    mut materials: ResMut<Assets<SimpleTilemapMaterial>>,
-) {
+pub fn update_time_on_shader(time: Res<Time>, mut materials: ResMut<Assets<FogMaterial>>) {
     for (_, material) in materials.iter_mut() {
         material.time += time.delta_seconds();
     }

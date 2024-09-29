@@ -29,7 +29,7 @@ use yakuzaishi::audio::audio_res::AudioAssets;
 use yakuzaishi::audio::audio_sys::start_background_audio;
 use yakuzaishi::camera::camera_sys::{init_camera, track_camera};
 use yakuzaishi::environment::environment_sys::spawn_environment_entity;
-use yakuzaishi::map::fog_material::SimpleMaterial;
+use yakuzaishi::map::fog_material::FogMaterial;
 use yakuzaishi::map::tiled_res::{TiledLoader, TiledMap, TiledMapAssets};
 use yakuzaishi::map::tiled_sys::{spawn_tiled_map, update_time_on_shader};
 use yakuzaishi::player::player_sys::{control_player_entity, spawn_player_entity};
@@ -56,7 +56,7 @@ fn main() {
         .add_plugins((
             WorldInspectorPlugin::new(),
             TilemapPlugin,
-            MaterialTilemapPlugin::<SimpleTilemapMaterial>::default(),
+            MaterialTilemapPlugin::<FogMaterial>::default(),
         ))
         .init_asset::<TiledMap>()
         .register_asset_loader(TiledLoader)

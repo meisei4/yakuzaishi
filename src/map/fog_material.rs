@@ -1,25 +1,26 @@
-use bevy::math::Vec2;
-use bevy::reflect::TypePath;
-use bevy::render::render_resource::{AsBindGroup, ShaderRef};
-use bevy::sprite::Material2d;
-use bevy_asset::{Asset, Handle};
+use bevy::{reflect::TypePath, render::render_resource::AsBindGroup};
+use bevy::math::Vec3;
+use bevy_asset::Asset;
 use bevy_ecs_tilemap::prelude::MaterialTilemap;
-use bevy_render::texture::Image;
+use bevy_render::render_resource::ShaderRef;
 
-#[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
-pub struct SimpleTilemapMaterial {
+#[derive(AsBindGroup, TypePath, Debug, Default, Clone, Asset)]
+pub struct FogMaterial {
     #[uniform(0)]
     pub time: f32,
-    #[uniform(1)]
-    pub tile_size: Vec2,
-    #[uniform(2)]
-    pub tileset_size: Vec2,
-    #[texture(3)]
-    #[sampler(4)]
-    pub base_texture: Handle<Image>,
+
+    #[uniform(0)]
+    pub density: f32,
+
+    #[uniform(0)]
+    pub fog_color: Vec3,
+
+    // Padding to ensure 16-byte alignment (required by WGSL)
+    #[uniform(0)]
+    pub _padding: Vec3,
 }
 
-impl MaterialTilemap for SimpleTilemapMaterial {
+impl MaterialTilemap for FogMaterial {
     fn fragment_shader() -> ShaderRef {
         "shader_data/fog.wgsl".into()
     }
