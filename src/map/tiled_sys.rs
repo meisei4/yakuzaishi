@@ -12,7 +12,7 @@ use bevy_ecs_tilemap::map::{
     TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
 };
 use bevy_ecs_tilemap::prelude::{get_tilemap_center_transform, TilePos, TileStorage};
-use bevy_ecs_tilemap::tiles::{TileBundle, TileTextureIndex};
+use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TileTextureIndex};
 use bevy_render::texture::Image;
 use tiled::{LayerType, TileLayer};
 
@@ -54,9 +54,9 @@ fn process_tileset(
     let fog_material_handle = materials.add(FogMaterial {
         time: 0.0,
         density: 0.5,
-        fog_color: Vec3::new(0.8, 0.8, 0.8),
+        fog_color: Vec3::new(1.0, 1.0, 1.0),
+        wind_dir: Vec3::new(1.0, 0.0, 0.0),
         _padding: Vec3::ZERO,
-        tile_texture: tilemap_texture.image_handles()[tileset_index].clone(),
     });
 
     let tile_spacing = TilemapSpacing {
@@ -138,6 +138,11 @@ fn create_tile_entity(
         position: tile_pos,
         tilemap_id,
         texture_index: TileTextureIndex(texture_index),
+        flip: TileFlip {
+            x: false,
+            y: true,
+            d: false,
+        },
         // TODO: there may be some logic regarding flipping here that needs to be done, otherwise
         //  figure out how to get TOPLEFT coordinates to work
         ..Default::default()

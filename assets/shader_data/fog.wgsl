@@ -1,18 +1,20 @@
-#import bevy_ecs_tilemap::common::process_fragment
 #import bevy_ecs_tilemap::vertex_output::MeshVertexOutput
+#import bevy_ecs_tilemap::common::process_fragment
+#import bevy_ecs_tilemap::common::tilemap_data
 
 struct FogMaterial {
     time: f32,
     density: f32,
     fog_color: vec3<f32>,
-    _padding: vec3<f32>,
+    wind_dir: vec2<f32>, // New uniform for wind direction
+    _padding: vec2<f32>, // Ensure 16-byte alignment
 };
 
 @group(3) @binding(0)
 var<uniform> material: FogMaterial;
 
+// Hash function for noise
 fn hash(pos: vec2<f32>) -> f32 {
-    // A common hash function using sine and dot product
     return fract(sin(dot(pos, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
@@ -32,17 +34,14 @@ fn value_noise(p: vec2<f32>) -> f32 {
     let i = floor(p);
     let f = p - i;
 
-    // Four corners
     let a = hash(i);
     let b = hash(i + vec2<f32>(1.0, 0.0));
     let c = hash(i + vec2<f32>(0.0, 1.0));
     let d = hash(i + vec2<f32>(1.0, 1.0));
 
-    // Smooth interpolation
     let u = smoothstep(0.0, 1.0, f.x);
     let v = smoothstep(0.0, 1.0, f.y);
 
-    // Interpolate between the four corners
     let res = lerp(lerp(a, b, u), lerp(c, d, u), v);
     return res;
 }
@@ -62,31 +61,83 @@ fn fbm(p: vec2<f32>, octaves: i32) -> f32 {
     return noise_value;
 }
 
-// Function to create dynamic, globular fog using fBM
-fn dynamic_fog(p: vec2<f32>, time: f32) -> f32 {
-    // Offset to animate the fog movement
-    let motion = vec2<f32>(time * 0.5, time * 2.0);
-    let p_moved = p + motion;
 
-    // Apply fBM with 4 octaves for complexity
-    let n = fbm(p_moved * 0.1, 4);
+fn dynamic_fog(p: vec2<f32>, time: f32, wind_dir: vec2<f32>) -> f32 {
+    // Normalize the wind direction for consistent influence
+    let wind = normalize(wind_dir);
 
-    // Enhance contrast to create distinct fog clouds
-    let fog_density = smoothstep(0.4, 0.6, n);
+    // Define scales for various noise perturbations
+    let wind_scale = 0.05;       // Spatial scale for wind perturbations
+    let turbulence_scale1 = 0.5; // Scale for first turbulence layer
+    let turbulence_scale2 = 1.2; // Scale for second turbulence layer
+    let main_scale = 0.017;       // Spatial scale for main cloud structures
+
+    // Define time multipliers for faster dynamics
+    let time_speed = 2.0; // Increased for more rapid changes
+
+    // Shift all noise layers and patterns by time to ensure the entire fog pattern moves left
+    let time_offset = vec2<f32>(-time * 0.1, 0.0); // Control shift speed here
+
+    // Shift the input position by time_offset for the entire fog system
+    let p_shifted = p + time_offset;
+
+    // Generate wind-influenced perturbations using fbm
+    let wind_perturb_x = fbm(p_shifted * wind_scale + vec2<f32>(time * time_speed, time * time_speed), 3);
+    let wind_perturb_y = fbm(p_shifted * wind_scale + vec2<f32>(time * time_speed + 10.0, time * time_speed + 10.0), 3);
+    let wind_perturbation = vec2<f32>(wind_perturb_x, wind_perturb_y) * 0.1; // Adjust perturbation intensity as needed
+
+    // Apply wind direction with perturbations to move the cloud pattern
+    let p_moved = p_shifted + wind * time * 0.05; // Adjust wind's influence on movement
+
+    // Scale the moved position for main cloud structures
+    let p_scaled = p_moved * main_scale;
+
+    // Warp the main noise coordinates with turbulence layers for internal chaos
+    let warp_x = fbm(p_scaled * turbulence_scale1 + vec2<f32>(time * time_speed + 1.0, time * time_speed + 1.0), 3);
+    let warp_y = fbm(p_scaled * turbulence_scale1 + vec2<f32>(time * time_speed + 2.0, time * time_speed + 2.0), 3);
+    let warped_pos = p_scaled + vec2<f32>(warp_x, warp_y) * 0.1; // Adjust warp intensity as needed
+
+    // Generate the main cloud noise with warped coordinates
+    let main_noise = fbm(warped_pos, 10); // Higher octaves for detailed cloud structures
+
+    // Additional turbulence to add more chaos within clouds
+    let turbulence1 = fbm(p_scaled * turbulence_scale2 + vec2<f32>(time * time_speed + 3.0, time * time_speed + 3.0), 3);
+    let turbulence2 = fbm(p_scaled * turbulence_scale2 + vec2<f32>(time * time_speed + 4.0, time * time_speed + 4.0), 2);
+    let combined_turbulence = turbulence1 * 0.5 + turbulence2 * 0.25; // Adjust weights for desired effect
+
+    // Combine main noise with turbulence to enhance internal chaos
+    let combined = main_noise + combined_turbulence;
+
+    // Refine smoothstep thresholds to maintain cloud volume while allowing internal variations
+    let fog_fat = smoothstep(0.5, 0.8, combined);
+    let fog_thin = smoothstep(0.0, 0.2, combined);
+
+    let fog_density = fog_fat * 0.5 + fog_thin * 0.5;
 
     return fog_density;
 }
 
+
+
 @fragment
 fn fragment(in: MeshVertexOutput) -> @location(0) vec4<f32> {
+    // Process the base color using existing fragment processing
     var base_color = process_fragment(in);
 
-    let pixel_coordinates = in.position.xy;
+    // Compute World Position
+    let tile_pos = vec2<f32>(f32(in.storage_position.x), f32(in.storage_position.y));
+    let tile_size_with_spacing = tilemap_data.tile_size + tilemap_data.spacing;
 
-    // Calculate dynamic fog factor
-    let fog_factor = clamp(material.density * dynamic_fog(pixel_coordinates, material.time), 0.0, 1.0);
+    // Calculate the global tile position
+    let global_tile_pos = tilemap_data.chunk_pos * tilemap_data.map_size + tile_pos;
 
-    // Mix base color with fog color based on fog factor
+    // Compute the world position by scaling and adding local UV coordinates
+    let world_pos = global_tile_pos * tile_size_with_spacing + in.uv.xy * tilemap_data.tile_size;
+
+    // Calculate Dynamic Fog Factor
+    let fog_factor = clamp(material.density * dynamic_fog(world_pos, material.time, material.wind_dir), 0.0, 1.0);
+
+    // Mix Base Color with Fog Color Based on Fog Factor
     let final_color = mix(base_color.rgb, material.fog_color, fog_factor);
 
     return vec4(final_color, base_color.a);
