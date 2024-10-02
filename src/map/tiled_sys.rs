@@ -1,14 +1,19 @@
+use bevy::color::{Color, Srgba};
+use bevy::color::Color::LinearRgba;
 use bevy::core::Name;
 use bevy::log::info;
-use bevy::prelude::{Bundle, Commands, Entity, Query, Res};
-use bevy::time::{Timer, TimerMode};
-use bevy_asset::{Assets, Handle};
+use bevy::math::{Vec2, Vec3};
+use bevy::prelude::{Bundle, Commands, Entity, Query, Res, ResMut, Transform};
+use bevy::time::{Time, Timer, TimerMode};
+use bevy::utils::default;
+use bevy_asset::{Assets, AssetServer, Handle};
+use bevy_ecs_tilemap::{MaterialTilemapBundle, TilemapBundle};
 use bevy_ecs_tilemap::map::{
     TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
 };
-use bevy_ecs_tilemap::prelude::{TilePos, TileStorage};
-use bevy_ecs_tilemap::TilemapBundle;
-use bevy_ecs_tilemap::tiles::{TileBundle, TileTextureIndex};
+use bevy_ecs_tilemap::prelude::{get_tilemap_center_transform, TilePos, TileStorage};
+use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TileTextureIndex};
+use bevy_render::texture::Image;
 use tiled::{LayerType, TileLayer};
 
 use crate::{
@@ -16,6 +21,7 @@ use crate::{
     TILE_SIZE,
 };
 use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
+use crate::map::fog_material::FogMaterial;
 use crate::map::tiled_components::TileEntityTag;
 use crate::map::tiled_res::{TiledMap, TiledMapAssets};
 
@@ -23,20 +29,35 @@ pub fn spawn_tiled_map(
     mut commands: Commands,
     map_assets: Res<Assets<TiledMap>>,
     tiled_asset: Res<TiledMapAssets>,
+    mut materials: ResMut<Assets<FogMaterial>>,
 ) {
     info!("process_tiled_maps: Starting");
     let map_handle: Handle<TiledMap> = tiled_asset.tiled_map.clone();
+
     if let Some(tiled_map) = map_assets.get(&map_handle) {
         for tileset_index in 0..tiled_map.map.tilesets().len() {
-            process_tileset(&mut commands, tiled_map, tileset_index);
+            process_tileset(&mut commands, tiled_map, tileset_index, &mut materials);
         }
     }
     info!("process_tiled_maps: ENDING");
 }
 
-fn process_tileset(commands: &mut Commands, tiled_map: &TiledMap, tileset_index: usize) {
+fn process_tileset(
+    commands: &mut Commands,
+    tiled_map: &TiledMap,
+    tileset_index: usize,
+    materials: &mut Assets<FogMaterial>,
+) {
     let tileset = &tiled_map.map.tilesets()[tileset_index];
     let tilemap_texture = &tiled_map.tilemap_textures[&tileset_index];
+
+    let fog_material_handle = materials.add(FogMaterial {
+        time: 0.0,
+        density: 0.5,
+        fog_color: Vec3::new(1.0, 1.0, 1.0),
+        wind_dir: Vec3::new(1.0, 0.0, 0.0),
+        _padding: Vec3::ZERO,
+    });
 
     let tile_spacing = TilemapSpacing {
         x: tileset.spacing as f32,
@@ -59,17 +80,18 @@ fn process_tileset(commands: &mut Commands, tiled_map: &TiledMap, tileset_index:
 
             commands
                 .entity(layer_entity)
-                .insert(TilemapBundle {
+                .insert(MaterialTilemapBundle {
                     grid_size,
                     size: map_size,
                     storage: tile_storage,
                     texture: tilemap_texture.clone(),
-                    tile_size: TilemapTileSize::new(TILE_SIZE as f32, TILE_SIZE as f32),
+                    tile_size: TilemapTileSize::new(TILE_SIZE, TILE_SIZE),
+                    transform: Transform::from_xyz(0.0, 0.0, 0.0),
                     spacing: tile_spacing,
-                    map_type: TilemapType::Square,
+                    material: fog_material_handle.clone(),
                     ..Default::default()
                 })
-                .insert(Name::new("TiledMap Tiles Entity"));
+                .insert(Name::new("TiledMap With Fog Entity"));
         } else {
             log::info!(
                 "Skipping layer {} because only tile layers are supported.",
@@ -116,6 +138,11 @@ fn create_tile_entity(
         position: tile_pos,
         tilemap_id,
         texture_index: TileTextureIndex(texture_index),
+        flip: TileFlip {
+            x: false,
+            y: true,
+            d: false,
+        },
         // TODO: there may be some logic regarding flipping here that needs to be done, otherwise
         //  figure out how to get TOPLEFT coordinates to work
         ..Default::default()
@@ -136,4 +163,12 @@ fn create_tile_entity(
     }
     entity_builder.insert(TileEntityTag);
     entity_builder.id()
+}
+
+// SHADER STUFF:
+
+pub fn update_time_on_shader(time: Res<Time>, mut materials: ResMut<Assets<FogMaterial>>) {
+    for (_, material) in materials.iter_mut() {
+        material.time += time.delta_seconds();
+    }
 }

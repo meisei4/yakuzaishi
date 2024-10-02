@@ -1,5 +1,7 @@
+use bevy::log::info;
 use bevy::math::Vec3;
 use bevy::prelude::{Event, EventReader, EventWriter, Query, Res, Time, With};
+use bevy::utils::info;
 use bevy_ecs_tilemap::prelude::TileTextureIndex;
 use bevy_ecs_tilemap::tiles::TilePos;
 use tracy_client::span;
