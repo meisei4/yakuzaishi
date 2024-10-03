@@ -3,8 +3,15 @@ name = "yakuzaishi"
 version = "0.2.0"
 edition = "2021"
 
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1
+incremental = false
+debug = false
+
 [[bin]]
-name = "yakuzaishi"
+name = "main"
 path = "src/main.rs"
 
 [lib]

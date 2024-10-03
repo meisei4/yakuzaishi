@@ -27,9 +27,11 @@ use yakuzaishi::anime::overlay_anime_sys::{
 };
 use yakuzaishi::audio::audio_res::AudioAssets;
 use yakuzaishi::audio::audio_sys::start_background_audio;
-use yakuzaishi::camera::camera_sys::{init_camera, track_camera};
+use yakuzaishi::camera::camera_2d_sys::{init_camera, track_camera};
+use yakuzaishi::camera::camera_3d_sys::init_camera_3d;
 use yakuzaishi::environment::environment_sys::spawn_environment_entity;
 use yakuzaishi::map::fog_material::FogMaterial;
+use yakuzaishi::map::tiled_3d_sys::spawn_tiled_map_3d;
 use yakuzaishi::map::tiled_res::{TiledLoader, TiledMap, TiledMapAssets};
 use yakuzaishi::map::tiled_sys::{spawn_tiled_map, update_time_on_shader};
 use yakuzaishi::player::player_sys::{control_player_entity, spawn_player_entity};
@@ -75,14 +77,14 @@ fn main() {
             OnEnter(GameState::AssetProcessing),
             (
                 start_background_audio,
+                // TODO: this does not work at all yet, still learning how 3D meshes and materials works
+                //spawn_tiled_map_3d,
                 spawn_tiled_map,
                 spawn_player_entity,
                 spawn_environment_entity,
                 init_camera,
-                // TODO: even though transition_to_run_state might execute before
-                //  spawn_tiled_map_entity completes, the state change to GameState::Run
-                //  (and the application of Commands) won't happen until after all
-                //  OnEnter(GameState::AssetProcessing) systems have run.
+                // TODO: same with the tiled_map_3d
+                //init_camera_3d,
                 transition_to_run_state,
             ),
         )
@@ -100,8 +102,6 @@ fn main() {
                 track_camera.run_if(in_state(GameState::Run)),
                 animate_overlapped_tiles_event_based.run_if(in_state(GameState::Run)),
                 handle_overlap_event.run_if(in_state(GameState::Run)),
-                // TODO: sometimes when I have the overlay animations on after like several
-                //  environment entity animation loop cycles the sprite breaks
                 animate_overlay_animations.run_if(in_state(GameState::Run)),
                 animate_env_entity_animations.run_if(in_state(GameState::Run)),
                 update_time_on_shader.run_if(in_state(GameState::Run)),

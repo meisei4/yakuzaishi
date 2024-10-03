@@ -18,7 +18,7 @@ fn setup(
     asset_server: Res<AssetServer>,
 ) {
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 150.0, 0.0)
+        transform: Transform::from_xyz(0.0, 300.0, 0.0)
             // .looking_at(Vec3::ZERO, Vec3::Y)
             // .with_translation(Vec3::new(0.0, -10.0, -150.0))
             .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
@@ -27,12 +27,9 @@ fn setup(
 
     //green plane
     commands.spawn(PbrBundle {
-        mesh: meshes.add(Mesh::from(Plane {
-            size: 1000.0,
-            ..default()
-        })),
+        mesh: meshes.add(Plane3d::new(Vec3::Y, Vec2::new(200.0, 200.0))),
         material: materials.add(StandardMaterial {
-            base_color: Color::rgb(0.0, 0.5, 0.0),
+            base_color: Color::srgb(0.0, 0.5, 0.0),
             ..default()
         }),
         ..default()
@@ -53,16 +50,10 @@ fn setup(
     //ambient ligjt
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 1.0,
+        brightness: 400.0,
     });
 
-    let square = meshes.add(
-        Plane {
-            size: 1.0,
-            ..default()
-        }
-        .into(),
-    );
+    let square = meshes.add(Plane3d::new(Vec3::Y, Vec2::new(1.0, 1.0).into()));
     let sheep_texture: Handle<Image> = asset_server.load(SHEEP_PATH);
     let tree_texture: Handle<Image> = asset_server.load(TREE_PATH);
 
@@ -75,7 +66,7 @@ fn setup(
     //spawn sheeps
     let r = 50.0;
     let mut rng = rand::thread_rng();
-    let sheep_count = 2000;
+    let sheep_count = 200;
 
     for _ in 0..sheep_count {
         let x = rng.gen_range(-r..r);
@@ -89,15 +80,15 @@ fn setup(
         commands.spawn(PbrBundle {
             mesh: square.clone(),
             material: sheep_material.clone(),
-            transform: Transform::from_xyz(pos.x, pos.y, pos.z + 4.0)
+            transform: Transform::from_xyz(pos.x, pos.y, pos.z + 2.0)
                 //.with_rotation(Quat::from_euler(EulerRot::XYZ, -PI / 2.0, PI, 0.0))
-                .with_scale(Vec3::splat(10.0)),
+                .with_scale(Vec3::splat(5.0)),
             ..default()
         });
     }
 
     //spawn trees
-    let tree_count = 5000;
+    let tree_count = 500;
     let tree_material = materials.add(StandardMaterial {
         base_color_texture: Some(tree_texture),
         alpha_mode: AlphaMode::Blend,
@@ -120,9 +111,9 @@ fn setup(
         commands.spawn(PbrBundle {
             mesh: square.clone(),
             material: tree_material.clone(),
-            transform: Transform::from_xyz(pos.x, pos.y, pos.z + 8.0)
+            transform: Transform::from_xyz(pos.x, pos.y, pos.z + 4.0)
                 //.with_rotation(Quat::from_euler(EulerRot::XYZ, -PI / 2.0, PI, 0.0))
-                .with_scale(Vec3::new(10.0, 10.0, 20.0)),
+                .with_scale(Vec3::new(5.0, 5.0, 10.0)),
             ..default()
         });
     }
