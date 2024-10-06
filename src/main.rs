@@ -27,7 +27,7 @@ use yakuzaishi::anime::overlay_anime_sys::{
 };
 use yakuzaishi::audio::audio_res::AudioAssets;
 use yakuzaishi::audio::audio_sys::start_background_audio;
-use yakuzaishi::camera::camera_sys::{init_camera, track_camera};
+use yakuzaishi::camera::camera_sys::{bottom_camera, init_camera, top_camera, track_camera};
 use yakuzaishi::environment::environment_sys::spawn_environment_entity;
 use yakuzaishi::map::fog_material::FogMaterial;
 use yakuzaishi::map::tiled_res::{TiledLoader, TiledMap, TiledMapAssets};
@@ -43,8 +43,8 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         resolution: WindowResolution::new(
-                            NINTENDO_DS_SCREEN_WIDTH * 1.5,
-                            NINTENDO_DS_SCREEN_HEIGHT * 1.5,
+                            NINTENDO_DS_SCREEN_WIDTH,
+                            NINTENDO_DS_SCREEN_HEIGHT,
                         ),
                         resizable: false,
                         title: "Yakuzaishi".to_string(),
@@ -78,7 +78,8 @@ fn main() {
                 spawn_tiled_map,
                 spawn_player_entity,
                 spawn_environment_entity,
-                init_camera,
+                top_camera,
+                bottom_camera,
                 // TODO: even though transition_to_run_state might execute before
                 //  spawn_tiled_map_entity completes, the state change to GameState::Run
                 //  (and the application of Commands) won't happen until after all

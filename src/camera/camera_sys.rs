@@ -1,18 +1,69 @@
 use bevy::asset::Handle;
-use bevy::math::Vec2;
+use bevy::math::{UVec2, Vec2, Vec3};
 use bevy::prelude::{
     Assets, Camera2dBundle, Commands, OrthographicProjection, ParamSet, Query, Res, Transform, With,
 };
-use bevy_render::camera::Camera;
+use bevy_render::camera::{Camera, Viewport};
 
-use crate::{CAMERA_SCALE_MULTIPLIER, CAMERA_Z_LEVEL};
+use crate::{
+    CAMERA_SCALE_MULTIPLIER, CAMERA_Z_LEVEL, NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
+};
 use crate::kinetic_components::PlayerEntityTag;
 use crate::map::tiled_res::{TiledMap, TiledMapAssets};
 
-pub fn init_camera(mut command_buffer: Commands) {
-    command_buffer.spawn(Camera2dBundle {
-        //TODO: the 0.0, 0.0, is ugly here since only the Z value here is needed, and the rest could be initialized in the tracking system?
-        transform: Transform::from_xyz(0.0, 0.0, CAMERA_Z_LEVEL),
+pub fn top_camera(mut commands: Commands) {
+    let flipped_transform =
+        Transform::from_xyz(0.0, 0.0, CAMERA_Z_LEVEL).with_scale(Vec3::new(1.0, -1.0, 1.0)); // Flips vertically
+    init_camera(
+        &mut commands,
+        UVec2::new(0, 0),
+        UVec2::new(
+            (NINTENDO_DS_SCREEN_WIDTH * 2.0) as u32,
+            NINTENDO_DS_SCREEN_HEIGHT as u32,
+        ),
+        1,
+        flipped_transform,
+    )
+}
+
+pub fn bottom_camera(mut commands: Commands) {
+    let normal_transform = Transform::from_xyz(0.0, 0.0, CAMERA_Z_LEVEL);
+    init_camera(
+        &mut commands,
+        UVec2::new(0, NINTENDO_DS_SCREEN_HEIGHT as u32),
+        UVec2::new(
+            (NINTENDO_DS_SCREEN_WIDTH * 2.0) as u32,
+            NINTENDO_DS_SCREEN_HEIGHT as u32,
+        ),
+        1,
+        normal_transform,
+    )
+}
+/// Initializes a 2D camera with customizable viewport.
+///
+/// # Parameters
+/// - `commands`: The `Commands` to spawn the camera entity.
+/// - `viewport_position`: The physical position of the viewport in pixels.
+/// - `viewport_size`: The physical size of the viewport in pixels.
+/// - `camera_order`: The rendering order of the camera (higher values render on top).
+pub fn init_camera(
+    commands: &mut Commands,
+    viewport_position: UVec2,
+    viewport_size: UVec2,
+    camera_order: isize,
+    transform: Transform,
+) {
+    commands.spawn(Camera2dBundle {
+        transform: transform,
+        camera: Camera {
+            order: camera_order,
+            viewport: Some(Viewport {
+                physical_position: viewport_position,
+                physical_size: viewport_size,
+                ..Default::default()
+            }),
+            ..Default::default()
+        },
         projection: OrthographicProjection {
             scale: CAMERA_SCALE_MULTIPLIER,
             ..Default::default()
