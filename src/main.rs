@@ -30,7 +30,7 @@ use yakuzaishi::audio::audio_sys::start_background_audio;
 use yakuzaishi::camera::camera_sys::{bottom_camera, init_camera, top_camera, track_camera};
 use yakuzaishi::environment::environment_sys::spawn_environment_entity;
 use yakuzaishi::map::fog_material::FogMaterial;
-use yakuzaishi::map::tiled_res::{TiledLoader, TiledMap, TiledMapAssets};
+use yakuzaishi::map::tiled_res::{TiledLoader, TiledMapAssets, TiledMapSource};
 use yakuzaishi::map::tiled_sys::{spawn_tiled_map, update_time_on_shader};
 use yakuzaishi::player::player_sys::{control_player_entity, spawn_player_entity};
 
@@ -58,7 +58,7 @@ fn main() {
             TilemapPlugin,
             MaterialTilemapPlugin::<FogMaterial>::default(),
         ))
-        .init_asset::<TiledMap>()
+        .init_asset::<TiledMapSource>()
         .register_asset_loader(TiledLoader)
         .add_event::<TileAnimationEvent>()
         .init_state::<GameState>()
@@ -78,7 +78,7 @@ fn main() {
                 spawn_tiled_map,
                 spawn_player_entity,
                 spawn_environment_entity,
-                top_camera,
+                //top_camera,
                 bottom_camera,
                 // TODO: even though transition_to_run_state might execute before
                 //  spawn_tiled_map_entity completes, the state change to GameState::Run

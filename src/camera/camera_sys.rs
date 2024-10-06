@@ -9,7 +9,7 @@ use crate::{
     CAMERA_SCALE_MULTIPLIER, CAMERA_Z_LEVEL, NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
 };
 use crate::kinetic_components::PlayerEntityTag;
-use crate::map::tiled_res::{TiledMap, TiledMapAssets};
+use crate::map::tiled_res::{TiledMapAssets, TiledMapSource};
 
 pub fn top_camera(mut commands: Commands) {
     let flipped_transform =
@@ -35,7 +35,7 @@ pub fn bottom_camera(mut commands: Commands) {
             (NINTENDO_DS_SCREEN_WIDTH * 2.0) as u32,
             NINTENDO_DS_SCREEN_HEIGHT as u32,
         ),
-        1,
+        2,
         normal_transform,
     )
 }
@@ -74,7 +74,7 @@ pub fn init_camera(
 
 pub fn track_camera(
     tiled_asset: Res<TiledMapAssets>,
-    map_assets: Res<Assets<TiledMap>>,
+    map_assets: Res<Assets<TiledMapSource>>,
     mut param_set: ParamSet<(
         Query<&Transform, With<PlayerEntityTag>>,
         Query<(&mut Transform, &OrthographicProjection), With<Camera>>,
@@ -87,11 +87,12 @@ pub fn track_camera(
         player_position.y = player_transform.translation.y;
     }
 
-    let map_handle: Handle<TiledMap> = tiled_asset.tiled_map.clone();
+    let map_handle: Handle<TiledMapSource> = tiled_asset.tiled_map.clone();
     if let Some(tiled_map) = map_assets.get(&map_handle) {
         // Map dimensions
-        let map_width = (tiled_map.map.width * tiled_map.map.tile_width) as f32;
-        let map_height = (tiled_map.map.height * tiled_map.map.tile_height) as f32;
+        let map_width = (tiled_map.rs_tiled_map.width * tiled_map.rs_tiled_map.tile_width) as f32;
+        let map_height =
+            (tiled_map.rs_tiled_map.height * tiled_map.rs_tiled_map.tile_height) as f32;
 
         // Map boundaries
         let map_min_x = 0.0;

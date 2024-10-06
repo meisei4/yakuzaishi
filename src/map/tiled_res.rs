@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::env;
 use std::fs::File;
 use std::io::{Cursor, Error, ErrorKind, Read};
 use std::path::{Path, PathBuf};
@@ -11,33 +12,29 @@ use bevy::prelude::{Resource, TypePath};
 use bevy::utils::BoxedFuture;
 use bevy_asset::Handle;
 use bevy_asset_loader::asset_collection::AssetCollection;
-use bevy_ecs_tilemap::map::TilemapTexture;
 use bevy_render::texture::Image;
 use futures_lite::AsyncReadExt;
-use tiled::{DefaultResourceCache, Loader, ResourceReader};
-
-use crate::ASSETS_BASE_PATH;
+use thiserror::Error;
+use tiled::{DefaultResourceCache, Loader, ResourceReader, Tile};
 
 #[derive(AssetCollection, Resource)]
 pub struct TiledMapAssets {
     #[asset(path = "map_data/water.tmx")]
-    pub tiled_map: Handle<TiledMap>,
+    pub tiled_map: Handle<TiledMapSource>,
 }
 
 #[derive(TypePath, Asset)]
-pub struct TiledMap {
-    pub map: tiled::Map,
-    pub tilemap_textures: HashMap<usize, TilemapTexture>,
+pub struct TiledMapSource {
+    pub rs_tiled_map: tiled::Map,
+    pub bevy_ecs_tilemap_textures: bevy_ecs_tilemap::map::TilemapTexture,
 }
-
-// TODO: this is alot from the custom solution from bevy_ecs_tiled, so this needs to be looked at later
 
 pub struct TiledLoader;
 
 impl AssetLoader for TiledLoader {
-    type Asset = TiledMap;
+    type Asset = TiledMapSource;
     type Settings = ();
-    type Error = Error;
+    type Error = TiledLoaderError;
 
     fn load<'a>(
         &'a self,
@@ -49,61 +46,72 @@ impl AssetLoader for TiledLoader {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
 
+            //TODO: this is still not good
+            // 1. asset path doesnt get recognized without this
+            // 2. I just dont like this whole thing, need to learn rust more
+            let asset_path: PathBuf = env::current_dir().unwrap().join("assets");
+
             let mut loader = Loader::with_cache_and_reader(
                 DefaultResourceCache::new(),
-                BytesResourceReader::new(&bytes, ASSETS_BASE_PATH.clone()),
+                BytesResourceReader::new(&bytes, asset_path),
             );
-            let map = loader.load_tmx_map(load_context.path()).map_err(|e| {
-                Error::new(ErrorKind::Other, format!("Could not load TMX map: {e}"))
+
+            /// No, this is wrong, broken, rs-tiled is no good
+            // let mut loader = Loader::new();
+            let map = loader
+                .load_tmx_map(load_context.path())
+                .map_err(|e| TiledLoaderError::TmxParse(e.to_string()))?;
+
+            let tileset = map
+                .tilesets()
+                .get(0)
+                .ok_or(TiledLoaderError::MissingTilesetImage)?;
+
+            let img = tileset
+                .image
+                .as_ref()
+                .ok_or(TiledLoaderError::MissingTilesetImage)?;
+
+            let tmx_dir = load_context.path().parent().ok_or_else(|| {
+                // TODO: why does this error have to have an extra message unlike the err_map one? can we fix that to be more clear?
+                TiledLoaderError::TmxParse("TMX file has no parent directory".to_string())
             })?;
 
-            let mut tilemap_textures = HashMap::default();
+            let img_source = Path::new(&img.source);
 
-            for (tileset_index, tileset) in map.tilesets().iter().enumerate() {
-                // Directly work with `img` assuming `tileset.image` is always `Some(img)`
-                let img = tileset.image.as_ref().expect("Tileset image is required");
-
-                let tmx_dir = load_context
-                    .path()
-                    .parent()
-                    .expect("The asset load context was empty.");
-
-                let img_source = Path::new(&img.source);
-                let img_source =
-                    if tmx_dir.ends_with("map_data") && img_source.starts_with("map_data") {
-                        img_source.strip_prefix("map_data").unwrap()
-                    } else {
-                        img_source
-                    };
-                let tile_path = tmx_dir.join(img_source);
-                bevy::log::info!("tile path: {}", tile_path.display());
-
-                let asset_path = AssetPath::from(tile_path);
-                bevy::log::info!("asset path: {}", asset_path.clone());
-
-                let texture: Handle<Image> = load_context.load(asset_path.clone());
-
-                let tilemap_texture_default = TilemapTexture::Single(texture.clone());
-
-                tilemap_textures.insert(tileset_index, tilemap_texture_default);
-            }
-
-            let asset_map = TiledMap {
-                map,
-                tilemap_textures,
+            // TODO: this entire if statement is horrendous. it needs to be fixed.
+            let img_source = if tmx_dir.ends_with("map_data") && img_source.starts_with("map_data")
+            {
+                img_source.strip_prefix("map_data").unwrap()
+            } else {
+                img_source
             };
 
-            log::info!("Loaded map: {}", load_context.path().display());
+            let tile_path = tmx_dir.join(img_source);
+
+            let asset_path = AssetPath::from(tile_path);
+
+            let texture: Handle<Image> = load_context.load(asset_path.clone());
+
+            let tilemap_textures = bevy_ecs_tilemap::map::TilemapTexture::Single(texture.clone());
+
+            let asset_map = TiledMapSource {
+                rs_tiled_map: map,
+                bevy_ecs_tilemap_textures: tilemap_textures,
+            };
+
             Ok(asset_map)
         })
     }
 
+    // TODO: what is this even for?
     fn extensions(&self) -> &[&str] {
         static EXTENSIONS: &[&str] = &["tmx"];
         EXTENSIONS
     }
 }
 
+// TODO: rs-tiled allows too much customization, i dont like everything from here onwards (nor upwards)
 struct BytesResourceReader {
     bytes: Arc<[u8]>,
     assets_path: PathBuf,
@@ -133,4 +141,16 @@ impl ResourceReader for BytesResourceReader {
         }
         Ok(Box::new(Cursor::new(self.bytes.clone())))
     }
+}
+
+#[derive(Error, Debug)]
+pub enum TiledLoaderError {
+    #[error("IO Error: {0}")]
+    Io(#[from] std::io::Error),
+
+    #[error("TMX Parsing Error: {0}")]
+    TmxParse(String),
+
+    #[error("Tileset image not found")]
+    MissingTilesetImage,
 }

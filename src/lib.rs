@@ -1,6 +1,3 @@
-use std::env;
-use std::path::PathBuf;
-
 pub mod anime;
 pub mod audio;
 pub mod bundles;
@@ -10,9 +7,6 @@ pub mod kinetic_components;
 pub mod map;
 pub mod player;
 
-lazy_static::lazy_static! {
-    pub static ref ASSETS_BASE_PATH: PathBuf = env::current_dir().unwrap().join("assets");
-}
 //TODO: move all of these constants to their corresponding resource modules
 
 //-----------------GAME_WORLD CONFIGS/SETTINGS-----------------
