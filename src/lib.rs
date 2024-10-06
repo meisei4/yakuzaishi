@@ -19,7 +19,7 @@ lazy_static::lazy_static! {
 pub const TILE_SIZE: f32 = 64.0;
 pub const NINTENDO_DS_SCREEN_WIDTH: f32 = 256.0;
 pub const NINTENDO_DS_SCREEN_HEIGHT: f32 = 384.0;
-pub const CAMERA_SCALE_MULTIPLIER: f32 = 0.5;
+pub const CAMERA_SCALE_MULTIPLIER: f32 = 0.75;
 
 // TODO: for this whole entire const file figure out when to use proper types (f32 doesnt make sense for tile coordinates etc)
 pub const CAMERA_Z_LEVEL: f32 = 3.0;
@@ -56,7 +56,7 @@ pub const ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_END_IDX: u32 = 18;
 pub const ENVIRONMENT_ENTITY_ANIMATION_SPEED: f32 = 0.2;
 
 //-----------------ENTITY/GAME LOGIC-----------------
-pub const DEFAULT_SPEED: f32 = 90.0;
+pub const DEFAULT_SPEED: f32 = 150.0;
 pub const PLAYER_ENTITY_SPAWN_X: f32 = 0.0;
 pub const PLAYER_ENTITY_SPAWN_Y: f32 = 0.0;
 
