@@ -43,8 +43,8 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         resolution: WindowResolution::new(
-                            NINTENDO_DS_SCREEN_WIDTH,
-                            NINTENDO_DS_SCREEN_HEIGHT,
+                            NINTENDO_DS_SCREEN_WIDTH * 1.5,
+                            NINTENDO_DS_SCREEN_HEIGHT * 1.5,
                         ),
                         resizable: false,
                         title: "Yakuzaishi".to_string(),
@@ -58,7 +58,7 @@ fn main() {
             TilemapPlugin,
             MaterialTilemapPlugin::<FogMaterial>::default(),
         ))
-        .init_asset::<TiledMapSource>()
+        .init_asset::<TiledMap>()
         .register_asset_loader(TiledLoader)
         .add_event::<TileAnimationEvent>()
         .init_state::<GameState>()
@@ -75,6 +75,8 @@ fn main() {
             OnEnter(GameState::AssetProcessing),
             (
                 start_background_audio,
+                // TODO: this does not work at all yet, still learning how 3D meshes and materials works
+                //spawn_tiled_map_3d,
                 spawn_tiled_map,
                 spawn_player_entity,
                 spawn_environment_entity,
