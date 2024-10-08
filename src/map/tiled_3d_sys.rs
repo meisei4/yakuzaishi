@@ -26,13 +26,13 @@ use crate::{
     TILE_SIZE,
 };
 use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::map::fog_material::FogMaterial;
 use crate::map::tiled_components::TileEntityTag;
-use crate::map::tiled_res::{TiledMap, TiledMapAssets};
+use crate::map::tiled_res::{TiledMapAssets, TiledMapSource};
+use crate::materials::fog::FogMaterial;
 
 pub fn spawn_tiled_map_3d(
     mut commands: Commands,
-    map_assets: Res<Assets<TiledMap>>,
+    map_assets: Res<Assets<TiledMapSource>>,
     tiled_asset: Res<TiledMapAssets>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -50,10 +50,10 @@ pub fn spawn_tiled_map_3d(
         ..default()
     });
 
-    let map_handle: Handle<TiledMap> = tiled_asset.tiled_map.clone();
+    let map_handle: Handle<TiledMapSource> = tiled_asset.tiled_map.clone();
 
     if let Some(tiled_map) = map_assets.get(&map_handle) {
-        for tileset_index in 0..tiled_map.map.tilesets().len() {
+        for tileset_index in 0..tiled_map.rs_tiled_map.tilesets().len() {
             process_tileset_3d(
                 &mut commands,
                 &tiled_map,
@@ -67,17 +67,17 @@ pub fn spawn_tiled_map_3d(
 
 fn process_tileset_3d(
     commands: &mut Commands,
-    tiled_map: &TiledMap,
+    tiled_map: &TiledMapSource,
     tileset_index: usize,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
 ) {
     //TODO: figure out how to get the individual images from the tilemap
     //  for now just use a random color
-    let tileset = &tiled_map.map.tilesets()[tileset_index];
-    let tilemap_texture = &tiled_map.tilemap_textures[&tileset_index];
+    //let tileset = &tiled_map.rs_tiled_map.tilesets()[tileset_index];
+    //let tilemap_texture = &tiled_map.bevy_ecs_tilemap_textures;
 
-    for layer in tiled_map.map.layers() {
+    for layer in tiled_map.rs_tiled_map.layers() {
         // TODO: this is not yet ready, still need to fix how the tileset gets recognized as individual textures inside
         if let LayerType::Tiles(tile_layer) = layer.layer_type() {
             process_tile_layer(commands, materials, meshes);

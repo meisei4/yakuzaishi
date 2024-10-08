@@ -5,6 +5,7 @@ pub mod camera;
 pub mod environment;
 pub mod kinetic_components;
 pub mod map;
+pub mod materials;
 pub mod player;
 
 //TODO: move all of these constants to their corresponding resource modules
