@@ -17,6 +17,12 @@ pub struct Mode7Material {
     pub translation: Vec2,
 
     #[uniform(0)]
+    pub altitude: f32,
+
+    #[uniform(0)]
+    pub time: f32,
+
+    #[uniform(0)]
     pub _padding: Vec3,
 
     #[texture(1)]

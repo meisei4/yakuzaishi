@@ -39,6 +39,10 @@ fn main() {
                 .load_collection::<Mode7Asset>(),
         )
         .add_systems(OnEnter(GameState::Run), setup)
+        .add_systems(
+            Update,
+            update_time_on_shader.run_if(in_state(GameState::Run)),
+        )
         .run();
 }
 
@@ -56,13 +60,21 @@ fn setup(
         mesh: meshes.add(Rectangle::new(1024.0, 1024.0)).into(),
         transform: Transform::default(),
         material: materials.add(Mode7Material {
-            scaling: Vec2::new(1.0, 1.0),
+            scaling: Vec2::new(100.0, 150.0),
             rotation: 0.0,
-            //rotation: std::f32::consts::FRAC_PI_4 / 2.0, // Rotate by 45 degrees,
+            // rotation: std::f32::consts::FRAC_PI_4, // Rotate by 45 degrees,
             translation: Vec2::ZERO, // Ensure translation starts at (0, 0)
-            _padding: Vec3::ZERO,    // Can be set to zero
+            altitude: 0.001,
+            time: 0.0,
+            _padding: Vec3::ZERO, // Can be set to zero
             map_texture: map_image,
         }),
         ..default()
     });
+}
+pub fn update_time_on_shader(time: Res<Time>, mut materials: ResMut<Assets<Mode7Material>>) {
+    for (_, material) in materials.iter_mut() {
+        material.time += time.delta_seconds();
+        material.rotation = f32::sin(material.time * 0.3);
+    }
 }
