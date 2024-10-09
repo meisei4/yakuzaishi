@@ -20,9 +20,6 @@ pub struct Mode7Material {
     pub altitude: f32,
 
     #[uniform(0)]
-    pub time: f32,
-
-    #[uniform(0)]
     pub _padding: Vec3,
 
     #[texture(1)]
