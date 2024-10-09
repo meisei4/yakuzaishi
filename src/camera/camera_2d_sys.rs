@@ -23,7 +23,7 @@ pub fn top_camera(mut commands: Commands) {
         ),
         1,
         flipped_transform,
-    )
+    );
 }
 
 pub fn bottom_camera(mut commands: Commands) {

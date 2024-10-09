@@ -27,11 +27,11 @@ use yakuzaishi::anime::overlay_anime_sys::{
 };
 use yakuzaishi::audio::audio_res::AudioAssets;
 use yakuzaishi::audio::audio_sys::start_background_audio;
-use yakuzaishi::camera::camera_sys::{bottom_camera, init_camera, top_camera, track_camera};
+use yakuzaishi::camera::camera_2d_sys::{bottom_camera, init_camera, top_camera, track_camera};
 use yakuzaishi::environment::environment_sys::spawn_environment_entity;
-use yakuzaishi::map::fog_material::FogMaterial;
 use yakuzaishi::map::tiled_res::{TiledLoader, TiledMapAssets, TiledMapSource};
 use yakuzaishi::map::tiled_sys::{spawn_tiled_map, update_time_on_shader};
+use yakuzaishi::materials::fog::FogMaterial;
 use yakuzaishi::player::player_sys::{control_player_entity, spawn_player_entity};
 
 fn main() {
@@ -74,8 +74,10 @@ fn main() {
         .add_systems(
             OnEnter(GameState::AssetProcessing),
             (
-                start_background_audio,
-                spawn_tiled_map,
+                //start_background_audio,
+                // TODO: this does not work at all yet, still learning how 3D meshes and materials works
+                //spawn_tiled_map_3d,
+                //spawn_tiled_map,
                 spawn_player_entity,
                 spawn_environment_entity,
                 //top_camera,

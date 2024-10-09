@@ -26,9 +26,9 @@ pub struct FogMaterial {
 
 impl MaterialTilemap for FogMaterial {
     // fn vertex_shader() -> ShaderRef {
-    //     "shader_data/shader.wgsl".into()
+    //     "shaders/shader.wgsl".into()
     // }
     fn fragment_shader() -> ShaderRef {
-        "shader_data/fog.wgsl".into()
+        "shaders/fog.wgsl".into()
     }
 }

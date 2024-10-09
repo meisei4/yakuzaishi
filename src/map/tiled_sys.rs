@@ -21,9 +21,9 @@ use crate::{
     TILE_SIZE,
 };
 use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::map::fog_material::FogMaterial;
 use crate::map::tiled_components::TileEntityTag;
 use crate::map::tiled_res::{TiledMapAssets, TiledMapSource};
+use crate::materials::fog::FogMaterial;
 
 pub fn spawn_tiled_map(
     mut commands: Commands,
