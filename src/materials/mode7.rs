@@ -11,7 +11,13 @@ pub struct Mode7Material {
     pub scaling: Vec2,
 
     #[uniform(0)]
-    pub rotation: f32,
+    pub fov: f32,
+
+    #[uniform(0)]
+    pub frustrum_x_rotation: f32,
+
+    #[uniform(0)]
+    pub y_axis_rotation: f32,
 
     #[uniform(0)]
     pub translation: Vec2,

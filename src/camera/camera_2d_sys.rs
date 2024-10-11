@@ -1,29 +1,43 @@
 use bevy::asset::Handle;
-use bevy::math::{UVec2, Vec2, Vec3};
+use bevy::math::{UVec2, Vec2, Vec3Swizzles};
 use bevy::prelude::{
     Assets, Camera2dBundle, Commands, OrthographicProjection, ParamSet, Query, Res, Transform, With,
 };
+use bevy::utils::default;
 use bevy_render::camera::{Camera, Viewport};
 
 use crate::{
     CAMERA_SCALE_MULTIPLIER, CAMERA_Z_LEVEL, NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
 };
+use crate::camera::camera_components::BottomCameraTag;
+use crate::environment::moon::MoonTag;
 use crate::kinetic_components::PlayerEntityTag;
 use crate::map::tiled_res::{TiledMapAssets, TiledMapSource};
 
-pub fn top_camera(mut commands: Commands) {
-    let flipped_transform =
-        Transform::from_xyz(0.0, 0.0, CAMERA_Z_LEVEL).with_scale(Vec3::new(1.0, -1.0, 1.0)); // Flips vertically
-    init_camera(
-        &mut commands,
-        UVec2::new(0, 0),
-        UVec2::new(
-            (NINTENDO_DS_SCREEN_WIDTH * 2.0) as u32,
-            NINTENDO_DS_SCREEN_HEIGHT as u32,
-        ),
-        1,
-        flipped_transform,
-    );
+pub fn top_camera(mut commands: Commands, mut query: Query<&Transform, With<MoonTag>>) {
+    for moon_transform in query.iter_mut() {
+        // TODO: cant see the moon idk why ASHDOFAAAAAAAAAAP
+        commands.spawn(Camera2dBundle {
+            transform: Transform::from_xyz(
+                moon_transform.translation.x,
+                moon_transform.translation.y,
+                4.0,
+            ),
+            camera: Camera {
+                order: 2,
+                viewport: Some(Viewport {
+                    physical_position: UVec2::ZERO,
+                    ..default()
+                }),
+                ..default()
+            },
+            projection: OrthographicProjection {
+                scale: 1.0,
+                ..default()
+            },
+            ..default()
+        });
+    }
 }
 
 pub fn bottom_camera(mut commands: Commands) {
@@ -35,17 +49,11 @@ pub fn bottom_camera(mut commands: Commands) {
             (NINTENDO_DS_SCREEN_WIDTH * 2.0) as u32,
             NINTENDO_DS_SCREEN_HEIGHT as u32,
         ),
-        2,
+        1,
         normal_transform,
     )
 }
-/// Initializes a 2D camera with customizable viewport.
-///
-/// # Parameters
-/// - `commands`: The `Commands` to spawn the camera entity.
-/// - `viewport_position`: The physical position of the viewport in pixels.
-/// - `viewport_size`: The physical size of the viewport in pixels.
-/// - `camera_order`: The rendering order of the camera (higher values render on top).
+
 pub fn init_camera(
     commands: &mut Commands,
     viewport_position: UVec2,
@@ -53,23 +61,25 @@ pub fn init_camera(
     camera_order: isize,
     transform: Transform,
 ) {
-    commands.spawn(Camera2dBundle {
-        transform: transform,
-        camera: Camera {
-            order: camera_order,
-            viewport: Some(Viewport {
-                physical_position: viewport_position,
-                physical_size: viewport_size,
-                ..Default::default()
-            }),
-            ..Default::default()
-        },
-        projection: OrthographicProjection {
-            scale: CAMERA_SCALE_MULTIPLIER,
-            ..Default::default()
-        },
-        ..Default::default()
-    });
+    commands
+        .spawn(Camera2dBundle {
+            transform: transform,
+            camera: Camera {
+                order: camera_order,
+                viewport: Some(Viewport {
+                    physical_position: viewport_position,
+                    physical_size: viewport_size,
+                    ..default()
+                }),
+                ..default()
+            },
+            projection: OrthographicProjection {
+                scale: CAMERA_SCALE_MULTIPLIER,
+                ..default()
+            },
+            ..default()
+        })
+        .insert(BottomCameraTag);
 }
 
 pub fn track_camera(
@@ -77,7 +87,7 @@ pub fn track_camera(
     map_assets: Res<Assets<TiledMapSource>>,
     mut param_set: ParamSet<(
         Query<&Transform, With<PlayerEntityTag>>,
-        Query<(&mut Transform, &OrthographicProjection), With<Camera>>,
+        Query<(&mut Transform, &OrthographicProjection), With<BottomCameraTag>>,
     )>,
 ) {
     let mut player_position = Vec2::ZERO;

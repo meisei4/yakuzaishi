@@ -1,4 +1,4 @@
-// main.rs or your main setup file
+use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 
 use bevy::prelude::*;
 use bevy::sprite::{Material2dPlugin, MaterialMesh2dBundle};
@@ -55,9 +55,12 @@ fn setup(
         transform: Transform::default(),
         material: materials.add(Mode7Material {
             scaling: Vec2::new(100.0, 100.0),
-            rotation: 0.0,
-            translation: Vec2::ZERO, // Ensure translation starts at (0, 0)
-            altitude: 0.0,
+            // TODO: only this x-tilt allows for the y-axis rotation to feel like its occuring around the player/camera
+            fov: std::f32::consts::PI / 7.0,
+            frustrum_x_rotation: -6.44,
+            y_axis_rotation: -9.43,
+            translation: Vec2::new(-9.0, 8.0), // mario_circuit starting zone
+            altitude: 400.0, //TODO: this is ridiculous in how it results in bending the whole plane when lower
             _padding: Vec3::ZERO, // Can be set to zero
             map_texture: map_image,
         }),
@@ -71,34 +74,53 @@ fn process_input(
     time: Res<Time>,
 ) {
     let move_speed = 2.5; // Units per second
-    let rotate_speed = std::f32::consts::PI; // Radians per second
-    let altitude_speed = 1000.0; // Units per second
+    let y_rotate_speed = std::f32::consts::PI; // Radians per second
+    let x_rotate_speed = std::f32::consts::PI; // Radians per second
+    let fov_speed = std::f32::consts::PI / 15.0; // Units per second
 
     let delta = time.delta_seconds();
 
     for (_, material) in materials.iter_mut() {
         // Rotation
         if keyboard_input.pressed(KeyCode::KeyD) {
-            material.rotation += rotate_speed * delta;
+            material.y_axis_rotation += y_rotate_speed * delta;
         }
         if keyboard_input.pressed(KeyCode::KeyA) {
-            material.rotation -= rotate_speed * delta;
+            material.y_axis_rotation -= y_rotate_speed * delta;
+        }
+
+        if keyboard_input.pressed(KeyCode::KeyW) {
+            material.frustrum_x_rotation += x_rotate_speed * delta;
+        }
+        if keyboard_input.pressed(KeyCode::KeyS) {
+            material.frustrum_x_rotation -= x_rotate_speed * delta;
         }
 
         // Altitude/Y-Axis angle?
-        if keyboard_input.pressed(KeyCode::KeyW) {
-            material.altitude += altitude_speed * delta;
+        if keyboard_input.pressed(KeyCode::KeyU) {
+            material.fov = material.fov + fov_speed * delta;
         }
-        if keyboard_input.pressed(KeyCode::KeyS) {
-            material.altitude -= altitude_speed * delta;
+        if keyboard_input.pressed(KeyCode::KeyJ) {
+            material.fov = material.fov - fov_speed * delta;
         }
 
         // Move Forward
         if keyboard_input.pressed(KeyCode::Space) {
-            let dx = move_speed * delta * material.rotation.sin();
-            let dy = move_speed * delta * material.rotation.cos();
+            let dx = move_speed * delta * material.y_axis_rotation.sin();
+            let dy = move_speed * delta * material.y_axis_rotation.cos();
             material.translation.x += dx;
             material.translation.y += dy;
         }
+
+        info!(
+            "Player Position - X: {:.2}, Z: {:.2}",
+            material.translation.x, material.translation.y
+        );
+        info!("fov: {:.2}", material.fov);
+        info!("Rotation Y (Yaw): {:.2} radians", material.y_axis_rotation);
+        info!(
+            "Rotation X (Pitch): {:.2} radians",
+            material.frustrum_x_rotation
+        );
     }
 }

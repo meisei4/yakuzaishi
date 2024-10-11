@@ -29,6 +29,7 @@ use yakuzaishi::audio::audio_res::AudioAssets;
 use yakuzaishi::audio::audio_sys::start_background_audio;
 use yakuzaishi::camera::camera_2d_sys::{bottom_camera, init_camera, top_camera, track_camera};
 use yakuzaishi::environment::environment_sys::spawn_environment_entity;
+use yakuzaishi::environment::moon::{MoonAsset, place_moon};
 use yakuzaishi::map::tiled_res::{TiledLoader, TiledMapAssets, TiledMapSource};
 use yakuzaishi::map::tiled_sys::{spawn_tiled_map, update_time_on_shader};
 use yakuzaishi::materials::fog::FogMaterial;
@@ -69,7 +70,8 @@ fn main() {
                 .load_collection::<TiledMapAssets>()
                 .load_collection::<PlayerEntityAnimationAssets>()
                 .load_collection::<OverlayAnimationAssets>()
-                .load_collection::<EnvironmentEntityAnimationAssets>(),
+                .load_collection::<EnvironmentEntityAnimationAssets>()
+                .load_collection::<MoonAsset>(),
         )
         .add_systems(
             OnEnter(GameState::AssetProcessing),
@@ -77,10 +79,11 @@ fn main() {
                 //start_background_audio,
                 // TODO: this does not work at all yet, still learning how 3D meshes and materials works
                 //spawn_tiled_map_3d,
-                //spawn_tiled_map,
+                spawn_tiled_map,
                 spawn_player_entity,
                 spawn_environment_entity,
-                //top_camera,
+                place_moon,
+                top_camera,
                 bottom_camera,
                 // TODO: even though transition_to_run_state might execute before
                 //  spawn_tiled_map_entity completes, the state change to GameState::Run
