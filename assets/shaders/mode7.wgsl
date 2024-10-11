@@ -1,7 +1,16 @@
-#import bevy_sprite::mesh2d_functions::{ get_world_from_local, mesh2d_position_world_to_clip };
-#import bevy_sprite::mesh2d_vertex_output::VertexOutput;
+#import bevy_sprite::mesh2d_functions::{ get_world_from_local, mesh2d_position_local_to_clip, mesh2d_position_local_to_world };
 #import bevy_sprite::mesh2d_view_bindings::view;
 #import bevy_sprite::mesh2d_types::Mesh2d;
+
+
+// TODO: add a proper uniform passed in from bevy
+const SCREEN_WIDTH: f32 = 1000.0;
+const SCREEN_HEIGHT: f32 = 500.0;
+const HALF_SCREEN_WIDTH: f32 = SCREEN_WIDTH / 2.0;
+const HALF_SCREEN_HEIGHT: f32 = SCREEN_HEIGHT / 2.0;
+
+const WORLD_TEXTURE_WIDTH: f32 = 1024.0;
+const WORLD_TEXTURE_HEIGHT: f32 = 1024.0;
 
 
 struct Mode7Material {
@@ -17,44 +26,74 @@ struct Mode7Material {
 @group(2) @binding(1) var floor_texture: texture_2d<f32>;
 @group(2) @binding(2) var floor_sampler: sampler;
 
+struct VertexOutput {
+    // this is `clip position` when the struct is used as a vertex stage output
+    // and `frag coord` when used as a fragment stage input
+    @builtin(position) position: vec4<f32>,
+    @location(0) world_position: vec4<f32>,
+    @location(1) world_normal: vec3<f32>,
+    @location(2) uv: vec2<f32>,
+    #ifdef VERTEX_TANGENTS
+    @location(3) world_tangent: vec4<f32>,
+    #endif
+    #ifdef VERTEX_COLORS
+    @location(4) color: vec4<f32>,
+    #endif
+}
+
 struct Vertex {
     @builtin(instance_index) instance_index: u32,
     @location(0) position: vec3<f32>,
     @location(1) uv: vec2<f32>,
 };
 
+//@vertex
+//fn vertex(vertex: Vertex) -> VertexOutput {
+//    var out: VertexOutput;
+//
+//    out.position = vec4<f32>(vertex.position.xy, 0.0, 1.0);
+//    out.uv = vertex.uv;
+//    out.world_position = vec4<f32>(vertex.position, 1.0);
+//
+//    return out;
+//}
+
 @vertex
 fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
 
-    out.position = vec4<f32>(vertex.position.xy, 0.0, 1.0);
+    // Retrieve the world_from_local matrix for the current mesh instance
+    let world_from_local = get_world_from_local(vertex.instance_index);
+
+    // Define camera position (centered) and screen size (for reference)
+    let screen_size = vec2<f32>(SCREEN_WIDTH, SCREEN_HEIGHT);  // Example screen size
+    // + screen_size.x / 1.43
+
+    // Transform the vertex position from local to clip space
+    let world_position = vec4<f32>(vertex.position, 1.0);
+    out.position = world_position;
+
+    // Store world position for potential use in fragment shader (e.g., lighting)
+    out.world_position = world_position;
     out.uv = vertex.uv;
-    out.world_position = vec4<f32>(vertex.position, 1.0);
 
     return out;
 }
 
-const WIDTH: f32 = 1024.0;
-const HEIGHT: f32 = 1024.0;
-const HALF_WIDTH: f32 = WIDTH / 2.0;
-const HALF_HEIGHT: f32 = HEIGHT / 2.0;
-
-const WORLD_TEXTURE_WIDTH: f32 = 1024.0;
-const WORLD_TEXTURE_HEIGHT: f32 = 1024.0;
 
 @fragment
 fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
-    let i: f32 = out.position.x * mode7_material.fov;
+    let i: f32 = out.position.x;// * 0.55; // TODO: you are crazy just un comment this first
     let j: f32 = out.position.y;
 
-    if (j < HALF_HEIGHT) {
+    if (j < HALF_SCREEN_HEIGHT) {
         return vec4<f32>(1.0, 1.0, 1.0, 1.0); // Return white color
     }
 
     //TODO: i still dont get this (bevy issue?)
     //offset X and Y fragment targets so that (0,0) is at the center of the screen (bevy camera stuff?)
-    let centered_x: f32 = HALF_WIDTH - i ;
-    let centered_y: f32 = j - HALF_HEIGHT;
+    let centered_x: f32 = HALF_SCREEN_WIDTH - i;
+    let centered_y: f32 = j - HALF_SCREEN_HEIGHT;
 
     let cam_altitude: f32 = mode7_material.altitude;
     let pitch = mode7_material.frustrum_x_rotation;
@@ -95,7 +134,7 @@ fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
     let floor_color: vec4<f32> = textureSample(floor_texture, floor_sampler, texture_coordinates);
 
     // add cloud feature for faraway distance
-    let attenuation = min(max(3.5 * (abs(centered_y) / (HALF_HEIGHT + mode7_material.altitude)), 0.0), 1.0);
+    let attenuation = min(max(3.5 * (abs(centered_y) / (HALF_SCREEN_HEIGHT + mode7_material.altitude)), 0.0), 1.0);
     let sky_gradient = 1.0 - attenuation;
 
     return vec4<f32>(
@@ -105,14 +144,3 @@ fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
         floor_color.w
     );
 }
-//    let near_x1 = x_projected * cos(mode7_material.rotation) * NEAR;
-//    let near_z1 = z_projected * sin(mode7_material.rotation) * NEAR;
-//
-//    let far_x1 = x_projected * cos(mode7_material.rotation) * FAR;
-//    let far_z1 = z_projected * sin(mode7_material.rotation) * FAR;
-//
-//    let near_x2 = x_projected * cos(mode7_material.rotation) * NEAR;
-//    let near_z2 = z_projected * sin(mode7_material.rotation) * NEAR;
-//
-//    let far_x2 = x_projected * cos(mode7_material.rotation) * FAR;
-//    let far_z2 = z_projected * sin(mode7_material.rotation) * FAR;

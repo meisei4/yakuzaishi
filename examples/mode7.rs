@@ -2,11 +2,13 @@ use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 
 use bevy::prelude::*;
 use bevy::sprite::{Material2dPlugin, MaterialMesh2dBundle};
+use bevy::window::WindowResolution;
 use bevy_asset_loader::asset_collection::AssetCollection;
 use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
 use bevy_asset_loader::prelude::ConfigureLoadingState;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 
+use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
 use yakuzaishi::materials::mode7::Mode7Material;
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
@@ -25,8 +27,14 @@ pub struct Mode7Asset {
 fn main() {
     App::new()
         .add_plugins((
-            DefaultPlugins,
-            WorldInspectorPlugin::new(),
+            DefaultPlugins.set(WindowPlugin {
+                primary_window: Some(Window {
+                    resolution: WindowResolution::new(1000.0, 500.0),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }),
+            //WorldInspectorPlugin::new(),
             Material2dPlugin::<Mode7Material>::default(),
         ))
         .init_state::<GameState>()
@@ -51,15 +59,17 @@ fn setup(
     let map_image = mode7_asset.image.clone();
 
     commands.spawn(MaterialMesh2dBundle {
-        mesh: meshes.add(Rectangle::new(1024.0, 1024.0)).into(),
+        //TODO: This mesh is very confusing why does it matter
+        mesh: meshes.add(Rectangle::new(10.0, 10.0)).into(),
         transform: Transform::default(),
         material: materials.add(Mode7Material {
+            //TODO: see line 62, these affect eachother too much
             scaling: Vec2::new(100.0, 100.0),
             // TODO: only this x-tilt allows for the y-axis rotation to feel like its occuring around the player/camera
             fov: std::f32::consts::PI / 7.0,
             frustrum_x_rotation: -6.44,
             y_axis_rotation: -9.43,
-            translation: Vec2::new(-9.0, 8.0), // mario_circuit starting zone
+            translation: Vec2::new(-9.0, 7.0), // mario_circuit starting zone
             altitude: 400.0, //TODO: this is ridiculous in how it results in bending the whole plane when lower
             _padding: Vec3::ZERO, // Can be set to zero
             map_texture: map_image,
@@ -75,7 +85,7 @@ fn process_input(
 ) {
     let move_speed = 2.5; // Units per second
     let y_rotate_speed = std::f32::consts::PI; // Radians per second
-    let x_rotate_speed = std::f32::consts::PI; // Radians per second
+    let x_rotate_speed = std::f32::consts::FRAC_PI_2; // Radians per second
     let fov_speed = std::f32::consts::PI / 15.0; // Units per second
 
     let delta = time.delta_seconds();
@@ -110,6 +120,13 @@ fn process_input(
             let dy = move_speed * delta * material.y_axis_rotation.cos();
             material.translation.x += dx;
             material.translation.y += dy;
+        }
+
+        if keyboard_input.pressed(KeyCode::KeyB) {
+            let dx = move_speed * delta * material.y_axis_rotation.sin();
+            let dy = move_speed * delta * material.y_axis_rotation.cos();
+            material.translation.x -= dx;
+            material.translation.y -= dy;
         }
 
         info!(
