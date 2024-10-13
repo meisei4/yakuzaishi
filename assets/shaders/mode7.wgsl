@@ -4,7 +4,7 @@
 
 
 // TODO: add a proper uniform passed in from bevy
-const SCREEN_WIDTH: f32 = 1000.0;
+const SCREEN_WIDTH: f32 = 500.0;
 const SCREEN_HEIGHT: f32 = 500.0;
 const HALF_SCREEN_WIDTH: f32 = SCREEN_WIDTH / 2.0;
 const HALF_SCREEN_HEIGHT: f32 = SCREEN_HEIGHT / 2.0;
@@ -47,35 +47,14 @@ struct Vertex {
     @location(1) uv: vec2<f32>,
 };
 
-//@vertex
-//fn vertex(vertex: Vertex) -> VertexOutput {
-//    var out: VertexOutput;
-//
-//    out.position = vec4<f32>(vertex.position.xy, 0.0, 1.0);
-//    out.uv = vertex.uv;
-//    out.world_position = vec4<f32>(vertex.position, 1.0);
-//
-//    return out;
-//}
-
+// TODO: DUMB AS SHIT VERTEX SHADER GET OUT
 @vertex
 fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
 
-    // Retrieve the world_from_local matrix for the current mesh instance
-    let world_from_local = get_world_from_local(vertex.instance_index);
-
-    // Define camera position (centered) and screen size (for reference)
-    let screen_size = vec2<f32>(SCREEN_WIDTH, SCREEN_HEIGHT);  // Example screen size
-    // + screen_size.x / 1.43
-
-    // Transform the vertex position from local to clip space
-    let world_position = vec4<f32>(vertex.position, 1.0);
-    out.position = world_position;
-
-    // Store world position for potential use in fragment shader (e.g., lighting)
-    out.world_position = world_position;
+    out.position = vec4<f32>(vertex.position.xy, 0.0, 1.0);
     out.uv = vertex.uv;
+    out.world_position = vec4<f32>(vertex.position, 1.0);
 
     return out;
 }
@@ -83,14 +62,13 @@ fn vertex(vertex: Vertex) -> VertexOutput {
 
 @fragment
 fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
-    let i: f32 = out.position.x;// * 0.55; // TODO: you are crazy just un comment this first
+    let i: f32 = out.position.x * mode7_material.fov; // TODO: you are crazy just un comment this first
     let j: f32 = out.position.y;
 
     if (j < HALF_SCREEN_HEIGHT) {
         return vec4<f32>(1.0, 1.0, 1.0, 1.0); // Return white color
     }
 
-    //TODO: i still dont get this (bevy issue?)
     //offset X and Y fragment targets so that (0,0) is at the center of the screen (bevy camera stuff?)
     let centered_x: f32 = HALF_SCREEN_WIDTH - i;
     let centered_y: f32 = j - HALF_SCREEN_HEIGHT;

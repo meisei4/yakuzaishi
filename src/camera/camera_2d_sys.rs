@@ -1,4 +1,5 @@
 use bevy::asset::Handle;
+use bevy::log::info;
 use bevy::math::{UVec2, Vec2, Vec3Swizzles};
 use bevy::prelude::{
     Assets, Camera2dBundle, Commands, OrthographicProjection, ParamSet, Query, Res, Transform, With,
@@ -16,27 +17,35 @@ use crate::map::tiled_res::{TiledMapAssets, TiledMapSource};
 
 pub fn top_camera(mut commands: Commands, mut query: Query<&Transform, With<MoonTag>>) {
     for moon_transform in query.iter_mut() {
-        // TODO: cant see the moon idk why ASHDOFAAAAAAAAAAP
-        commands.spawn(Camera2dBundle {
+        let camera = Camera2dBundle {
             transform: Transform::from_xyz(
                 moon_transform.translation.x,
                 moon_transform.translation.y,
-                4.0,
+                CAMERA_Z_LEVEL,
             ),
             camera: Camera {
                 order: 2,
                 viewport: Some(Viewport {
-                    physical_position: UVec2::ZERO,
+                    physical_position: UVec2::ZERO, // top left
+                    physical_size: UVec2::new(
+                        (NINTENDO_DS_SCREEN_WIDTH * 2.0) as u32,
+                        NINTENDO_DS_SCREEN_HEIGHT as u32,
+                    ),
                     ..default()
                 }),
                 ..default()
             },
             projection: OrthographicProjection {
-                scale: 1.0,
+                scale: CAMERA_SCALE_MULTIPLIER * 1.33, // TODO: figure out a better way to scale this par tof the world
                 ..default()
             },
             ..default()
-        });
+        };
+        info!(
+            "Moon Position: {:?}, Camera Position: {:?}",
+            moon_transform.translation, camera.transform.translation
+        );
+        commands.spawn(camera);
     }
 }
 

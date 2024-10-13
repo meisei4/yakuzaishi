@@ -83,7 +83,7 @@ fn main() {
                 spawn_player_entity,
                 spawn_environment_entity,
                 place_moon,
-                top_camera,
+                //top_camera,
                 bottom_camera,
                 // TODO: even though transition_to_run_state might execute before
                 //  spawn_tiled_map_entity completes, the state change to GameState::Run
@@ -94,7 +94,7 @@ fn main() {
         )
         .add_systems(
             OnEnter(GameState::Run),
-            attach_overlay_animation_to_player_entity,
+            (top_camera, attach_overlay_animation_to_player_entity),
         )
         .add_systems(
             FixedUpdate,
