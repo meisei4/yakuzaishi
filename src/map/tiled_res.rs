@@ -1,21 +1,24 @@
-use std::collections::HashMap;
-use std::env;
-use std::fs::File;
-use std::io::{Cursor, Error, ErrorKind, Read};
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::{
+    env,
+    fs::File,
+    future::Future,
+    io::{Cursor, Error, ErrorKind, Read},
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
-use bevy::asset::{AssetLoader, AssetPath, LoadContext};
-use bevy::asset::Asset;
-use bevy::asset::io::Reader;
-use bevy::prelude::{Resource, TypePath};
-use bevy::utils::BoxedFuture;
+use bevy::{
+    asset::{Asset, AssetLoader, AssetPath, io::Reader, LoadContext},
+    prelude::{Resource, TypePath},
+    utils::ConditionalSendFuture,
+};
 use bevy_asset::Handle;
 use bevy_asset_loader::asset_collection::AssetCollection;
 use bevy_render::texture::Image;
+// TODO: How do these next two "uses" even work?
 use futures_lite::AsyncReadExt;
 use thiserror::Error;
-use tiled::{DefaultResourceCache, Loader, ResourceReader, Tile};
+use tiled::{DefaultResourceCache, Loader, ResourceReader};
 
 #[derive(AssetCollection, Resource)]
 pub struct TiledMapAssets {
@@ -41,7 +44,9 @@ impl AssetLoader for TiledLoader {
         reader: &'a mut Reader,
         _settings: &'a Self::Settings,
         load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+    ) -> impl ConditionalSendFuture
+           + Future<Output = Result<<Self as AssetLoader>::Asset, <Self as AssetLoader>::Error>>
+    {
         Box::pin(async move {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
@@ -56,7 +61,7 @@ impl AssetLoader for TiledLoader {
                 BytesResourceReader::new(&bytes, asset_path),
             );
 
-            /// No, this is wrong, broken, rs-tiled is no good
+            //TODO: No, this is wrong, broken, rs-tiled is no good
             // let mut loader = Loader::new();
             let map = loader
                 .load_tmx_map(load_context.path())
@@ -64,7 +69,7 @@ impl AssetLoader for TiledLoader {
 
             let tileset = map
                 .tilesets()
-                .get(0)
+                .first()
                 .ok_or(TiledLoaderError::MissingTilesetImage)?;
 
             let img = tileset

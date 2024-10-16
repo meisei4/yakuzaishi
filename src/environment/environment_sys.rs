@@ -1,21 +1,25 @@
-use bevy::core::Name;
-use bevy::math::UVec2;
-use bevy::prelude::{
-    Commands, Res, ResMut, TextureAtlas, TextureAtlasLayout, Timer, TimerMode, Transform,
+use bevy::{
+    core::Name,
+    math::UVec2,
+    prelude::{
+        Commands, Res, ResMut, TextureAtlas, TextureAtlasLayout, Timer, TimerMode, Transform,
+    },
+    sprite::SpriteBundle,
 };
-use bevy::sprite::SpriteBundle;
 use bevy_asset::Assets;
 
 use crate::{
-    ENVIRONMENT_ENTITY_ANIMATION_SPEED, ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_COLUMN_LENGTH,
-    ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_END_IDX, ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_ROW_LENGTH,
-    ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX, ENVIRONMENT_ENTITY_SPAWN_X,
-    ENVIRONMENT_ENTITY_SPAWN_Y, ENVIRONMENT_ENTITY_Z_LEVEL, TILE_SIZE,
+    anime::{
+        anime_components::{AnimationComponent, AnimationTimer},
+        anime_res::EnvironmentEntityAnimationAssets,
+    },
+    bundles::EnvironmentEntityBundle,
+    ENVIRONMENT_ENTITY_ANIMATION_SPEED,
+    ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_COLUMN_LENGTH, ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_END_IDX,
+    ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_ROW_LENGTH, ENVIRONMENT_ENTITY_ANIMATION_TEXTURE_START_IDX,
+    ENVIRONMENT_ENTITY_SPAWN_X, ENVIRONMENT_ENTITY_SPAWN_Y,
+    ENVIRONMENT_ENTITY_Z_LEVEL, kinetic_components::{EnvironmentEntityTag, KineticEntityComponents}, TILE_SIZE,
 };
-use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::anime::anime_res::EnvironmentEntityAnimationAssets;
-use crate::bundles::EnvironmentEntityBundle;
-use crate::kinetic_components::{EnvironmentEntityTag, KineticEntityComponents};
 
 pub fn spawn_environment_entity(
     mut commands: Commands,
@@ -32,8 +36,8 @@ pub fn spawn_environment_entity(
         ));
 
     let transform = Transform::from_xyz(
-        (ENVIRONMENT_ENTITY_SPAWN_X * TILE_SIZE) as f32,
-        (ENVIRONMENT_ENTITY_SPAWN_Y * TILE_SIZE) as f32,
+        ENVIRONMENT_ENTITY_SPAWN_X * TILE_SIZE,
+        ENVIRONMENT_ENTITY_SPAWN_Y * TILE_SIZE,
         ENVIRONMENT_ENTITY_Z_LEVEL,
     );
 

@@ -1,7 +1,9 @@
-use bevy::math::{Vec2, Vec3};
-use bevy::reflect::TypePath;
-use bevy::render::render_resource::{AsBindGroup, ShaderRef};
-use bevy::sprite::Material2d;
+use bevy::{
+    math::{Vec2, Vec3},
+    reflect::TypePath,
+    render::render_resource::{AsBindGroup, ShaderRef},
+    sprite::Material2d,
+};
 use bevy_asset::{Asset, Handle};
 use bevy_render::texture::Image;
 

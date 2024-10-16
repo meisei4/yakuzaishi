@@ -1,9 +1,13 @@
-use bevy::core::Name;
-use bevy::prelude::{Bundle, SpriteBundle};
-use bevy::sprite::TextureAtlas;
+use bevy::{
+    core::Name,
+    prelude::{Bundle, SpriteBundle},
+    sprite::TextureAtlas,
+};
 
-use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::kinetic_components::KineticEntityComponents;
+use crate::{
+    anime::anime_components::{AnimationComponent, AnimationTimer},
+    kinetic_components::KineticEntityComponents,
+};
 
 #[derive(Bundle)]
 pub struct PlayerBundle {

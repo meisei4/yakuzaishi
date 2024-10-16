@@ -1,29 +1,29 @@
-use bevy::color::{Color, Srgba};
-use bevy::color::Color::LinearRgba;
-use bevy::core::Name;
-use bevy::log::info;
-use bevy::math::{Vec2, Vec3};
-use bevy::prelude::{Bundle, Commands, Entity, Query, Res, ResMut, Transform};
-use bevy::time::{Time, Timer, TimerMode};
-use bevy::utils::default;
-use bevy_asset::{Assets, AssetServer, Handle};
-use bevy_ecs_tilemap::{MaterialTilemapBundle, TilemapBundle};
-use bevy_ecs_tilemap::map::{
-    TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize, TilemapType,
+use bevy::{
+    core::Name,
+    log::info,
+    math::Vec3,
+    prelude::{Commands, Entity, Res, ResMut, Transform},
+    time::{Time, Timer, TimerMode},
 };
-use bevy_ecs_tilemap::prelude::{get_tilemap_center_transform, TilePos, TileStorage};
-use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TileTextureIndex};
-use bevy_render::texture::Image;
+use bevy_asset::{Assets, Handle};
+use bevy_ecs_tilemap::{
+    map::{TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTileSize},
+    prelude::{TilePos, TileStorage},
+    tiles::{TileBundle, TileFlip, TileTextureIndex},
+    MaterialTilemapBundle,
+};
 use tiled::{LayerType, TileLayer};
 
 use crate::{
+    anime::anime_components::{AnimationComponent, AnimationTimer},
+    map::{
+        tiled_components::TileEntityTag,
+        tiled_res::{TiledMapAssets, TiledMapSource},
+    },
+    materials::fog::FogMaterial,
     TILE_ANIMATION_SPEED, TILE_ANIMATION_TEXTURE_END_IDX, TILE_ANIMATION_TEXTURE_START_IDX,
     TILE_SIZE,
 };
-use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::map::tiled_components::TileEntityTag;
-use crate::map::tiled_res::{TiledMapAssets, TiledMapSource};
-use crate::materials::fog::FogMaterial;
 
 pub fn spawn_tiled_map(
     mut commands: Commands,
@@ -91,7 +91,7 @@ fn process_tileset(
                 })
                 .insert(Name::new("TiledMap With Fog Entity"));
         } else {
-            log::info!(
+            info!(
                 "Skipping layer {} because only tile layers are supported.",
                 layer.id()
             );
@@ -106,7 +106,7 @@ fn process_tile_layer(
     tilemap_id: TilemapId,
 ) -> TileStorage {
     let TileLayer::Finite(layer_data) = tile_layer else {
-        log::info!("Skipping layer because only finite layers are supported.");
+        info!("Skipping layer because only finite layers are supported.");
         return TileStorage::empty(map_size);
     };
 

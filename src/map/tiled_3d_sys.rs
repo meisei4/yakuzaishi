@@ -1,34 +1,21 @@
-use bevy::color::{Color, Srgba};
-use bevy::color::Color::LinearRgba;
-use bevy::core::Name;
-use bevy::log::info;
-use bevy::math::{Vec2, Vec3};
-use bevy::pbr::{PbrBundle, StandardMaterial};
-use bevy::prelude::{Bundle, Commands, Entity, Plane3d, Query, Res, ResMut, Transform};
-use bevy::time::{Time, Timer, TimerMode};
-use bevy::utils::default;
-use bevy_asset::{Assets, AssetServer, Handle};
-use bevy_ecs_tilemap::{MaterialTilemapBundle, TilemapBundle};
-use bevy_ecs_tilemap::map::{
-    TilemapGridSize, TilemapId, TilemapSize, TilemapSpacing, TilemapTexture, TilemapTileSize,
-    TilemapType,
+use bevy::{
+    color::Color,
+    log::info,
+    math::{Vec2, Vec3},
+    pbr::{PbrBundle, StandardMaterial},
+    prelude::{Commands, Plane3d, Res, ResMut, Transform},
+    utils::default,
 };
-use bevy_ecs_tilemap::prelude::{get_tilemap_center_transform, TilePos, TileStorage};
-use bevy_ecs_tilemap::tiles::{TileBundle, TileFlip, TileTextureIndex};
-use bevy_render::alpha::AlphaMode;
-use bevy_render::mesh::Mesh;
-use bevy_render::texture::Image;
+use bevy_asset::{Assets, Handle};
+use bevy_ecs_tilemap::map::TilemapSize;
+use bevy_render::{alpha::AlphaMode, mesh::Mesh};
 use rand::Rng;
-use tiled::{LayerType, TileLayer};
+use tiled::LayerType;
 
 use crate::{
-    TILE_ANIMATION_SPEED, TILE_ANIMATION_TEXTURE_END_IDX, TILE_ANIMATION_TEXTURE_START_IDX,
+    map::tiled_res::{TiledMapAssets, TiledMapSource},
     TILE_SIZE,
 };
-use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::map::tiled_components::TileEntityTag;
-use crate::map::tiled_res::{TiledMapAssets, TiledMapSource};
-use crate::materials::fog::FogMaterial;
 
 pub fn spawn_tiled_map_3d(
     mut commands: Commands,
@@ -56,7 +43,7 @@ pub fn spawn_tiled_map_3d(
         for tileset_index in 0..tiled_map.rs_tiled_map.tilesets().len() {
             process_tileset_3d(
                 &mut commands,
-                &tiled_map,
+                tiled_map,
                 tileset_index,
                 &mut meshes,
                 &mut materials,
@@ -68,7 +55,7 @@ pub fn spawn_tiled_map_3d(
 fn process_tileset_3d(
     commands: &mut Commands,
     tiled_map: &TiledMapSource,
-    tileset_index: usize,
+    _tileset_index: usize,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
 ) {
@@ -79,10 +66,10 @@ fn process_tileset_3d(
 
     for layer in tiled_map.rs_tiled_map.layers() {
         // TODO: this is not yet ready, still need to fix how the tileset gets recognized as individual textures inside
-        if let LayerType::Tiles(tile_layer) = layer.layer_type() {
+        if let LayerType::Tiles(_tile_layer) = layer.layer_type() {
             process_tile_layer(commands, materials, meshes);
         } else {
-            log::info!(
+            info!(
                 "Skipping layer {} because only tile layers are supported.",
                 layer.id()
             );
@@ -100,10 +87,7 @@ fn process_tile_layer(
 
     for x in 0..map_size.x {
         for y in 0..map_size.y {
-            let tile_mesh = meshes.add(Plane3d::new(
-                Vec3::Y,
-                Vec2::new(TILE_SIZE, TILE_SIZE).into(),
-            ));
+            let tile_mesh = meshes.add(Plane3d::new(Vec3::Y, Vec2::new(TILE_SIZE, TILE_SIZE)));
 
             let tile_material = materials.add(StandardMaterial {
                 base_color: Color::srgb(rng.gen(), rng.gen(), rng.gen()),

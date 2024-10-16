@@ -1,5 +1,7 @@
-use bevy::math::Quat;
-use bevy::prelude::{Camera3dBundle, Commands, default, Transform};
+use bevy::{
+    math::Quat,
+    prelude::{default, Camera3dBundle, Commands, Transform},
+};
 
 pub fn init_camera_3d(mut command_buffer: Commands) {
     command_buffer.spawn(Camera3dBundle {

@@ -1,18 +1,21 @@
-use bevy::core::Name;
-use bevy::input::ButtonInput;
-use bevy::math::{UVec2, Vec3};
-use bevy::prelude::{
-    Assets, Commands, Fixed, KeyCode, Query, Res, ResMut, TextureAtlasLayout, Time, Transform, With,
+use bevy::{
+    core::Name,
+    input::ButtonInput,
+    math::{UVec2, Vec3},
+    prelude::{
+        Assets, Commands, Fixed, KeyCode, Query, Res, ResMut, TextureAtlasLayout, Time, Transform,
+        With,
+    },
+    sprite::{SpriteBundle, TextureAtlas},
 };
-use bevy::sprite::{SpriteBundle, TextureAtlas};
 
 use crate::{
-    DEFAULT_SPEED, PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_SPAWN_X,
+    anime::anime_res::PlayerEntityAnimationAssets,
+    bundles::PlayerBundle,
+    DEFAULT_SPEED,
+    kinetic_components::{KineticEntityComponents, PlayerEntityTag}, PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_SPAWN_X,
     PLAYER_ENTITY_SPAWN_Y, PLAYER_ENTITY_Z_LEVEL, TILE_SIZE,
 };
-use crate::anime::anime_res::PlayerEntityAnimationAssets;
-use crate::bundles::PlayerBundle;
-use crate::kinetic_components::{KineticEntityComponents, PlayerEntityTag};
 
 pub fn spawn_player_entity(
     mut commands: Commands,
@@ -39,8 +42,8 @@ pub fn spawn_player_entity(
     //  review CRT scanline order and latin writing conventions (japan didn't invent the computer)
 
     let transform = Transform::from_xyz(
-        (PLAYER_ENTITY_SPAWN_X * TILE_SIZE) as f32,
-        (PLAYER_ENTITY_SPAWN_Y * TILE_SIZE) as f32,
+        PLAYER_ENTITY_SPAWN_X * TILE_SIZE,
+        PLAYER_ENTITY_SPAWN_Y * TILE_SIZE,
         PLAYER_ENTITY_Z_LEVEL,
     );
 
