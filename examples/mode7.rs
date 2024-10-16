@@ -1,15 +1,20 @@
 use std::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 
+// TODO fix IDE to not presume prelude? (in order to learn where modules truly reside
 use bevy::prelude::*;
-use bevy::sprite::{Material2dPlugin, MaterialMesh2dBundle};
-use bevy::window::WindowResolution;
-use bevy_asset_loader::asset_collection::AssetCollection;
-use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
-use bevy_asset_loader::prelude::ConfigureLoadingState;
+use bevy::{
+    sprite::{Material2dPlugin, MaterialMesh2dBundle},
+    window::WindowResolution,
+};
+use bevy_asset_loader::{
+    asset_collection::AssetCollection,
+    loading_state::{LoadingState, LoadingStateAppExt},
+    prelude::ConfigureLoadingState,
+};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-
-use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
-use yakuzaishi::materials::mode7::Mode7Material;
+use yakuzaishi::{
+    materials::mode7::Mode7Material, NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
+};
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {
@@ -84,9 +89,9 @@ fn process_input(
     time: Res<Time>,
 ) {
     let move_speed = 2.5; // Units per second
-    let y_rotate_speed = std::f32::consts::PI; // Radians per second
-    let x_rotate_speed = std::f32::consts::FRAC_PI_2; // Radians per second
-    let fov_speed = std::f32::consts::PI / 15.0; // Units per second
+    let y_rotate_speed = PI; // Radians per second
+    let x_rotate_speed = FRAC_PI_2; // Radians per second
+    let fov_speed = PI / 15.0; // Units per second
 
     let delta = time.delta_seconds();
 

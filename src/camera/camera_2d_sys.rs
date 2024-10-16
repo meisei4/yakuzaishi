@@ -1,19 +1,22 @@
-use bevy::asset::Handle;
-use bevy::log::info;
-use bevy::math::{UVec2, Vec2, Vec3Swizzles};
-use bevy::prelude::{
-    Assets, Camera2dBundle, Commands, OrthographicProjection, ParamSet, Query, Res, Transform, With,
+use bevy::{
+    asset::Handle,
+    log::info,
+    math::{UVec2, Vec2},
+    prelude::{
+        Assets, Camera2dBundle, Commands, OrthographicProjection, ParamSet, Query, Res, Transform,
+        With,
+    },
+    utils::default,
 };
-use bevy::utils::default;
 use bevy_render::camera::{Camera, Viewport};
 
 use crate::{
-    CAMERA_SCALE_MULTIPLIER, CAMERA_Z_LEVEL, NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
+    camera::camera_components::BottomCameraTag,
+    CAMERA_SCALE_MULTIPLIER,
+    CAMERA_Z_LEVEL,
+    environment::moon::MoonTag,
+    kinetic_components::PlayerEntityTag, map::tiled_res::{TiledMapAssets, TiledMapSource}, NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
 };
-use crate::camera::camera_components::BottomCameraTag;
-use crate::environment::moon::MoonTag;
-use crate::kinetic_components::PlayerEntityTag;
-use crate::map::tiled_res::{TiledMapAssets, TiledMapSource};
 
 pub fn top_camera(mut commands: Commands, mut query: Query<&Transform, With<MoonTag>>) {
     for moon_transform in query.iter_mut() {
@@ -72,7 +75,7 @@ pub fn init_camera(
 ) {
     commands
         .spawn(Camera2dBundle {
-            transform: transform,
+            transform,
             camera: Camera {
                 order: camera_order,
                 viewport: Some(Viewport {

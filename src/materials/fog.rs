@@ -1,9 +1,7 @@
-use bevy::math::Vec3;
-use bevy::reflect::TypePath;
-use bevy_asset::{Asset, Handle};
+use bevy::{math::Vec3, reflect::TypePath};
+use bevy_asset::Asset;
 use bevy_ecs_tilemap::prelude::MaterialTilemap;
 use bevy_render::render_resource::{AsBindGroup, ShaderRef};
-use bevy_render::texture::Image;
 
 #[derive(AsBindGroup, TypePath, Debug, Default, Clone, Asset)]
 pub struct FogMaterial {

@@ -1,21 +1,25 @@
-use bevy::asset::Assets;
-use bevy::core::Name;
-use bevy::hierarchy::BuildChildren;
-use bevy::math::UVec2;
-use bevy::prelude::{
-    Commands, Entity, Query, Res, ResMut, TextureAtlas, TextureAtlasLayout, Time, Timer, TimerMode,
-    With,
+use bevy::{
+    asset::Assets,
+    core::Name,
+    hierarchy::BuildChildren,
+    math::UVec2,
+    prelude::{
+        Commands, Entity, Query, Res, ResMut, TextureAtlas, TextureAtlasLayout, Time, Timer,
+        TimerMode, With,
+    },
+    sprite::SpriteBundle,
 };
-use bevy::sprite::SpriteBundle;
 
 use crate::{
+    anime::{
+        anime_components::{AnimationComponent, AnimationTimer, OverlayAnimationTag},
+        anime_res::OverlayAnimationAssets,
+    },
+    kinetic_components::PlayerEntityTag,
     TILE_SIZE, WAKE_ANIMATION_SPEED, WAKE_ANIMATION_TEXTURE_COLUMN_LENGTH,
     WAKE_ANIMATION_TEXTURE_END_IDX, WAKE_ANIMATION_TEXTURE_ROW_LENGTH,
     WAKE_ANIMATION_TEXTURE_START_IDX,
 };
-use crate::anime::anime_components::{AnimationComponent, AnimationTimer, OverlayAnimationTag};
-use crate::anime::anime_res::OverlayAnimationAssets;
-use crate::kinetic_components::PlayerEntityTag;
 
 pub fn attach_overlay_animation_to_player_entity(
     mut commands: Commands,

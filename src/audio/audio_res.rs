@@ -1,6 +1,4 @@
-use bevy::asset::Handle;
-use bevy::audio::AudioSource;
-use bevy::prelude::Resource;
+use bevy::{asset::Handle, audio::AudioSource, prelude::Resource};
 use bevy_asset_loader::asset_collection::AssetCollection;
 
 #[derive(AssetCollection, Resource)]

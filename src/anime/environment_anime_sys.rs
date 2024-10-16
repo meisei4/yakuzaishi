@@ -1,7 +1,9 @@
 use bevy::prelude::{Query, Res, TextureAtlas, Time, With};
 
-use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::kinetic_components::EnvironmentEntityTag;
+use crate::{
+    anime::anime_components::{AnimationComponent, AnimationTimer},
+    kinetic_components::EnvironmentEntityTag,
+};
 
 pub fn animate_env_entity_animations(
     time: Res<Time>,

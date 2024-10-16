@@ -1,15 +1,16 @@
-use bevy::log::info;
-use bevy::math::Vec3;
-use bevy::prelude::{Event, EventReader, EventWriter, Query, Res, Time, With};
-use bevy::utils::info;
-use bevy_ecs_tilemap::prelude::TileTextureIndex;
-use bevy_ecs_tilemap::tiles::TilePos;
+use bevy::{
+    math::Vec3,
+    prelude::{Event, EventReader, EventWriter, Query, Res, Time, With},
+};
+use bevy_ecs_tilemap::{prelude::TileTextureIndex, tiles::TilePos};
 use tracy_client::span;
 
-use crate::anime::anime_components::{AnimationComponent, AnimationTimer};
-use crate::kinetic_components::{KineticEntityComponents, PlayerEntityTag};
-use crate::map::tiled_components::TileEntityTag;
-use crate::TILE_SIZE;
+use crate::{
+    anime::anime_components::{AnimationComponent, AnimationTimer},
+    kinetic_components::{KineticEntityComponents, PlayerEntityTag},
+    map::tiled_components::TileEntityTag,
+    TILE_SIZE,
+};
 
 #[derive(Event)]
 pub struct TileAnimationEvent {
@@ -66,8 +67,8 @@ pub fn handle_overlap_event(
 fn calc_tile_pos(translation: &Vec3) -> TilePos {
     let tile_x = ((translation.x + (TILE_SIZE / 2.0)) / TILE_SIZE).floor();
     let tile_y = ((translation.y + (TILE_SIZE / 2.0)) / TILE_SIZE).floor();
-    return TilePos {
+    TilePos {
         x: tile_x as u32,
         y: tile_y as u32,
-    };
+    }
 }

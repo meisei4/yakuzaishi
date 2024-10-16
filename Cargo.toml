@@ -26,16 +26,10 @@ bevy_asset = "0.14.2"
 
 # bevy_ecs_tilemap = { git = "https://github.com/StarArawn/bevy_ecs_tilemap", rev = "a7b308aa11ad82ac6b3b74c0237e607f1d4ddf5b" }
 bevy_ecs_tilemap = "0.14.0"
-log = "0.4"
-log4rs = "1.3"
-image = "0.25.0"
 tiled = "0.12.0"
 rand = "0.8.4"
-serde = { version = "1.0.197", features = ["derive"] }
 thiserror = "1.0.58"
-anyhow = "1.0.81"
 futures-lite = "2.3.0"
-lazy_static = "1.4.0"
-bevy-inspector-egui = "0.26.0"
+bevy-inspector-egui = "0.27.0"
 tracy-client = "0.17.0"
 bevy_asset_loader = "0.21.0"

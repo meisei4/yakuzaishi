@@ -1,39 +1,47 @@
-use bevy::app::{FixedUpdate, Update};
-use bevy::asset::AssetApp;
-use bevy::log::info;
-use bevy::prelude::{
-    App, AppExtStates, DefaultPlugins, ImagePlugin, in_state, IntoSystemConfigs, NextState,
-    OnEnter, PluginGroup, ResMut, States, Window, WindowPlugin,
+use bevy::{
+    app::{FixedUpdate, Update},
+    asset::AssetApp,
+    log::info,
+    prelude::{
+        App, AppExtStates, DefaultPlugins, ImagePlugin, in_state, IntoSystemConfigs, NextState,
+        OnEnter, PluginGroup, ResMut, States, Window, WindowPlugin,
+    },
+    window::WindowResolution,
 };
-use bevy::sprite::Material2dPlugin;
-use bevy::window::WindowResolution;
-use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
-use bevy_asset_loader::prelude::ConfigureLoadingState;
-use bevy_ecs_tilemap::prelude::MaterialTilemapPlugin;
-use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_asset_loader::{
+    loading_state::{LoadingState, LoadingStateAppExt},
+    prelude::ConfigureLoadingState,
+};
+use bevy_ecs_tilemap::{prelude::MaterialTilemapPlugin, TilemapPlugin};
 use tracy_client::Client;
 
-use yakuzaishi::{NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH};
-use yakuzaishi::anime::anime_res::{
-    EnvironmentEntityAnimationAssets, OverlayAnimationAssets, PlayerEntityAnimationAssets,
+use yakuzaishi::{
+    anime::{
+        anime_res::{
+            EnvironmentEntityAnimationAssets, OverlayAnimationAssets, PlayerEntityAnimationAssets,
+        },
+        environment_anime_sys::animate_env_entity_animations,
+        map_anime_sys::{
+            animate_overlapped_tiles_event_based, handle_overlap_event, TileAnimationEvent,
+        },
+        overlay_anime_sys::{
+            animate_overlay_animations, attach_overlay_animation_to_player_entity,
+        },
+    },
+    audio::audio_res::AudioAssets,
+    camera::camera_2d_sys::{bottom_camera, top_camera, track_camera},
+    environment::{
+        environment_sys::spawn_environment_entity,
+        moon::{MoonAsset, place_moon},
+    },
+    map::{
+        tiled_res::{TiledLoader, TiledMapAssets, TiledMapSource},
+        tiled_sys::{spawn_tiled_map, update_time_on_shader},
+    },
+    materials::fog::FogMaterial,
+    NINTENDO_DS_SCREEN_HEIGHT,
+    NINTENDO_DS_SCREEN_WIDTH, player::player_sys::{control_player_entity, spawn_player_entity},
 };
-use yakuzaishi::anime::environment_anime_sys::animate_env_entity_animations;
-use yakuzaishi::anime::map_anime_sys::{
-    animate_overlapped_tiles_event_based, handle_overlap_event, TileAnimationEvent,
-};
-use yakuzaishi::anime::overlay_anime_sys::{
-    animate_overlay_animations, attach_overlay_animation_to_player_entity,
-};
-use yakuzaishi::audio::audio_res::AudioAssets;
-use yakuzaishi::audio::audio_sys::start_background_audio;
-use yakuzaishi::camera::camera_2d_sys::{bottom_camera, init_camera, top_camera, track_camera};
-use yakuzaishi::environment::environment_sys::spawn_environment_entity;
-use yakuzaishi::environment::moon::{MoonAsset, place_moon};
-use yakuzaishi::map::tiled_res::{TiledLoader, TiledMapAssets, TiledMapSource};
-use yakuzaishi::map::tiled_sys::{spawn_tiled_map, update_time_on_shader};
-use yakuzaishi::materials::fog::FogMaterial;
-use yakuzaishi::player::player_sys::{control_player_entity, spawn_player_entity};
 
 fn main() {
     let _tracy_client = Client::start();
@@ -55,7 +63,7 @@ fn main() {
                 }),
         )
         .add_plugins((
-            WorldInspectorPlugin::new(),
+            // WorldInspectorPlugin::new(),
             TilemapPlugin,
             MaterialTilemapPlugin::<FogMaterial>::default(),
         ))
@@ -83,18 +91,20 @@ fn main() {
                 spawn_player_entity,
                 spawn_environment_entity,
                 place_moon,
-                //top_camera,
-                bottom_camera,
-                // TODO: even though transition_to_run_state might execute before
-                //  spawn_tiled_map_entity completes, the state change to GameState::Run
-                //  (and the application of Commands) won't happen until after all
-                //  OnEnter(GameState::AssetProcessing) systems have run.
+                // TODO: whatever just gross, figure out how to make this transition more intuitive
                 transition_to_run_state,
             ),
         )
         .add_systems(
             OnEnter(GameState::Run),
-            (top_camera, attach_overlay_animation_to_player_entity),
+            (
+                top_camera,
+                // TODO: bottom_camera doesn't depend on anything before it,
+                //  so unlike top_camera it can be placed in AssetProcessing fine (top_camera cant)
+                //  ^^THIS IS BAD DESIGN BY THE FUCKING WAY
+                bottom_camera,
+                attach_overlay_animation_to_player_entity,
+            ),
         )
         .add_systems(
             FixedUpdate,

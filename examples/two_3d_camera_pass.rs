@@ -1,29 +1,34 @@
 //! Renders two 3d passes to the same window from different perspectives.
 
-use bevy::app::App;
-use bevy::color::Color;
-use bevy::core::Name;
-use bevy::DefaultPlugins;
-use bevy::math::{UVec2, Vec2, Vec3};
-use bevy::pbr::{AmbientLight, PbrBundle, StandardMaterial};
-use bevy::prelude::{
-    AppExtStates, Camera2dBundle, Camera3dBundle, Commands, Cuboid, OnEnter, Plane3d, Res, ResMut,
-    SpriteBundle, States, TextureAtlas, TextureAtlasLayout, Transform,
+use bevy::{
+    app::App,
+    color::Color,
+    core::Name,
+    math::{UVec2, Vec2, Vec3},
+    pbr::{AmbientLight, PbrBundle, StandardMaterial},
+    prelude::{
+        AppExtStates, Camera2dBundle, Camera3dBundle, Commands, Cuboid, OnEnter, Plane3d, Res,
+        ResMut, SpriteBundle, States, TextureAtlas, TextureAtlasLayout, Transform,
+    },
+    utils::default,
+    DefaultPlugins,
 };
-use bevy::utils::default;
 use bevy_asset::Assets;
-use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
-use bevy_asset_loader::prelude::ConfigureLoadingState;
-use bevy_render::camera::{Camera, ClearColorConfig};
-use bevy_render::mesh::Mesh;
-
+use bevy_asset_loader::{
+    loading_state::{LoadingState, LoadingStateAppExt},
+    prelude::ConfigureLoadingState,
+};
+use bevy_render::{
+    camera::{Camera, ClearColorConfig},
+    mesh::Mesh,
+};
 use yakuzaishi::{
+    anime::anime_res::PlayerEntityAnimationAssets,
+    bundles::PlayerBundle,
+    kinetic_components::{KineticEntityComponents, PlayerEntityTag},
     PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_SPAWN_X, PLAYER_ENTITY_SPAWN_Y,
     PLAYER_ENTITY_Z_LEVEL, TILE_SIZE,
 };
-use yakuzaishi::anime::anime_res::PlayerEntityAnimationAssets;
-use yakuzaishi::bundles::PlayerBundle;
-use yakuzaishi::kinetic_components::{KineticEntityComponents, PlayerEntityTag};
 
 fn main() {
     App::new()

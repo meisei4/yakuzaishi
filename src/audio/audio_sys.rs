@@ -1,5 +1,7 @@
-use bevy::audio::{AudioBundle, PlaybackSettings};
-use bevy::prelude::{Commands, Res};
+use bevy::{
+    audio::{AudioBundle, PlaybackSettings},
+    prelude::{Commands, Res},
+};
 
 use crate::audio::audio_res::AudioAssets;
 

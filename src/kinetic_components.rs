@@ -1,5 +1,4 @@
-use bevy::math::Vec3;
-use bevy::prelude::Component;
+use bevy::{math::Vec3, prelude::Component};
 
 #[derive(Component)]
 pub struct KineticEntityComponents {
