@@ -119,7 +119,6 @@ fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
         1.0 // HOMOGENOUS
     );
 
-    // Apply pitch rotation over the camera's relative x-axis (looking up/down)
     //Rx(θ) = | 1      0         0  |
     //        | 0   cos(θ)  −sin(θ) |
     //        | 0   sin(θ)   cos(θ) |
@@ -137,7 +136,7 @@ fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
 
     let projected_fragment: vec4<f32> = vec4<f32>(
         projected_x,
-        0.0, // TODO: Y component is zero after perspective division???
+        0.0,
         projected_z,
         1.0 // HOMOGENOUS
     );
@@ -152,8 +151,6 @@ fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
         vec4<f32>(-sin(yaw), 0.0, cos(yaw), 0.0),
         vec4<f32>(0.0,       0.0, 0.0,      1.0)
     );
-
-
 
     let rotated_fragment_yaw: vec4<f32> = Ry * projected_fragment;
 
