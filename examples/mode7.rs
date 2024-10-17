@@ -72,8 +72,8 @@ fn setup(
             scaling: Vec2::new(100.0, 100.0),
             // TODO: only this x-tilt allows for the y-axis rotation to feel like its occuring around the player/camera
             fov: std::f32::consts::PI / 7.0,
-            frustrum_x_rotation: -6.44,
-            y_axis_rotation: -9.43,
+            frustrum_x_rotation: 6.44,
+            y_axis_rotation: 9.43,
             translation: Vec2::new(-9.0, 7.0), // mario_circuit starting zone
             altitude: 400.0, //TODO: this is ridiculous in how it results in bending the whole plane when lower
             _padding: Vec3::ZERO, // Can be set to zero
