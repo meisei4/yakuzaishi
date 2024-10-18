@@ -71,8 +71,8 @@ fn setup(
             //TODO: see line 62, these affect eachother too much
             scaling: Vec2::new(100.0, 100.0),
             // TODO: only this x-tilt allows for the y-axis rotation to feel like its occuring around the player/camera
-            fov: PI / 4.0,
-            frustrum_x_rotation: PI / 4.0,
+            fov: FRAC_PI_4,
+            frustrum_x_rotation: FRAC_PI_4,
             y_axis_rotation: PI,
             translation: Vec2::new(-9.0, 7.0), // mario_circuit starting zone
             altitude: 400.0, //TODO: this is ridiculous in how it results in bending the whole plane when lower

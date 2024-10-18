@@ -24,7 +24,6 @@ bevy = { version = "0.14.2" }
 bevy_render = "0.14.2"
 bevy_asset = "0.14.2"
 
-# bevy_ecs_tilemap = { git = "https://github.com/StarArawn/bevy_ecs_tilemap", rev = "a7b308aa11ad82ac6b3b74c0237e607f1d4ddf5b" }
 bevy_ecs_tilemap = "0.14.0"
 tiled = "0.12.0"
 rand = "0.8.4"

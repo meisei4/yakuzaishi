@@ -1,15 +1,14 @@
 use bevy::{
     app::{App, FixedUpdate, PluginGroup, Update},
-    DefaultPlugins,
-    log::info,
     math::Vec2,
     prelude::{
-        AppExtStates, Commands, in_state, IntoSystemConfigs, NextState, OnEnter, OnExit, ParamSet,
-        Query, Rectangle, Res, ResMut, States, Transform, Window, WindowPlugin, With,
+        in_state, AppExtStates, Commands, IntoSystemConfigs, OnEnter, OnExit, ParamSet, Query,
+        Rectangle, Res, ResMut, States, Transform, Window, WindowPlugin, With,
     },
     sprite::{Material2dPlugin, MaterialMesh2dBundle},
     utils::default,
     window::WindowResolution,
+    DefaultPlugins,
 };
 use bevy_asset::Assets;
 use bevy_asset_loader::{
@@ -17,18 +16,17 @@ use bevy_asset_loader::{
     prelude::ConfigureLoadingState,
 };
 use bevy_render::{mesh::Mesh, prelude::ImagePlugin};
-
 use yakuzaishi::{
     anime::anime_res::PlayerEntityAnimationAssets,
     camera::{
         camera_2d_sys::{bottom_camera, top_camera},
         camera_components::BottomCameraTag,
     },
-    environment::moon::{MoonAsset, MoonLightSource, MoonTag, place_moon},
+    environment::moon::{place_moon, MoonAsset, MoonLightSource, MoonTag},
     kinetic_components::PlayerEntityTag,
     materials::reflections::ReflectionMaterial,
-    NINTENDO_DS_SCREEN_HEIGHT,
-    NINTENDO_DS_SCREEN_WIDTH, player::player_sys::{control_player_entity, spawn_player_entity},
+    player::player_sys::{control_player_entity, spawn_player_entity},
+    NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
 };
 
 fn main() {
@@ -71,10 +69,6 @@ fn main() {
         )
         .add_systems(Update, track_camera_ds.run_if(in_state(GameState::Run)))
         .run();
-}
-pub fn transition_to_run_state(mut next_state: ResMut<NextState<GameState>>) {
-    info!("Transitioning to GameState::Run");
-    next_state.set(GameState::Run);
 }
 
 fn setup_reflection_material(

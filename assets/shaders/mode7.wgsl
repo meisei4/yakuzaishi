@@ -27,24 +27,11 @@ struct Mode7Material {
 @group(2) @binding(2) var floor_sampler: sampler;
 
 struct VertexOutput {
-    // this is `clip position` when the struct is used as a vertex stage output
-    // and `frag coord` when used as a fragment stage input
     @builtin(position) position: vec4<f32>,
-    @location(0) world_position: vec4<f32>,
-    @location(1) world_normal: vec3<f32>,
-    @location(2) uv: vec2<f32>,
-    #ifdef VERTEX_TANGENTS
-    @location(3) world_tangent: vec4<f32>,
-    #endif
-    #ifdef VERTEX_COLORS
-    @location(4) color: vec4<f32>,
-    #endif
 }
 
 struct Vertex {
-    @builtin(instance_index) instance_index: u32,
     @location(0) position: vec3<f32>,
-    @location(1) uv: vec2<f32>,
 };
 
 // TODO: DUMB AS SHIT VERTEX SHADER GET OUT
@@ -52,8 +39,6 @@ struct Vertex {
 fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
     out.position = vec4<f32>(vertex.position.xy, 0.0, 1.0);
-    out.uv = vertex.uv;
-    out.world_position = vec4<f32>(vertex.position, 1.0);
     return out;
 }
 
@@ -164,7 +149,7 @@ fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
     let color: vec4<f32> = textureSample(floor_texture, floor_sampler, texture_coordinates);
 
     // add cloud feature for faraway distance
-    let attenuation = min(max(3.5 * (abs(centered_y) / (HALF_SCREEN_HEIGHT + mode7_material.altitude)), 0.0), 1.0);
+    let attenuation = min(max(2.5 * (abs(centered_y) / (HALF_SCREEN_HEIGHT + mode7_material.altitude)), 0.0), 1.0);
     let sky_gradient = 1.0 - attenuation;
 
     return vec4<f32>(

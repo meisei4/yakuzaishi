@@ -12,10 +12,10 @@ use bevy_render::camera::{Camera, Viewport};
 
 use crate::{
     camera::camera_components::BottomCameraTag,
-    CAMERA_SCALE_MULTIPLIER,
-    CAMERA_Z_LEVEL,
     environment::moon::MoonTag,
-    kinetic_components::PlayerEntityTag, map::tiled_res::{TiledMapAssets, TiledMapSource}, NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
+    kinetic_components::PlayerEntityTag,
+    map::tiled_res::{TiledMapAssets, TiledMapSource},
+    CAMERA_SCALE_MULTIPLIER, CAMERA_Z_LEVEL, NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
 };
 
 pub fn top_camera(mut commands: Commands, mut query: Query<&Transform, With<MoonTag>>) {

@@ -8,7 +8,7 @@ use std::{
 };
 
 use bevy::{
-    asset::{Asset, AssetLoader, AssetPath, io::Reader, LoadContext},
+    asset::{io::Reader, Asset, AssetLoader, AssetPath, LoadContext},
     prelude::{Resource, TypePath},
     utils::ConditionalSendFuture,
 };
@@ -45,7 +45,7 @@ impl AssetLoader for TiledLoader {
         _settings: &'a Self::Settings,
         load_context: &'a mut LoadContext,
     ) -> impl ConditionalSendFuture
-           + Future<Output = Result<<Self as AssetLoader>::Asset, <Self as AssetLoader>::Error>>
+    + Future<Output=Result<<Self as AssetLoader>::Asset, <Self as AssetLoader>::Error>>
     {
         Box::pin(async move {
             let mut bytes = Vec::new();

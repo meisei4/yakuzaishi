@@ -12,8 +12,8 @@ use bevy::{
 use crate::{
     anime::anime_res::PlayerEntityAnimationAssets,
     bundles::PlayerBundle,
-    DEFAULT_SPEED,
-    kinetic_components::{KineticEntityComponents, PlayerEntityTag}, PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_SPAWN_X,
+    kinetic_components::{KineticEntityComponents, PlayerEntityTag},
+    DEFAULT_SPEED, PLAYER_ENTITY_ANIMATION_TEXTURE_START_IDX, PLAYER_ENTITY_SPAWN_X,
     PLAYER_ENTITY_SPAWN_Y, PLAYER_ENTITY_Z_LEVEL, TILE_SIZE,
 };
 
