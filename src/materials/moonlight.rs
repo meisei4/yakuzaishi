@@ -8,7 +8,7 @@ use bevy_asset::{Asset, Handle};
 use bevy_render::texture::Image;
 
 #[derive(AsBindGroup, TypePath, Debug, Clone, Asset)]
-pub struct ReflectionMaterial {
+pub struct MoonlightMaterial {
     #[uniform(0)]
     pub light_position: Vec2,
     #[uniform(0)]
@@ -20,7 +20,7 @@ pub struct ReflectionMaterial {
     pub texture: Handle<Image>,
 }
 
-impl Material2d for ReflectionMaterial {
+impl Material2d for MoonlightMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/reflections.wgsl".into()
     }

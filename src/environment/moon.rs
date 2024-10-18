@@ -29,7 +29,7 @@ pub struct MoonLightSource {
 pub fn place_moon(mut commands: Commands, moon_asset: Res<MoonAsset>) {
     let moon_image = moon_asset.background.clone();
     // TODO: make a MoonLightBundle
-    let moon_transform = Transform::from_xyz(0.0, 640.0 + NINTENDO_DS_SCREEN_HEIGHT, 1.0);
+    let moon_transform = Transform::from_xyz(0.0, NINTENDO_DS_SCREEN_HEIGHT, 1.0);
     commands
         .spawn((
             SpriteBundle {

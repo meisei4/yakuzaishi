@@ -24,7 +24,7 @@ use yakuzaishi::{
     },
     environment::moon::{place_moon, MoonAsset, MoonLightSource, MoonTag},
     kinetic_components::PlayerEntityTag,
-    materials::reflections::ReflectionMaterial,
+    materials::moonlight::MoonlightMaterial,
     player::player_sys::{control_player_entity, spawn_player_entity},
     NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
 };
@@ -49,7 +49,7 @@ fn main() {
         )
         .add_plugins((
             // WorldInspectorPlugin::new(),
-            Material2dPlugin::<ReflectionMaterial>::default(),
+            Material2dPlugin::<MoonlightMaterial>::default(),
         ))
         .init_state::<GameState>()
         .add_loading_state(
@@ -74,7 +74,7 @@ fn main() {
 fn setup_reflection_material(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ReflectionMaterial>>,
+    mut materials: ResMut<Assets<MoonlightMaterial>>,
     moon_asset: Res<MoonAsset>,
     query: Query<&MoonLightSource, With<MoonTag>>,
 ) {
@@ -82,7 +82,7 @@ fn setup_reflection_material(
         let moon_image = moon_asset.background.clone();
         commands.spawn(MaterialMesh2dBundle {
             mesh: meshes.add(Rectangle::new(100.0, 100.0)).into(),
-            material: materials.add(ReflectionMaterial {
+            material: materials.add(MoonlightMaterial {
                 light_position: moonlight.position,
                 light_intensity: moonlight.intensity,
                 light_color: moonlight.color,
