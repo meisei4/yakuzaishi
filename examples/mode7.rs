@@ -71,7 +71,7 @@ fn setup(
             //TODO: see line 62, these affect eachother too much
             scaling: Vec2::new(100.0, 100.0),
             // TODO: only this x-tilt allows for the y-axis rotation to feel like its occuring around the player/camera
-            fov: PI / 7.0,
+            fov: PI / 4.0,
             frustrum_x_rotation: PI / 4.0,
             y_axis_rotation: PI,
             translation: Vec2::new(-9.0, 7.0), // mario_circuit starting zone

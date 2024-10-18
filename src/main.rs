@@ -3,7 +3,7 @@ use bevy::{
     asset::AssetApp,
     log::info,
     prelude::{
-        App, AppExtStates, DefaultPlugins, ImagePlugin, in_state, IntoSystemConfigs, NextState,
+        in_state, App, AppExtStates, DefaultPlugins, ImagePlugin, IntoSystemConfigs, NextState,
         OnEnter, PluginGroup, ResMut, States, Window, WindowPlugin,
     },
     window::WindowResolution,
@@ -14,7 +14,6 @@ use bevy_asset_loader::{
 };
 use bevy_ecs_tilemap::{prelude::MaterialTilemapPlugin, TilemapPlugin};
 use tracy_client::Client;
-
 use yakuzaishi::{
     anime::{
         anime_res::{
@@ -32,15 +31,15 @@ use yakuzaishi::{
     camera::camera_2d_sys::{bottom_camera, top_camera, track_camera},
     environment::{
         environment_sys::spawn_environment_entity,
-        moon::{MoonAsset, place_moon},
+        moon::{place_moon, MoonAsset},
     },
     map::{
         tiled_res::{TiledLoader, TiledMapAssets, TiledMapSource},
         tiled_sys::{spawn_tiled_map, update_time_on_shader},
     },
     materials::fog::FogMaterial,
-    NINTENDO_DS_SCREEN_HEIGHT,
-    NINTENDO_DS_SCREEN_WIDTH, player::player_sys::{control_player_entity, spawn_player_entity},
+    player::player_sys::{control_player_entity, spawn_player_entity},
+    NINTENDO_DS_SCREEN_HEIGHT, NINTENDO_DS_SCREEN_WIDTH,
 };
 
 fn main() {

@@ -4,8 +4,8 @@
 
 
 // TODO: add a proper uniform passed in from bevy
-const SCREEN_WIDTH: f32 = 500.0;
-const SCREEN_HEIGHT: f32 = 500.0;
+const SCREEN_WIDTH: f32 = 1024.0;
+const SCREEN_HEIGHT: f32 = 1024.0;
 const HALF_SCREEN_WIDTH: f32 = SCREEN_WIDTH / 2.0;
 const HALF_SCREEN_HEIGHT: f32 = SCREEN_HEIGHT / 2.0;
 
@@ -47,65 +47,29 @@ struct Vertex {
     @location(1) uv: vec2<f32>,
 };
 
-//@vertex
-//fn vertex(vertex: Vertex) -> VertexOutput {
-//    var out: VertexOutput;
-//
-//    // Compute the projection matrix
-//    let f: f32 = 1.0 / tan(mode7_material.fov / 2.0);
-//    let aspect_ratio: f32 = SCREEN_WIDTH / SCREEN_HEIGHT;
-//    let znear: f32 = 0.1;
-//    let zfar: f32 = 1000.0;
-//
-//    // Standard perspective projection matrix
-//    let P: mat4x4<f32> = mat4x4<f32>(
-//        vec4<f32>(f / aspect_ratio, 0.0,            0.0,                        0.0),
-//        vec4<f32>(0.0,              f,              0.0,                        0.0),
-//        vec4<f32>(0.0,              0.0, (zfar + znear) / (znear - zfar),      -1.0),
-//        vec4<f32>(0.0,              0.0, (2.0 * zfar * znear) / (znear - zfar), 0.0)
-//    );
-//
-//    // Vertex position in world space (assuming z = 0)
-//    let position_world: vec4<f32> = vec4<f32>(
-//        vertex.position.x,
-//        vertex.position.y,
-//        0.0,
-//        1.0
-//    );
-//
-//    // Apply the projection matrix
-//    let clip_space_position: vec4<f32> = P * position_world;
-//
-//    // Output the clip-space position
-//    out.position = clip_space_position;
-//
-//    // Pass UV coordinates and fragment coordinates to the fragment shader
-//    out.uv = vertex.uv;
-//    return out;
-//}
 // TODO: DUMB AS SHIT VERTEX SHADER GET OUT
 @vertex
 fn vertex(vertex: Vertex) -> VertexOutput {
     var out: VertexOutput;
-
     out.position = vec4<f32>(vertex.position.xy, 0.0, 1.0);
     out.uv = vertex.uv;
     out.world_position = vec4<f32>(vertex.position, 1.0);
     return out;
 }
 
-
 @fragment
 fn fragment(out: VertexOutput) -> @location(0) vec4<f32> {
     // i, and j represent the fragment position
-    let i: f32 = out.position.x * mode7_material.fov; // TODO: you are crazy just un comment this first
+    let i: f32 = out.position.x;
     let j: f32 = out.position.y;
     if (j < HALF_SCREEN_HEIGHT) {
         return vec4<f32>(1.0, 1.0, 1.0, 1.0); // Return white color
     }
 
     //offset X and Y fragment targets so that (0,0) is at the center of the screen?
-    let centered_x: f32 = HALF_SCREEN_WIDTH - i;
+
+    //TODO: you still barely know what i is... its any arbitrary point on the screen. in the x axis.
+    let centered_x: f32 = (i - HALF_SCREEN_WIDTH) / (mode7_material.fov / 2.0);
     let centered_y: f32 = j - HALF_SCREEN_HEIGHT;
 
     let cam_altitude: f32 = mode7_material.altitude;
